@@ -23,5 +23,15 @@ public class Product {
     private String color;
     private String size;
     private String tags;
+    private String storeId;
+    private String storeName;
+    private Long totalSales;
+    private Integer customerCount;
+    private BigDecimal inventoryValue;
+    private Integer reviewCount;
+    private Double averageRating;
+    private Integer recentOrders;
+    private List<String> topSellingProducts;
+    private List<String> recentReviews;
     private boolean isActive;
 } 

@@ -26,6 +26,8 @@ public class AuthController {
     private final TokenUtil tokenUtil;
     private final AuthService authService;
 
+
+    // Register a new store owner
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<StoreOwner>> register(@Valid @RequestBody StoreOwner storeOwner,
             HttpServletResponse response) {
@@ -40,6 +42,7 @@ public class AuthController {
         }
     }
 
+    // Login a store owner
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody AuthRequest request,
             BindingResult bindingResult,
@@ -76,16 +79,22 @@ public class AuthController {
         }
     }
 
+    // Add an auth cookie to the response
     private void addAuthCookie(HttpServletResponse response, String token) {
-        Cookie cookie = new Cookie("token", token);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setMaxAge(COOKIE_MAX_AGE);
-        cookie.setPath("/");
-        response.addCookie(cookie);
-        response.setHeader("Set-Cookie", String.format("%s; %s", cookie.toString(), "SameSite=Strict"));
+        try {
+            Cookie cookie = new Cookie("token", token);
+            cookie.setHttpOnly(true);
+            cookie.setSecure(true);
+            cookie.setMaxAge(COOKIE_MAX_AGE);
+            cookie.setPath("/");
+            response.addCookie(cookie);
+            response.setHeader("Set-Cookie", String.format("%s; %s", cookie.toString(), "SameSite=Strict"));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to add auth cookie", e);
+        }
     }
 
+    // Logout a store owner
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response) {
         try {
