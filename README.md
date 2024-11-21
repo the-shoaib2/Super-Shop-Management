@@ -1,9 +1,15 @@
-# Super-Shop-Management
+# Super-Shop-Management API Documentation
 
-## API Documentation
+## Table of Contents
+- [Authentication](#authentication)
+- [Products](#products)
+- [Orders](#orders)
 
-### Authentication
-- **POST /api/auth/login**
+---
+
+## Authentication
+### Login
+- **Endpoint:** `POST /api/auth/login`
   - **Request:** 
     ```json
     { "username": "user", "password": "pass" }
@@ -12,8 +18,10 @@
     ```json
     { "token": "jwt_token" }
     ```
+  - **Description:** Authenticates a user and returns a JWT token for subsequent requests.
 
-- **POST /api/auth/register**
+### Register
+- **Endpoint:** `POST /api/auth/register`
   - **Request:** 
     ```json
     { "username": "user", "password": "pass", "email": "user@example.com" }
@@ -22,15 +30,21 @@
     ```json
     { "message": "User registered successfully" }
     ```
+  - **Description:** Registers a new user in the system.
 
-### Products
-- **GET /api/products**
+---
+
+## Products
+### Get All Products
+- **Endpoint:** `GET /api/products`
   - **Response:** 
     ```json
     [{ "id": 1, "name": "Product A", "price": 100 }]
     ```
+  - **Description:** Retrieves a list of all products.
 
-- **POST /api/products**
+### Create Product
+- **Endpoint:** `POST /api/products`
   - **Request:** 
     ```json
     { "name": "Product A", "price": 100 }
@@ -39,9 +53,13 @@
     ```json
     { "message": "Product created successfully" }
     ```
+  - **Description:** Creates a new product in the inventory.
 
-### Orders
-- **POST /api/orders**
+---
+
+## Orders
+### Place Order
+- **Endpoint:** `POST /api/orders`
   - **Request:** 
     ```json
     { "userId": 1, "productIds": [1, 2] }
@@ -50,72 +68,7 @@
     ```json
     { "message": "Order placed successfully" }
     ```
-
-### Setup Instructions
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/yourusername/super-shop-management.git
-   cd super-shop-management/backend
-   ```
-
-2. **Install dependencies:**
-   - For Maven:
-     ```bash
-     mvn install
-     ```
-   - For Gradle:
-     ```bash
-     gradle build
-     ```
-
-3. **Run the application:**
-   ```bash
-   mvn spring-boot:run
-   ```
-   or
-   ```bash
-   gradle bootRun
-   ```
-
-4. **Access the API:**
-   - The API will be available at `http://localhost:8080/api`.
-
----
-
-## Frontend Documentation
-
-### Setup Instructions
-1. **Navigate to the frontend directory:**
-   ```bash
-   cd super-shop-management/frontend
-   ```
-
-2. **Install dependencies:**
-   - For npm:
-     ```bash
-     npm install
-     ```
-   - For yarn:
-     ```bash
-     yarn install
-     ```
-
-3. **Run the application:**
-   ```bash
-   npm start
-   ```
-   or
-   ```bash
-   yarn start
-   ```
-
-4. **Access the frontend:**
-   - The application will be available at `http://localhost:3000`.
-
----
-
-## Contributing
-Feel free to submit issues or pull requests to improve the project. Contributions are welcome!
+  - **Description:** Places a new order for the specified user and products.
 
 ---
 
