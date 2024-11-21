@@ -1,12 +1,10 @@
 package com.server.config;
-
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
-
 import java.util.concurrent.TimeUnit;
 
 @Configuration
@@ -21,12 +19,21 @@ public class DatabaseConfig extends AbstractMongoClientConfiguration {
 
     @Override
     protected String getDatabaseName() {
+        try{
+            if (databaseName == null) {
+                throw new IllegalStateException("Database name must not be null");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
         return databaseName;
     }
-
+    
     @Override
     protected MongoClientSettings mongoClientSettings() {
-        ConnectionString connectionString = new ConnectionString(mongodbUri);
+        try {
+            ConnectionString connectionString = new ConnectionString(mongodbUri);
 
         return MongoClientSettings.builder()
                 .applyConnectionString(connectionString)
@@ -45,5 +52,9 @@ public class DatabaseConfig extends AbstractMongoClientConfiguration {
                            .minHeartbeatFrequency(500, TimeUnit.MILLISECONDS)
                 )
                 .build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 } 

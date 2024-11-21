@@ -3,7 +3,6 @@ package com.server.service;
 import org.springframework.stereotype.Service;
 
 import com.server.dto.StoreDTO;
-import com.server.entity.Product;
 import com.server.entity.Store;
 import com.server.exception.ResourceNotFoundException;
 import com.server.repository.OrderRepository;
@@ -14,8 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.List;
-import java.math.BigDecimal;
+
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
