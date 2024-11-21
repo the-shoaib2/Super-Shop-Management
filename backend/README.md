@@ -102,9 +102,16 @@
 
 ## Getting Started
 To get started with the backend, ensure you have the following prerequisites installed:
-- Java 11 or higher
+- Java 17
 - Maven
 - MongoDB
+- Docker (for local development)
+- Kafka (for high availability)
+- ZooKeeper (for high availability)
+- Redis (for caching)
+
+
+
 
 ### Setup Instructions
 1. Clone the repository:
