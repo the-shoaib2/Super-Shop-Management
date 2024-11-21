@@ -4,6 +4,12 @@
 
 ## Table of Contents
 - [Features](#features)
+Documentation 
+backend
+ admin
+frontend
+ admin
+ store
 - [Backend Documentation](backend/README.md)
 - [Frontend Documentation](frontend/README.md)
 - [Contributing](#contributing)

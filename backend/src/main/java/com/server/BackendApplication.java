@@ -7,13 +7,13 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 
 @SpringBootApplication
 @ComponentScan(basePackages = {
-    "com.admin.controller",
-    "com.admin.service",
-    "com.admin.config",
-    "com.admin.admin",
-    "com.admin.exception"
+    "com.server.controller",
+    "com.server.service",
+    "com.server.config",
+    "com.server.admin",
+    "com.server.exception"
 })
-@EnableMongoRepositories(basePackages = "com.admin.repository")
+@EnableMongoRepositories(basePackages = "com.server.repository")
 public class BackendApplication {
 
 	public static void main(String[] args) {

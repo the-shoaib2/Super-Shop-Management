@@ -1,0 +1,121 @@
+import { useState, useEffect } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+import { authAPI } from '@/services/api'
+import { Button } from '@/components/ui/button'
+import { toast } from 'react-hot-toast'
+import { useAuth } from '@/contexts/AuthContext'
+
+export default function Login() {
+  const navigate = useNavigate()
+  const { user, setUser } = useAuth()
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  })
+
+  useEffect(() => {
+    if (user) {
+      navigate('/')
+    }
+  }, [user, navigate])
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const response = await authAPI.login(formData)
+      localStorage.setItem('token', response.data.token)
+      localStorage.setItem('user', JSON.stringify(response.data.user))
+      if (response.data.store) {
+        localStorage.setItem('store', JSON.stringify(response.data.store))
+      }
+      setUser(response.data.user)
+      toast.success('Login successful')
+      navigate('/')
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Login failed')
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+      <div className="w-full max-w-md space-y-6">
+        <div className="space-y-2 text-center">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Welcome back</h1>
+          <p className="text-sm text-muted-foreground">
+            Enter your credentials to access your account
+          </p>
+        </div>
+
+        <div className="p-6 space-y-6 bg-card text-card-foreground rounded-lg border border-border shadow-sm">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium leading-none text-foreground">
+                Email
+              </label>
+              <input
+                type="email"
+                required
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                placeholder="m@example.com"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium leading-none text-foreground">
+                Password
+              </label>
+              <input
+                type="password"
+                required
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                placeholder="••••••••"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              />
+            </div>
+            <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+              Sign In
+            </Button>
+          </form>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">
+                Or continue with
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Button 
+              variant="outline" 
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              Google
+            </Button>
+            <Button 
+              variant="outline" 
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              GitHub
+            </Button>
+          </div>
+        </div>
+
+        <p className="text-center text-sm text-muted-foreground">
+          Don't have an account?{' '}
+          <Link 
+            to="/signup" 
+            className="text-primary underline-offset-4 hover:underline"
+          >
+            Sign up
+          </Link>
+        </p>
+      </div>
+    </div>
+  )
+} 
