@@ -10,6 +10,7 @@
   - [Ping](#ping)
 - [Getting Started](#getting-started)
 - [Setup Instructions](#setup-instructions)
+- [Environment Setup](#environment-setup)
 - [Reference Documentation](#reference-documentation)
 - [Guides](#guides)
 
@@ -110,6 +111,32 @@ Follow these steps to set up the backend:
 
 4. **Access the API:**
    Open your browser or API client and navigate to `http://localhost:8080/api`.
+
+---
+
+## Environment Setup
+To set up your development environment, follow these steps:
+
+1. **Install Java Development Kit (JDK)**:
+   - Download and install JDK 17 or higher from the [Oracle website](https://www.oracle.com/java/technologies/javase-jdk17-downloads.html) or [AdoptOpenJDK](https://adoptopenjdk.net/).
+
+2. **Install Apache Maven**:
+   - Download and install Maven from the [Apache Maven website](https://maven.apache.org/download.cgi).
+   - Follow the installation instructions for your operating system.
+
+3. **Install MongoDB**:
+   - Download and install MongoDB from the [MongoDB website](https://www.mongodb.com/try/download/community).
+   - Follow the installation instructions to set up a local MongoDB server.
+
+4. **Set Environment Variables**:
+   - Ensure that the `JAVA_HOME` and `MAVEN_HOME` environment variables are set correctly.
+   - Add the `bin` directories of JDK and Maven to your system's `PATH`.
+
+5. **Start MongoDB**:
+   - Run the MongoDB server using the command:
+     ```bash
+     mongod
+     ```
 
 ---
 
