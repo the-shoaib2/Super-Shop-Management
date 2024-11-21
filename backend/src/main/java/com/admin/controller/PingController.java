@@ -20,7 +20,7 @@ public class PingController {
     public Map<String, Object> ping() {
         Map<String, Object> response = new HashMap<>();
         response.put("status", "active");
-        response.put("service", "supershop-api");
+        response.put("service", "SUPERSHOP SERVICE IS RUNNING...✨");
         response.put("database", isDatabaseConnected());
         return response;
     }

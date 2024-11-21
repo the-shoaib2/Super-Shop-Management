@@ -1,31 +1,49 @@
 package com.admin.config;
 
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
-import org.springframework.lang.NonNull;
-import org.springframework.beans.factory.annotation.Value;
-import com.mongodb.ConnectionString;
-import com.mongodb.MongoClientSettings;
+
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableMongoRepositories(basePackages = "com.admin.repository")
 public class DatabaseConfig extends AbstractMongoClientConfiguration {
 
     @Value("${DATABASE_URI}")
-    private String DATABASE_URI;
+    private String mongodbUri;
+
+    @Value("${DATABASE_NAME}")
+    private String databaseName;
 
     @Override
-    @NonNull
     protected String getDatabaseName() {
-        return "SUPERSHOP";
+        return databaseName;
     }
 
     @Override
-    @NonNull
-    protected com.mongodb.MongoClientSettings mongoClientSettings() {
+    protected MongoClientSettings mongoClientSettings() {
+        ConnectionString connectionString = new ConnectionString(mongodbUri);
+
         return MongoClientSettings.builder()
-                .applyConnectionString(new ConnectionString(DATABASE_URI))
+                .applyConnectionString(connectionString)
+                .applyToConnectionPoolSettings(builder -> 
+                    builder.maxConnectionIdleTime(30, TimeUnit.SECONDS)
+                           .maxSize(50)
+                           .minSize(5)
+                           .maxWaitTime(2000, TimeUnit.MILLISECONDS)
+                )
+                .applyToSocketSettings(builder ->
+                    builder.connectTimeout(2000, TimeUnit.MILLISECONDS)
+                           .readTimeout(2000, TimeUnit.MILLISECONDS)
+                )
+                .applyToServerSettings(builder ->
+                    builder.heartbeatFrequency(10000, TimeUnit.MILLISECONDS)
+                           .minHeartbeatFrequency(500, TimeUnit.MILLISECONDS)
+                )
                 .build();
     }
 } 

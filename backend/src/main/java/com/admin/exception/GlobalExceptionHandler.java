@@ -43,4 +43,12 @@ public class GlobalExceptionHandler {
         error.put("type", "FileUploadError");
         return new ResponseEntity<>(error, HttpStatus.PAYLOAD_TOO_LARGE);
     }
+
+    @ExceptionHandler(StoreOperationException.class)
+    public ResponseEntity<Map<String, String>> handleStoreOperationException(StoreOperationException e) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", e.getMessage());
+        error.put("type", "StoreOperationError");
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
 } 

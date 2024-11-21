@@ -15,6 +15,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/stores")
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class StoreController {
     @Autowired
     private StoreService storeService;
@@ -33,10 +34,15 @@ public class StoreController {
     @PostMapping
     public ResponseEntity<ApiResponse<Store>> createStore(@RequestBody StoreDTO storeDTO) {
         try {
-                return ResponseEntity.ok(ApiResponse.success("Store created successfully", storeService.createStore(storeDTO)));
+            Store createdStore = storeService.createStore(storeDTO);
+            return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Store created successfully", createdStore));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("Failed to create store", null));
+            e.printStackTrace();
+            return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("Failed to create store: " + e.getMessage(), null));
         }
     }
 
