@@ -9,6 +9,7 @@
   - [Stores](#stores)
   - [Ping](#ping)
 - [Getting Started](#getting-started)
+- [Setup Instructions](#setup-instructions)
 - [Reference Documentation](#reference-documentation)
 - [Guides](#guides)
 
@@ -102,35 +103,36 @@
 
 ## Getting Started
 To get started with the backend, ensure you have the following prerequisites installed:
-- Java 17
-- Maven
-- MongoDB
-- Docker (for local development)
-- Kafka (for high availability)
-- ZooKeeper (for high availability)
-- Redis (for caching)
+- **Java 17 or higher**
+- **Maven**
+- **MongoDB**
+- **Docker** (for local development)
+- **Kafka** (for high availability)
+- **ZooKeeper** (for high availability)
+- **Redis** (for caching)
 
+---
 
+## Setup Instructions
+Follow these steps to set up the backend:
 
-
-### Setup Instructions
-1. Clone the repository:
+1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/super-shop-management.git
    cd super-shop-management/backend
    ```
 
-2. Install dependencies:
+2. **Install dependencies:**
    ```bash
    mvn install
    ```
 
-3. Run the application:
+3. **Run the application:**
    ```bash
    mvn spring-boot:run
    ```
 
-4. Access the API at `http://localhost:8080/api`.
+4. **Access the API:**
+   Open your browser or API client and navigate to `http://localhost:8080/api`.
 
 ---
 
