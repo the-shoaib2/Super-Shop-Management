@@ -18,86 +18,66 @@
 ## API Documentation
 
 ### Authentication
-#### 1. Register
-- **Endpoint:** `POST /api/auth/register`
-- **Description:** Registers a new store owner.
+- **POST /api/auth/login**
+  - **Request:** 
+    ```json
+    { "username": "user", "password": "pass" }
+    ```
+  - **Response:** 
+    ```json
+    { "token": "jwt_token" }
+    ```
 
-#### 2. Login
-- **Endpoint:** `POST /api/auth/login`
-- **Description:** Logs in a store owner and returns an authentication token.
-
-#### 3. Logout
-- **Endpoint:** `POST /api/auth/logout`
-- **Description:** Logs out a store owner by invalidating the authentication token.
-
----
+- **POST /api/auth/register**
+  - **Request:** 
+    ```json
+    { "username": "user", "password": "pass", "email": "user@example.com" }
+    ```
+  - **Response:** 
+    ```json
+    { "message": "User registered successfully" }
+    ```
 
 ### Products
-#### 1. Get All Products
-- **Endpoint:** `GET /api/products`
-- **Description:** Retrieves a list of all products.
+- **GET /api/products**
+  - **Response:** 
+    ```json
+    [{ "id": 1, "name": "Product A", "price": 100 }]
+    ```
 
-#### 2. Get Products by Store
-- **Endpoint:** `GET /api/products/store/{storeId}`
-- **Description:** Retrieves products associated with a specific store.
-
-#### 3. Get Product by ID
-- **Endpoint:** `GET /api/products/{id}`
-- **Description:** Retrieves a specific product by its ID.
-
-#### 4. Create Product
-- **Endpoint:** `POST /api/products`
-- **Description:** Creates a new product.
-
-#### 5. Delete Product
-- **Endpoint:** `DELETE /api/products/{id}`
-- **Description:** Deletes a specific product by its ID.
-
----
+- **POST /api/products**
+  - **Request:** 
+    ```json
+    { "name": "Product A", "price": 100 }
+    ```
+  - **Response:** 
+    ```json
+    { "message": "Product created successfully" }
+    ```
 
 ### Stores
-#### 1. Get All Stores
-- **Endpoint:** `GET /api/stores`
-- **Description:** Retrieves a paginated list of all stores.
+- **GET /api/stores**
+  - **Response:** 
+    ```json
+    [{ "id": 1, "name": "Store A" }]
+    ```
 
-#### 2. Create Store
-- **Endpoint:** `POST /api/stores`
-- **Description:** Creates a new store.
-
-#### 3. Get Store Stats
-- **Endpoint:** `GET /api/stores/{storeId}/stats`
-- **Description:** Retrieves statistics for a specific store.
-
-#### 4. Get Store Analytics
-- **Endpoint:** `GET /api/stores/{storeId}/analytics`
-- **Description:** Retrieves analytics for a specific store.
-
-#### 5. Get Store Sales Analytics
-- **Endpoint:** `GET /api/stores/{storeId}/analytics/sales`
-- **Description:** Retrieves sales analytics for a specific store.
-
-#### 6. Get Store Customers Analytics
-- **Endpoint:** `GET /api/stores/{storeId}/analytics/customers`
-- **Description:** Retrieves customer analytics for a specific store.
-
-#### 7. Get Store Products Analytics
-- **Endpoint:** `GET /api/stores/{storeId}/analytics/products`
-- **Description:** Retrieves product analytics for a specific store.
-
-#### 8. Get Store Inventory Analytics
-- **Endpoint:** `GET /api/stores/{storeId}/analytics/inventory`
-- **Description:** Retrieves inventory analytics for a specific store.
-
-#### 9. Get Store Reviews Analytics
-- **Endpoint:** `GET /api/stores/{storeId}/analytics/reviews`
-- **Description:** Retrieves review analytics for a specific store.
-
----
+- **POST /api/stores**
+  - **Request:** 
+    ```json
+    { "name": "Store A", "location": "Location A" }
+    ```
+  - **Response:** 
+    ```json
+    { "message": "Store created successfully" }
+    ```
 
 ### Ping
-#### 1. Ping Service
-- **Endpoint:** `GET /api/ping`
-- **Description:** Checks the status of the service and database connection.
+- **GET /api/ping**
+  - **Response:** 
+    ```json
+    { "status": "active", "service": "SUPERSHOP SERVICE IS RUNNING...", "database": true }
+    ```
 
 ---
 
@@ -106,10 +86,6 @@ To get started with the backend, ensure you have the following prerequisites ins
 - **Java 17 or higher**
 - **Maven**
 - **MongoDB**
-- **Docker** (for local development)
-- **Kafka** (for high availability)
-- **ZooKeeper** (for high availability)
-- **Redis** (for caching)
 
 ---
 
@@ -118,6 +94,7 @@ Follow these steps to set up the backend:
 
 1. **Clone the repository:**
    ```bash
+   git clone https://github.com/yourusername/super-shop-management.git
    cd super-shop-management/backend
    ```
 
@@ -133,6 +110,32 @@ Follow these steps to set up the backend:
 
 4. **Access the API:**
    Open your browser or API client and navigate to `http://localhost:8080/api`.
+
+---
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+### API Testing Tools
+- Postman
+- cURL
+- Thunder Client (VS Code extension)
+- REST Client (VS Code extension)
+
+---
+
+## Security Configuration
+The application uses Spring Security with the following configuration:
+- JWT-based authentication
+- Stateless session management
+- CORS enabled for all origins (configurable)
+- Public endpoints:
+  - /api/ping
+  - /api/auth/register
+  - /api/auth/login
+  - /api/stores/**
+- Protected endpoints require authentication
+- Admin endpoints require ADMIN role
 
 ---
 
