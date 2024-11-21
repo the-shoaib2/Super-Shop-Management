@@ -4,8 +4,8 @@
 
 ## Table of Contents
 - [Features](#features)
-- [Backend Documentation](backend/HELP.md)
-- [Frontend Documentation](frontend/HELP.md)
+- [Backend Documentation](backend/README.md)
+- [Frontend Documentation](frontend/README.md)
 - [Contributing](#contributing)
 
 ---
