@@ -1,74 +1,120 @@
 # Super-Shop-Management API Documentation
 
+---
+
 ## Table of Contents
-- [Authentication](#authentication)
-- [Products](#products)
-- [Orders](#orders)
+- [Features](#features)
+- [API Documentation](#api-documentation)
+  - [Authentication](#authentication)
+  - [Products](#products)
+  - [Orders](#orders)
+- [Contributing](#contributing)
 
 ---
 
-## Authentication
-### Login
+## Features
+- User authentication and authorization
+- Product management (CRUD operations)
+- Shopping cart functionality
+- Order processing
+- Admin dashboard for analytics
+
+---
+
+## API Documentation
+
+### Authentication
+#### 1. Login
 - **Endpoint:** `POST /api/auth/login`
-  - **Request:** 
+- **Request Body:** 
     ```json
-    { "username": "user", "password": "pass" }
+    { 
+      "username": "user", 
+      "password": "pass" 
+    }
     ```
-  - **Response:** 
+- **Response:** 
     ```json
-    { "token": "jwt_token" }
+    { 
+      "token": "jwt_token" 
+    }
     ```
-  - **Description:** Authenticates a user and returns a JWT token for subsequent requests.
+- **Description:** Authenticates a user and returns a JWT token for subsequent requests.
 
-### Register
+#### 2. Register
 - **Endpoint:** `POST /api/auth/register`
-  - **Request:** 
+- **Request Body:** 
     ```json
-    { "username": "user", "password": "pass", "email": "user@example.com" }
+    { 
+      "username": "user", 
+      "password": "pass", 
+      "email": "user@example.com" 
+    }
     ```
-  - **Response:** 
+- **Response:** 
     ```json
-    { "message": "User registered successfully" }
+    { 
+      "message": "User registered successfully" 
+    }
     ```
-  - **Description:** Registers a new user in the system.
+- **Description:** Registers a new user in the system.
 
 ---
 
-## Products
-### Get All Products
+### Products
+#### 1. Get All Products
 - **Endpoint:** `GET /api/products`
-  - **Response:** 
+- **Response:** 
     ```json
-    [{ "id": 1, "name": "Product A", "price": 100 }]
+    [{ 
+      "id": 1, 
+      "name": "Product A", 
+      "price": 100 
+    }]
     ```
-  - **Description:** Retrieves a list of all products.
+- **Description:** Retrieves a list of all products.
 
-### Create Product
+#### 2. Create Product
 - **Endpoint:** `POST /api/products`
-  - **Request:** 
+- **Request Body:** 
     ```json
-    { "name": "Product A", "price": 100 }
+    { 
+      "name": "Product A", 
+      "price": 100 
+    }
     ```
-  - **Response:** 
+- **Response:** 
     ```json
-    { "message": "Product created successfully" }
+    { 
+      "message": "Product created successfully" 
+    }
     ```
-  - **Description:** Creates a new product in the inventory.
+- **Description:** Creates a new product in the inventory.
 
 ---
 
-## Orders
-### Place Order
+### Orders
+#### 1. Place Order
 - **Endpoint:** `POST /api/orders`
-  - **Request:** 
+- **Request Body:** 
     ```json
-    { "userId": 1, "productIds": [1, 2] }
+    { 
+      "userId": 1, 
+      "productIds": [1, 2] 
+    }
     ```
-  - **Response:** 
+- **Response:** 
     ```json
-    { "message": "Order placed successfully" }
+    { 
+      "message": "Order placed successfully" 
+    }
     ```
-  - **Description:** Places a new order for the specified user and products.
+- **Description:** Places a new order for the specified user and products.
+
+---
+
+## Contributing
+Feel free to submit issues or pull requests to improve the project. Contributions are welcome!
 
 ---
 
