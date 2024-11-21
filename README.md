@@ -7,7 +7,8 @@
 - [API Documentation](#api-documentation)
   - [Authentication](#authentication)
   - [Products](#products)
-  - [Orders](#orders)
+  - [Stores](#stores)
+  - [Ping](#ping)
 - [Contributing](#contributing)
 
 ---
@@ -24,92 +25,86 @@
 ## API Documentation
 
 ### Authentication
-#### 1. Login
-- **Endpoint:** `POST /api/auth/login`
-- **Request Body:** 
-    ```json
-    { 
-      "username": "user", 
-      "password": "pass" 
-    }
-    ```
-- **Response:** 
-    ```json
-    { 
-      "token": "jwt_token" 
-    }
-    ```
-- **Description:** Authenticates a user and returns a JWT token for subsequent requests.
-
-#### 2. Register
+#### 1. Register
 - **Endpoint:** `POST /api/auth/register`
-- **Request Body:** 
-    ```json
-    { 
-      "username": "user", 
-      "password": "pass", 
-      "email": "user@example.com" 
-    }
-    ```
-- **Response:** 
-    ```json
-    { 
-      "message": "User registered successfully" 
-    }
-    ```
-- **Description:** Registers a new user in the system.
+- **Description:** Registers a new store owner.
+
+#### 2. Login
+- **Endpoint:** `POST /api/auth/login`
+- **Description:** Logs in a store owner and returns an authentication token.
+
+#### 3. Logout
+- **Endpoint:** `POST /api/auth/logout`
+- **Description:** Logs out a store owner by invalidating the authentication token.
 
 ---
 
 ### Products
 #### 1. Get All Products
 - **Endpoint:** `GET /api/products`
-- **Response:** 
-    ```json
-    [{ 
-      "id": 1, 
-      "name": "Product A", 
-      "price": 100 
-    }]
-    ```
 - **Description:** Retrieves a list of all products.
 
-#### 2. Create Product
+#### 2. Get Products by Store
+- **Endpoint:** `GET /api/products/store/{storeId}`
+- **Description:** Retrieves products associated with a specific store.
+
+#### 3. Get Product by ID
+- **Endpoint:** `GET /api/products/{id}`
+- **Description:** Retrieves a specific product by its ID.
+
+#### 4. Create Product
 - **Endpoint:** `POST /api/products`
-- **Request Body:** 
-    ```json
-    { 
-      "name": "Product A", 
-      "price": 100 
-    }
-    ```
-- **Response:** 
-    ```json
-    { 
-      "message": "Product created successfully" 
-    }
-    ```
-- **Description:** Creates a new product in the inventory.
+- **Description:** Creates a new product.
+
+#### 5. Delete Product
+- **Endpoint:** `DELETE /api/products/{id}`
+- **Description:** Deletes a specific product by its ID.
 
 ---
 
-### Orders
-#### 1. Place Order
-- **Endpoint:** `POST /api/orders`
-- **Request Body:** 
-    ```json
-    { 
-      "userId": 1, 
-      "productIds": [1, 2] 
-    }
-    ```
-- **Response:** 
-    ```json
-    { 
-      "message": "Order placed successfully" 
-    }
-    ```
-- **Description:** Places a new order for the specified user and products.
+### Stores
+#### 1. Get All Stores
+- **Endpoint:** `GET /api/stores`
+- **Description:** Retrieves a paginated list of all stores.
+
+#### 2. Create Store
+- **Endpoint:** `POST /api/stores`
+- **Description:** Creates a new store.
+
+#### 3. Get Store Stats
+- **Endpoint:** `GET /api/stores/{storeId}/stats`
+- **Description:** Retrieves statistics for a specific store.
+
+#### 4. Get Store Analytics
+- **Endpoint:** `GET /api/stores/{storeId}/analytics`
+- **Description:** Retrieves analytics for a specific store.
+
+#### 5. Get Store Sales Analytics
+- **Endpoint:** `GET /api/stores/{storeId}/analytics/sales`
+- **Description:** Retrieves sales analytics for a specific store.
+
+#### 6. Get Store Customers Analytics
+- **Endpoint:** `GET /api/stores/{storeId}/analytics/customers`
+- **Description:** Retrieves customer analytics for a specific store.
+
+#### 7. Get Store Products Analytics
+- **Endpoint:** `GET /api/stores/{storeId}/analytics/products`
+- **Description:** Retrieves product analytics for a specific store.
+
+#### 8. Get Store Inventory Analytics
+- **Endpoint:** `GET /api/stores/{storeId}/analytics/inventory`
+- **Description:** Retrieves inventory analytics for a specific store.
+
+#### 9. Get Store Reviews Analytics
+- **Endpoint:** `GET /api/stores/{storeId}/analytics/reviews`
+- **Description:** Retrieves review analytics for a specific store.
+
+---
+
+### Ping
+#### 1. Ping Service
+- **Endpoint:** `GET /api/ping`
+- **Description:** Checks the status of the service and database connection.
 
 ---
 
