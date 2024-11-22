@@ -95,4 +95,17 @@ public class TokenUtil {
             .signWith(Keys.hmacShaKeyFor(accessSecret.getBytes()), SignatureAlgorithm.HS512)
             .compact();
     }
+
+    public String validateTokenAndGetUserId(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(accessSecret.getBytes()))
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+            return claims.getSubject();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 } 

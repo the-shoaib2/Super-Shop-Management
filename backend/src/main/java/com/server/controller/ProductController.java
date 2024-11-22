@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.server.model.Product;
 import com.server.service.ProductService;
@@ -14,6 +15,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
+@CrossOrigin(origins = "*", maxAge = 3600)
+@PreAuthorize("isAuthenticated()")
 @RequiredArgsConstructor
 public class ProductController {
     @Autowired

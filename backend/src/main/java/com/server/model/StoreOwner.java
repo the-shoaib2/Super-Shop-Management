@@ -34,25 +34,13 @@ public class StoreOwner {
     @NotBlank(message = "Password is required")
     private String password;
     
-    @NotBlank(message = "Store name is required")
     private String storeName;
-    
-    @NotBlank(message = "Location is required")
     private String location;
-
-    @NotBlank(message = "Description is required")
     private String description;
-
     private String refreshToken;
-
     private List<String> tags;
-
     private LocalDateTime lastLogin;
-
-
     private List<String> images = new ArrayList<>();
-
-    
     private boolean isActive = true;
     
     @CreatedDate

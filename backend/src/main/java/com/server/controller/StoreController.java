@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.server.dto.StoreDTO;
 import com.server.entity.Store;
@@ -17,6 +18,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/stores")
 @CrossOrigin(origins = "*", maxAge = 3600)
+@PreAuthorize("isAuthenticated()")
 public class StoreController {
     @Autowired
     private StoreService storeService;

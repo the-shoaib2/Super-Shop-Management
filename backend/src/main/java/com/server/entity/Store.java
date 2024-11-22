@@ -18,4 +18,13 @@ public class Store {
     private List<Product> products;
     private Double rating;
     private Integer reviewCount;
+    private String ownerId;
+
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public String getOwnerId() {
+        return ownerId;
+    }
 } 

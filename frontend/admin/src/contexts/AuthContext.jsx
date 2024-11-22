@@ -13,26 +13,47 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        const token = localStorage.getItem('token')
         const storedUser = localStorage.getItem('user')
-        if (storedUser) {
-          setUser(JSON.parse(storedUser))
-        } else {
-          // Only check auth if no stored user
-          const response = await authAPI.checkAuth()
-          if (response.data.user) {
-            setUser(response.data.user)
-            localStorage.setItem('user', JSON.stringify(response.data.user))
+        
+        if (!token || !storedUser) {
+          setUser(null)
+          setLoading(false)
+          if (!isPublicRoute(location.pathname)) {
+            navigate('/login', { replace: true })
           }
+          return
         }
-      } catch (error) {
-        console.error('Auth check failed:', error)
-        localStorage.removeItem('user')
-        if (location.pathname !== '/login' && location.pathname !== '/signup') {
-          navigate('/login')
+
+        try {
+          // Set initial user state from localStorage
+          setUser(JSON.parse(storedUser))
+          
+          // Validate token in background
+          const response = await authAPI.checkAuth()
+          if (response.success) {
+            setUser(response.data.user)
+          }
+        } catch (error) {
+          console.error('Auth validation failed:', error)
+          // Only clear auth if it's a 401 error
+          if (error.response?.status === 401) {
+            setUser(null)
+            localStorage.removeItem('token')
+            localStorage.removeItem('user')
+            if (!isPublicRoute(location.pathname)) {
+              navigate('/login', { replace: true })
+            }
+          }
         }
       } finally {
         setLoading(false)
       }
+    }
+
+    // Helper function to check if route is public
+    const isPublicRoute = (path) => {
+      return ['/login', '/signup', '/'].includes(path)
     }
 
     checkAuth()
@@ -41,12 +62,17 @@ export function AuthProvider({ children }) {
   const login = async (credentials) => {
     try {
       const response = await authAPI.login(credentials)
-      const userData = response.data
-      setUser(userData)
-      localStorage.setItem('user', JSON.stringify(userData))
-      return userData
+      
+      setUser(response.user)
+      return true
+
     } catch (error) {
-      throw error
+      console.error('Login error:', error)
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.error || 
+                          error.message || 
+                          'Login failed'
+      throw new Error(errorMessage)
     }
   }
 
@@ -56,14 +82,19 @@ export function AuthProvider({ children }) {
     } catch (error) {
       console.error('Logout failed:', error)
     } finally {
+      localStorage.removeItem('token')
       localStorage.removeItem('user')
-      setUser(null)
       navigate('/login')
     }
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      login, 
+      logout
+    }}>
       {children}
     </AuthContext.Provider>
   )

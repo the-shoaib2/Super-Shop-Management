@@ -1,0 +1,6 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb+srv://<username>:<password>@<cluster>.mongodb.net/${spring.data.mongodb.database}?retryWrites=true&w=majority
+      database: supershop
+      auto-index-creation: true 

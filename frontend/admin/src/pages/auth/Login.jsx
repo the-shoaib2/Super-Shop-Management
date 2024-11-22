@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext'
 export default function Login() {
   const navigate = useNavigate()
   const { login } = useAuth()
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -14,28 +15,42 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    
     try {
-      await login(formData)
-      toast.success('Login successful')
+      setLoading(true)
+      await login({
+        email: formData.email,
+        password: formData.password
+      })
+      
+      toast.success('Login successful!')
       navigate('/')
     } catch (error) {
       console.error('Login error:', error)
-      const message = error.response?.data?.message || 'Invalid email or password'
-      toast.error(message)
+      // Show more specific error message from server
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.error || 
+                          'Invalid email or password'
+      toast.error(errorMessage)
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
       <div className="w-full max-w-md space-y-6">
-        <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Welcome back</h1>
-          <p className="text-sm text-muted-foreground">
-            Enter your credentials to access your account
-          </p>
-        </div>
+
 
         <div className="p-6 space-y-6 bg-card text-card-foreground rounded-lg border border-border shadow-sm">
+
+        <div className="space-y-2 text-center">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Admin Login</h1>
+          <p className="text-sm text-muted-foreground">
+            Enter your credentials to access your account
+            </p>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium leading-none text-foreground">
@@ -63,8 +78,12 @@ export default function Login() {
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               />
             </div>
-            <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-              Sign In
+            <Button 
+              type="submit" 
+              className="w-full"
+              disabled={loading}
+            >
+              {loading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
 
@@ -92,18 +111,22 @@ export default function Login() {
             >
               GitHub
             </Button>
-          </div>
-        </div>
 
-        <p className="text-center text-sm text-muted-foreground">
+
+          </div>
+
+          <p className="text-center text-sm text-muted-foreground">
           Don't have an account?{' '}
           <Link 
             to="/signup" 
             className="text-primary underline-offset-4 hover:underline"
           >
             Sign up
-          </Link>
-        </p>
+            </Link>
+          </p>
+        </div>
+
+
       </div>
     </div>
   )

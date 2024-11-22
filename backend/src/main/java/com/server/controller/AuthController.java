@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.server.dto.AuthRequest;
 import com.server.dto.AuthResponse;
@@ -19,6 +20,7 @@ import jakarta.validation.Valid;
 import org.springframework.validation.BindingResult;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -32,13 +34,38 @@ public class AuthController {
 
     // Register a new store owner
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<StoreOwner>> register(@Valid @RequestBody StoreOwner storeOwner,
+    public ResponseEntity<ApiResponse<AuthResponse>> register(
+            @Valid @RequestBody StoreOwner storeOwner,
             HttpServletResponse response) {
         try {
+            // Set default values
+            storeOwner.setActive(true);
+            storeOwner.setLastLogin(LocalDateTime.now());
+            storeOwner.setImages(new ArrayList<>());
+            
             StoreOwner savedOwner = authService.register(storeOwner);
+            
+            // Generate tokens
             String token = tokenUtil.generateToken(savedOwner);
+            String refreshToken = tokenUtil.generateRefreshToken(savedOwner.getEmail());
+            
+            savedOwner.setRefreshToken(refreshToken);
+            authService.updateOwner(savedOwner);
+            
+            // Add auth cookie
             addAuthCookie(response, token);
-            return ResponseEntity.ok(ApiResponse.success("Registration successful", savedOwner));
+            
+            AuthResponse authResponse = new AuthResponse(
+                token,
+                refreshToken,
+                savedOwner.getEmail(),
+                savedOwner.getFullName(),
+                savedOwner.getStoreName(),
+                LocalDateTime.now(),
+                savedOwner.getStoreName() != null
+            );
+
+            return ResponseEntity.ok(ApiResponse.success("Registration successful", authResponse));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Registration failed: " + e.getMessage(), null));
@@ -70,9 +97,13 @@ public class AuthController {
 
             AuthResponse authResponse = new AuthResponse(
                     token,
+                    refreshToken,
                     owner.getEmail(),
                     owner.getStoreName(),
-                    owner.getFullName());
+                    owner.getFullName(),
+                    LocalDateTime.now(),
+                    owner.getStoreName() != null
+            );
 
             return ResponseEntity.ok(authResponse);
         } catch (Exception e) {
@@ -99,6 +130,7 @@ public class AuthController {
 
     // Logout a store owner
     @PostMapping("/logout")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> logout(HttpServletResponse response) {
         try {
             Cookie cookie = new Cookie("token", null);
