@@ -1,38 +1,27 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { authAPI } from '@/services/api'
 import { Button } from '@/components/ui/button'
 import { toast } from 'react-hot-toast'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function Login() {
   const navigate = useNavigate()
-  const { user, setUser } = useAuth()
+  const { login } = useAuth()
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   })
 
-  useEffect(() => {
-    if (user) {
-      navigate('/')
-    }
-  }, [user, navigate])
-
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const response = await authAPI.login(formData)
-      localStorage.setItem('token', response.data.token)
-      localStorage.setItem('user', JSON.stringify(response.data.user))
-      if (response.data.store) {
-        localStorage.setItem('store', JSON.stringify(response.data.store))
-      }
-      setUser(response.data.user)
+      await login(formData)
       toast.success('Login successful')
       navigate('/')
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Login failed')
+      console.error('Login error:', error)
+      const message = error.response?.data?.message || 'Invalid email or password'
+      toast.error(message)
     }
   }
 

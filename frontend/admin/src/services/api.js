@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_BASE_URL = 'http://localhost:8080/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
 
 // Create axios instance with base configuration
 const api = axios.create({
@@ -8,12 +8,14 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 })
 
 // Auth APIs
 export const authAPI = {
+  checkAuth: () => api.get('/auth/check'),
   login: (credentials) => api.post('/auth/login', credentials),
-  register: (userData) => api.post('/auth/register-with-store', userData),
+  register: (userData) => api.post('/auth/register', userData),
   logout: () => api.post('/auth/logout'),
 }
 
@@ -88,22 +90,19 @@ export const reportAPI = {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    console.error('API Error:', error);
     if (error.response?.status === 401) {
-      // Handle unauthorized access
-      localStorage.removeItem('token')
+      localStorage.removeItem('user')
       window.location.href = '/login'
     }
     return Promise.reject(error)
   }
 )
 
-// Request interceptor to add auth token
+// Request interceptor
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
+    config.withCredentials = true;
     return config
   },
   (error) => Promise.reject(error)

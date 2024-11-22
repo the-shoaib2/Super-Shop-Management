@@ -29,23 +29,28 @@ export default function Signup() {
     }
 
     try {
-      await authAPI.register({
-        fullName: formData.fullName,
+      const registrationData = {
         email: formData.email,
         password: formData.password,
-        store: {
-          name: formData.storeName,
-          phoneNumber: formData.phoneNumber,
-          address: formData.address,
-          description: formData.description,
-          location: formData.location
-        }
-      })
+        fullName: formData.fullName,
+        storeName: formData.storeName,
+        phoneNumber: formData.phoneNumber,
+        address: formData.address,
+        description: formData.description,
+        location: formData.location
+      }
       
-      toast.success('Registration successful! Please login.')
-      navigate('/login')
+      const response = await authAPI.register(registrationData)
+      
+      if (response.data.success) {
+        toast.success('Registration successful! Please login.')
+        navigate('/login')
+      } else {
+        throw new Error(response.data.message)
+      }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Registration failed')
+      const message = error.response?.data?.message || 'Registration failed'
+      toast.error(message)
     }
   }
 
