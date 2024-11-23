@@ -146,6 +146,51 @@ export const productAPI = {
   deleteProduct: (id) => api.delete(`/api/products/${id}`),
   searchProducts: (query) => api.get(`/api/products/search?q=${query}`),
   getProductCategories: () => api.get('/api/products/categories'),
+  getStoreProducts: async (storeId) => {
+    try {
+      const response = await api.get(`/api/products/store/${storeId}`)
+      return response.data
+    } catch (error) {
+      console.error('Get store products error:', error)
+      throw error
+    }
+  },
+  createProduct: async (productData) => {
+    try {
+      const response = await api.post('/api/products', productData)
+      return response.data
+    } catch (error) {
+      console.error('Create product error:', error)
+      throw error
+    }
+  },
+  updateProduct: async (productId, productData) => {
+    try {
+      const response = await api.put(`/api/products/${productId}`, productData)
+      return response.data
+    } catch (error) {
+      console.error('Update product error:', error)
+      throw error
+    }
+  },
+  deleteProduct: async (productId) => {
+    try {
+      const response = await api.delete(`/api/products/${productId}`)
+      return response.data
+    } catch (error) {
+      console.error('Delete product error:', error)
+      throw error
+    }
+  },
+  getProduct: async (productId) => {
+    try {
+      const response = await api.get(`/api/products/${productId}`)
+      return response.data
+    } catch (error) {
+      console.error('Get product error:', error)
+      throw error
+    }
+  }
 }
 
 // Order APIs
