@@ -27,10 +27,10 @@ public class SecurityConfig {
 
     private final TokenUtil tokenUtil;
 
-    @Value("${ADMIN_FRONTEND_URL:http://localhost:5173}")
+    @Value("${admin.frontend.url}")
     private String adminFrontendUrl;
 
-    @Value("${STORE_FRONTEND_URL:http://localhost:5174}")
+    @Value("${store.frontend.url}")
     private String storeFrontendUrl;
 
     public SecurityConfig(TokenUtil tokenUtil) {
@@ -69,8 +69,11 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/products/*").permitAll()
                 
                 // Profile endpoints
-                .requestMatchers("/api/profile/**").authenticated()
-                
+                .requestMatchers(HttpMethod.PUT,"/api/profile/me").authenticated()
+                .requestMatchers(HttpMethod.GET,"/api/profile/me").authenticated()
+                .requestMatchers(HttpMethod.PUT,"/api/profile/me/avatar").authenticated()
+                .requestMatchers(HttpMethod.GET,"/api/profile/me/avatar").authenticated()
+
                 // Store management
                 .requestMatchers(HttpMethod.POST, "/api/stores/*").authenticated()
                 .requestMatchers(HttpMethod.PUT, "/api/stores/*").authenticated()

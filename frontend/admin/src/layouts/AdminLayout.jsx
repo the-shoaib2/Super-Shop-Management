@@ -36,9 +36,9 @@ export default function AdminLayout() {
                 Dashboard
               </Button>
             </Link>
-            <Link to="/products">
+            <Link to="/product-management">
               <Button variant="ghost" className="w-full justify-start  mb-2">
-                Products
+                Product Management
               </Button>
             </Link>
             <Link to="/orders">
@@ -49,6 +49,11 @@ export default function AdminLayout() {
             <Link to="/profile">
               <Button variant="ghost" className="w-full justify-start mb-2">
                 Profile
+              </Button>
+            </Link>
+            <Link to="/apis">
+              <Button variant="ghost" className="w-full justify-start mb-2">
+                APIs
               </Button>
             </Link>
           </div>

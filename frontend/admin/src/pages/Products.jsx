@@ -1,113 +1,154 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { productAPI } from '@/services/api'
 import { useAuth } from '@/contexts/AuthContext'
-import { toast } from 'react-hot-toast'
-import { FiPlus, FiEdit2, FiTrash2 } from 'react-icons/fi'
+import { FiPlus, FiPackage, FiDollarSign, FiGrid, FiLayout, FiTag, FiBox } from 'react-icons/fi'
 import CreateProductDialog from '@/components/dialogs/CreateProductDialog'
 
-export default function Products() {
-  const [products, setProducts] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [showCreateDialog, setShowCreateDialog] = useState(false)
-  const { currentStore } = useAuth()
+// Components for different sections
+const ProductsSection = () => {
+  // Your existing product management code
+  return <div>Products Management</div>
+}
 
-  useEffect(() => {
-    if (currentStore?.id) {
-      fetchProducts()
-    }
-  }, [currentStore])
-
-  const fetchProducts = async () => {
-    try {
-      setLoading(true)
-      const response = await productAPI.getStoreProducts(currentStore.id)
-      setProducts(response.data?.data || [])
-    } catch (error) {
-      console.error('Failed to fetch products:', error)
-      toast.error('Failed to load products')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleDeleteProduct = async (productId) => {
-    try {
-      await productAPI.deleteProduct(productId)
-      toast.success('Product deleted successfully')
-      fetchProducts()
-    } catch (error) {
-      console.error('Failed to delete product:', error)
-      toast.error('Failed to delete product')
-    }
-  }
-
-  if (loading) {
-    return <div className="flex items-center justify-center h-full">Loading...</div>
-  }
-
+const ColorsSection = () => {
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Products</h1>
-        <Button onClick={() => setShowCreateDialog(true)}>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Colors</h2>
+        <Button>
           <FiPlus className="mr-2 h-4 w-4" />
-          Add Product
+          Add Color
         </Button>
       </div>
+      {/* Color management content */}
+    </div>
+  )
+}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {products?.map((product) => (
-          <div
-            key={product.id}
-            className="bg-white rounded-lg shadow-md overflow-hidden"
-          >
-            <div className="aspect-square relative">
-              <img
-                src={product.image || '/placeholder.png'}
-                alt={product.name}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="p-4">
-              <h3 className="font-semibold text-lg mb-1">{product.name}</h3>
-              <p className="text-gray-600 text-sm mb-2">{product.description}</p>
-              <div className="flex justify-between items-center">
-                <span className="font-bold">${product.price}</span>
-                <div className="flex gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleEditProduct(product)}
-                  >
-                    <FiEdit2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDeleteProduct(product.id)}
-                  >
-                    <FiTrash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
+const SizesSection = () => {
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Sizes</h2>
+        <Button>
+          <FiPlus className="mr-2 h-4 w-4" />
+          Add Size
+        </Button>
+      </div>
+      {/* Size management content */}
+    </div>
+  )
+}
 
-        {products.length === 0 && (
-          <div className="col-span-full text-center py-10 text-gray-500">
-            No products found. Create one to get started.
-          </div>
-        )}
+const BillboardsSection = () => {
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Billboards</h2>
+        <Button>
+          <FiPlus className="mr-2 h-4 w-4" />
+          Add Billboard
+        </Button>
+      </div>
+      {/* Billboard management content */}
+    </div>
+  )
+}
+
+const CategoriesSection = () => {
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Categories</h2>
+        <Button>
+          <FiPlus className="mr-2 h-4 w-4" />
+          Add Category
+        </Button>
+      </div>
+      {/* Category management content */}
+    </div>
+  )
+}
+
+const PricesSection = () => {
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Prices</h2>
+        <Button>
+          <FiPlus className="mr-2 h-4 w-4" />
+          Add Price Range
+        </Button>
+      </div>
+      {/* Price management content */}
+    </div>
+  )
+}
+
+const SECTIONS = [
+  { id: 'products', label: 'Products', icon: FiPackage, component: ProductsSection },
+  { id: 'colors', label: 'Colors', icon: FiGrid, component: ColorsSection },
+  { id: 'sizes', label: 'Sizes', icon: FiBox, component: SizesSection },
+  { id: 'billboards', label: 'Billboards', icon: FiLayout, component: BillboardsSection },
+  { id: 'categories', label: 'Categories', icon: FiTag, component: CategoriesSection },
+  { id: 'prices', label: 'Prices', icon: FiDollarSign, component: PricesSection }
+]
+
+export default function Products() {
+  const { currentStore } = useAuth()
+  const [activeSection, setActiveSection] = useState('products')
+  const [showCreateDialog, setShowCreateDialog] = useState(false)
+
+  const ActiveComponent = SECTIONS.find(section => section.id === activeSection)?.component || ProductsSection
+
+  return (
+    <div className="space-y-6">
+      {/* Top Navigation */}
+      <div className="border-b">
+        <h1 className="text-2xl font-bold px-6 py-4">Product Management</h1>
+        <nav className="flex space-x-4 px-6" aria-label="Tabs">
+          {SECTIONS.map(section => {
+            const Icon = section.icon
+            return (
+              <button
+                key={section.id}
+                onClick={() => setActiveSection(section.id)}
+                className={`
+                  flex items-center px-3 py-4 text-sm font-medium border-b-2 
+                  ${activeSection === section.id 
+                    ? 'border-primary text-primary' 
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}
+                `}
+              >
+                <Icon className="h-4 w-4 mr-2" />
+                {section.label}
+              </button>
+            )
+          })}
+        </nav>
       </div>
 
+      {/* Main Content */}
+      <div className="px-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">
+            {SECTIONS.find(section => section.id === activeSection)?.label}
+          </h1>
+          {activeSection === 'products' && (
+            <Button onClick={() => setShowCreateDialog(true)}>
+              <FiPlus className="mr-2 h-4 w-4" />
+              Add Product
+            </Button>
+          )}
+        </div>
+
+        <ActiveComponent />
+      </div>
+
+      {/* Dialogs */}
       <CreateProductDialog
         open={showCreateDialog}
-        onClose={() => {
-          setShowCreateDialog(false)
-          fetchProducts()
-        }}
+        onClose={() => setShowCreateDialog(false)}
       />
     </div>
   )

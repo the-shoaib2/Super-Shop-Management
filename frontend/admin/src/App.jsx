@@ -9,6 +9,7 @@ import Profile from './pages/Profile'
 import Login from './pages/auth/Login'
 import Signup from './pages/auth/Signup'
 import { useAuth } from './contexts/AuthContext'
+import APIs from './pages/APIs'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -66,8 +67,9 @@ function AppRoutes() {
         }
       >
         <Route index element={<Dashboard />} />
-        <Route path="products" element={<Products />} />
+        <Route path="product-management/*" element={<Products />} />
         <Route path="orders" element={<Orders />} />
+        <Route path="apis" element={<APIs />} />
         <Route path="profile" element={<Profile />} />
       </Route>
     </Routes>
