@@ -26,6 +26,6 @@ public class Order {
     private String totalPrice;
     private String totalDiscountPrice;
     private String totalOrder;
-    private String createdAt;
-    private String updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 } 

@@ -2,6 +2,7 @@ package com.server.model;
 
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "product_images")
@@ -11,6 +12,8 @@ public class ProductImage {
     private String url;
     private String alt;
     private Product product;
+    private boolean isEdited;
+    private List<String> editedList;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 } 

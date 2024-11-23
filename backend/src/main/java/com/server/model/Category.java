@@ -1,6 +1,7 @@
 package com.server.model;
 
 import java.util.List;
+import java.time.LocalDateTime;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.annotation.Id;
 import lombok.Data;
@@ -18,8 +19,14 @@ public class Category {
     private String rank;
     private String status;
     private String type;
+    private boolean isEdited;
+    private List<String> editedList;
     private List<String> topSellingProducts;
+    private String storeId;
+    private String storeName;
+    private String storeOwnerId;
+    private String storeOwnerEmail;
     private String parentId;
-    private String createdAt;
-    private String updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 } 

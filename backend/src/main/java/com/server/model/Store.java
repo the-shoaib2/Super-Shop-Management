@@ -2,8 +2,10 @@ package com.server.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import java.time.LocalDateTime;
 import java.util.List;
 import jakarta.validation.constraints.NotBlank;
+
 @Document(collection = "stores")
 public class Store {
     @Id
@@ -16,8 +18,10 @@ public class Store {
     private List<Product> products;
     private String ownerId;
     private String ownerName;
-    private String createdAt;
-    private String updatedAt;
+    private boolean isEdited;
+    private List<String> editedList;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private String logo;
     private boolean isActive;
     private String location;
@@ -101,19 +105,35 @@ public class Store {
         this.ownerName = ownerName;
     }
 
-    public String getCreatedAt() {
+    public boolean isEdited() {
+        return isEdited;
+    }
+
+    public void setEdited(boolean isEdited) {
+        this.isEdited = isEdited;
+    }
+
+    public List<String> getEditedList() {
+        return editedList;
+    }
+
+    public void setEditedList(List<String> editedList) {
+        this.editedList = editedList;
+    }
+
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(String createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public String getUpdatedAt() {
+    public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(String updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 

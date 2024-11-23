@@ -42,6 +42,8 @@ public class StoreOwner {
     private LocalDateTime lastLogin;
     private List<String> images = new ArrayList<>();
     private boolean isActive = true;
+    private boolean isEdited;
+    private List<String> editedList;
     
     @CreatedDate
     private LocalDateTime createdAt;

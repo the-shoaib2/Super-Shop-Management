@@ -40,6 +40,7 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to retrieve store products", null));
         }
+
     }
 
     @GetMapping("/{id}")
