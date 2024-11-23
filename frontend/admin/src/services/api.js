@@ -374,10 +374,10 @@ export const storeAPI = {
   }
 }
 
-export const profileAPI = {
+export const accountAPI = {
   getProfile: async () => {
     try {
-      const response = await api.get('/api/profile')
+      const response = await api.get('/api/account-settings/me')
       return response.data
     } catch (error) {
       console.error('Get profile error:', error)
@@ -387,7 +387,7 @@ export const profileAPI = {
 
   updateProfile: async (profileData) => {
     try {
-      const response = await api.put('/api/profile', profileData)
+      const response = await api.put('/api/account-settings/update', profileData)
       return response.data
     } catch (error) {
       console.error('Update profile error:', error)
@@ -399,7 +399,7 @@ export const profileAPI = {
     try {
       const formData = new FormData()
       formData.append('avatar', file)
-      const response = await api.post('/api/profile/avatar', formData, {
+      const response = await api.post('/api/account-settings/avatar', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

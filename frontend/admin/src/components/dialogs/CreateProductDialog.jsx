@@ -1,60 +1,135 @@
 import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/AuthContext'
-import { productAPI } from '@/services/api'
+import { storeAPI } from '@/services/api'
 import { toast } from 'react-hot-toast'
+import { FiUpload, FiX } from 'react-icons/fi'
 
-const PRODUCT_CATEGORIES = [
-  'Clothing',
-  'Shoes',
+const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL']
+const CATEGORIES = [
+  'T-Shirts',
+  'Shirts',
+  'Pants',
+  'Jeans',
+  'Dresses',
+  'Sweaters',
+  'Jackets',
   'Accessories',
-  'Electronics',
-  'Home',
-  'Beauty',
-  'Sports'
+  'Shoes',
+  'Bags'
 ]
-
-const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
-const COLORS = ['Red', 'Blue', 'Green', 'Yellow', 'Black', 'White']
+const COLORS = [
+  { name: 'Red', hex: '#FF0000' },
+  { name: 'Blue', hex: '#0000FF' },
+  { name: 'Green', hex: '#00FF00' },
+  { name: 'Black', hex: '#000000' },
+  { name: 'White', hex: '#FFFFFF' },
+  { name: 'Yellow', hex: '#FFFF00' },
+  { name: 'Purple', hex: '#800080' },
+  { name: 'Orange', hex: '#FFA500' },
+  { name: 'Gray', hex: '#808080' },
+  { name: 'Brown', hex: '#A52A2A' }
+]
 
 export default function CreateProductDialog({ open, onClose }) {
   const { currentStore } = useAuth()
   const [loading, setLoading] = useState(false)
+  const [step, setStep] = useState(1)
+  const [preview, setPreview] = useState(null)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    price: '',
-    compareAtPrice: '',
+    basePrice: '',
+    salePrice: '',
     category: '',
-    status: 'draft',
-    images: [],
-    colors: [],
     sizes: [],
-    variants: [],
-    billboardText: '',
-    billboardImage: '',
-    features: [],
-    specifications: []
+    colors: [],
+    stock: '',
+    images: [],
+    specifications: [{ key: '', value: '' }],
+    variants: []
   })
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    if (!currentStore?.id) {
-      toast.error('No store selected')
-      return
+  const handleImageChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setPreview(reader.result)
+        setFormData(prev => ({
+          ...prev,
+          images: [...prev.images, file]
+        }))
+      }
+      reader.readAsDataURL(file)
     }
+  }
 
+  const handleSizeToggle = (size) => {
+    setFormData(prev => ({
+      ...prev,
+      sizes: prev.sizes.includes(size)
+        ? prev.sizes.filter(s => s !== size)
+        : [...prev.sizes, size]
+    }))
+  }
+
+  const handleColorToggle = (color) => {
+    setFormData(prev => ({
+      ...prev,
+      colors: prev.colors.includes(color.name)
+        ? prev.colors.filter(c => c !== color.name)
+        : [...prev.colors, color.name]
+    }))
+  }
+
+  const addSpecification = () => {
+    setFormData(prev => ({
+      ...prev,
+      specifications: [...prev.specifications, { key: '', value: '' }]
+    }))
+  }
+
+  const removeSpecification = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      specifications: prev.specifications.filter((_, i) => i !== index)
+    }))
+  }
+
+  const updateSpecification = (index, field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      specifications: prev.specifications.map((spec, i) => 
+        i === index ? { ...spec, [field]: value } : spec
+      )
+    }))
+  }
+
+  const generateVariants = () => {
+    const variants = []
+    formData.sizes.forEach(size => {
+      formData.colors.forEach(color => {
+        variants.push({
+          size,
+          color,
+          price: formData.basePrice,
+          stock: formData.stock
+        })
+      })
+    })
+    setFormData(prev => ({ ...prev, variants }))
+  }
+
+  const handleSubmit = async () => {
     try {
       setLoading(true)
       const productData = {
         ...formData,
-        price: parseFloat(formData.price),
-        compareAtPrice: formData.compareAtPrice ? parseFloat(formData.compareAtPrice) : null,
         storeId: currentStore.id
       }
-
-      await productAPI.createProduct(productData)
+      await storeAPI.createProduct(productData)
       toast.success('Product created successfully')
       onClose()
     } catch (error) {
@@ -65,221 +140,275 @@ export default function CreateProductDialog({ open, onClose }) {
     }
   }
 
-  const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files)
-    // Handle image upload logic here
-  }
+  const renderStep1 = () => (
+    <div className="space-y-4">
+      <div className="text-center">
+        <h3 className="text-lg font-semibold">Basic Information</h3>
+        <p className="text-sm text-gray-500">Enter the basic details of your product</p>
+      </div>
 
-  const handleVariantChange = (index, field, value) => {
-    const newVariants = [...formData.variants]
-    newVariants[index] = { ...newVariants[index], [field]: value }
-    setFormData({ ...formData, variants: newVariants })
-  }
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Product Name</label>
+          <input
+            type="text"
+            className="w-full p-2 border rounded-md"
+            value={formData.name}
+            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+            placeholder="Enter product name"
+          />
+        </div>
 
-  const addVariant = () => {
-    setFormData({
-      ...formData,
-      variants: [
-        ...formData.variants,
-        { size: '', color: '', stock: 0, price: formData.price }
-      ]
-    })
-  }
+        <div>
+          <label className="block text-sm font-medium mb-1">Description</label>
+          <textarea
+            className="w-full p-2 border rounded-md"
+            rows="4"
+            value={formData.description}
+            onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+            placeholder="Describe your product"
+          />
+        </div>
 
-  return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>Create Product</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Basic Information */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Name</label>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Base Price</label>
+            <input
+              type="number"
+              className="w-full p-2 border rounded-md"
+              value={formData.basePrice}
+              onChange={(e) => setFormData(prev => ({ ...prev, basePrice: e.target.value }))}
+              placeholder="0.00"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Sale Price (Optional)</label>
+            <input
+              type="number"
+              className="w-full p-2 border rounded-md"
+              value={formData.salePrice}
+              onChange={(e) => setFormData(prev => ({ ...prev, salePrice: e.target.value }))}
+              placeholder="0.00"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Category</label>
+          <select
+            className="w-full p-2 border rounded-md"
+            value={formData.category}
+            onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+          >
+            <option value="">Select a category</option>
+            {CATEGORIES.map(category => (
+              <option key={category} value={category}>{category}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+    </div>
+  )
+
+  const renderStep2 = () => (
+    <div className="space-y-4">
+      <div className="text-center">
+        <h3 className="text-lg font-semibold">Variants & Options</h3>
+        <p className="text-sm text-gray-500">Select available sizes and colors</p>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-2">Available Sizes</label>
+        <div className="flex flex-wrap gap-2">
+          {SIZES.map(size => (
+            <button
+              key={size}
+              onClick={() => handleSizeToggle(size)}
+              className={`px-4 py-2 rounded-md border transition-colors ${
+                formData.sizes.includes(size)
+                  ? 'bg-primary text-white'
+                  : 'bg-white hover:bg-gray-50'
+              }`}
+            >
+              {size}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-2">Available Colors</label>
+        <div className="flex flex-wrap gap-2">
+          {COLORS.map(color => (
+            <button
+              key={color.name}
+              onClick={() => handleColorToggle(color)}
+              className={`p-2 rounded-md border flex items-center space-x-2 transition-colors ${
+                formData.colors.includes(color.name)
+                  ? 'bg-gray-100'
+                  : 'bg-white hover:bg-gray-50'
+              }`}
+            >
+              <div
+                className="w-6 h-6 rounded-full border"
+                style={{ backgroundColor: color.hex }}
+              />
+              <span>{color.name}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">Initial Stock</label>
+        <input
+          type="number"
+          className="w-full p-2 border rounded-md"
+          value={formData.stock}
+          onChange={(e) => setFormData(prev => ({ ...prev, stock: e.target.value }))}
+          placeholder="Enter initial stock quantity"
+        />
+      </div>
+    </div>
+  )
+
+  const renderStep3 = () => (
+    <div className="space-y-4">
+      <div className="text-center">
+        <h3 className="text-lg font-semibold">Images & Specifications</h3>
+        <p className="text-sm text-gray-500">Add product images and specifications</p>
+      </div>
+
+      <div className="border-2 border-dashed rounded-lg p-4">
+        <div className="text-center">
+          <FiUpload className="mx-auto h-12 w-12 text-gray-400" />
+          <div className="mt-4">
+            <label className="cursor-pointer">
+              <span className="mt-2 block text-sm text-gray-600">
+                Click to upload product images
+              </span>
+              <input
+                type="file"
+                className="hidden"
+                accept="image/*"
+                onChange={handleImageChange}
+                multiple
+              />
+            </label>
+          </div>
+        </div>
+        {preview && (
+          <div className="mt-4">
+            <img
+              src={preview}
+              alt="Preview"
+              className="h-32 w-32 object-cover rounded-lg"
+            />
+          </div>
+        )}
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <label className="block text-sm font-medium">Specifications</label>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={addSpecification}
+          >
+            Add Specification
+          </Button>
+        </div>
+        <div className="space-y-2">
+          {formData.specifications.map((spec, index) => (
+            <div key={index} className="flex gap-2">
               <input
                 type="text"
-                required
-                className="w-full p-2 border rounded-md"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="flex-1 p-2 border rounded-md"
+                placeholder="Key"
+                value={spec.key}
+                onChange={(e) => updateSpecification(index, 'key', e.target.value)}
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Category</label>
-              <select
-                required
-                className="w-full p-2 border rounded-md"
-                value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              <input
+                type="text"
+                className="flex-1 p-2 border rounded-md"
+                placeholder="Value"
+                value={spec.value}
+                onChange={(e) => updateSpecification(index, 'value', e.target.value)}
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => removeSpecification(index)}
               >
-                <option value="">Select Category</option>
-                {PRODUCT_CATEGORIES.map(category => (
-                  <option key={category} value={category}>{category}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Description</label>
-            <textarea
-              className="w-full p-2 border rounded-md"
-              rows="3"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            />
-          </div>
-
-          {/* Pricing */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Price</label>
-              <input
-                type="number"
-                step="0.01"
-                required
-                className="w-full p-2 border rounded-md"
-                value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Compare at Price</label>
-              <input
-                type="number"
-                step="0.01"
-                className="w-full p-2 border rounded-md"
-                value={formData.compareAtPrice}
-                onChange={(e) => setFormData({ ...formData, compareAtPrice: e.target.value })}
-              />
-            </div>
-          </div>
-
-          {/* Images */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Images</label>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              className="w-full p-2 border rounded-md"
-              onChange={handleImageUpload}
-            />
-          </div>
-
-          {/* Colors and Sizes */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Colors</label>
-              <div className="flex flex-wrap gap-2">
-                {COLORS.map(color => (
-                  <label key={color} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={formData.colors.includes(color)}
-                      onChange={(e) => {
-                        const newColors = e.target.checked
-                          ? [...formData.colors, color]
-                          : formData.colors.filter(c => c !== color)
-                        setFormData({ ...formData, colors: newColors })
-                      }}
-                      className="mr-1"
-                    />
-                    {color}
-                  </label>
-                ))}
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Sizes</label>
-              <div className="flex flex-wrap gap-2">
-                {SIZES.map(size => (
-                  <label key={size} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={formData.sizes.includes(size)}
-                      onChange={(e) => {
-                        const newSizes = e.target.checked
-                          ? [...formData.sizes, size]
-                          : formData.sizes.filter(s => s !== size)
-                        setFormData({ ...formData, sizes: newSizes })
-                      }}
-                      className="mr-1"
-                    />
-                    {size}
-                  </label>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Billboard */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Billboard Text</label>
-            <input
-              type="text"
-              className="w-full p-2 border rounded-md"
-              value={formData.billboardText}
-              onChange={(e) => setFormData({ ...formData, billboardText: e.target.value })}
-            />
-          </div>
-
-          {/* Variants */}
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <label className="block text-sm font-medium">Variants</label>
-              <Button type="button" onClick={addVariant} size="sm">
-                Add Variant
+                <FiX className="h-4 w-4" />
               </Button>
             </div>
-            {formData.variants.map((variant, index) => (
-              <div key={index} className="grid grid-cols-4 gap-2 mb-2">
-                <select
-                  value={variant.size}
-                  onChange={(e) => handleVariantChange(index, 'size', e.target.value)}
-                  className="p-2 border rounded-md"
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="md">
+      <div className="p-6">
+        {/* Progress Steps */}
+        <div className="mb-8">
+          <div className="flex justify-between">
+            {[1, 2, 3].map((stepNumber) => (
+              <div
+                key={stepNumber}
+                className={`flex-1 relative ${
+                  stepNumber < 3 ? 'after:content-[""] after:absolute after:w-full after:h-0.5 after:bg-gray-200 after:top-4 after:left-1/2' : ''
+                }`}
+              >
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center relative z-10 ${
+                    step >= stepNumber
+                      ? 'bg-primary text-white'
+                      : 'bg-gray-200 text-gray-500'
+                  }`}
                 >
-                  <option value="">Size</option>
-                  {formData.sizes.map(size => (
-                    <option key={size} value={size}>{size}</option>
-                  ))}
-                </select>
-                <select
-                  value={variant.color}
-                  onChange={(e) => handleVariantChange(index, 'color', e.target.value)}
-                  className="p-2 border rounded-md"
-                >
-                  <option value="">Color</option>
-                  {formData.colors.map(color => (
-                    <option key={color} value={color}>{color}</option>
-                  ))}
-                </select>
-                <input
-                  type="number"
-                  placeholder="Stock"
-                  value={variant.stock}
-                  onChange={(e) => handleVariantChange(index, 'stock', parseInt(e.target.value))}
-                  className="p-2 border rounded-md"
-                />
-                <input
-                  type="number"
-                  step="0.01"
-                  placeholder="Price"
-                  value={variant.price}
-                  onChange={(e) => handleVariantChange(index, 'price', parseFloat(e.target.value))}
-                  className="p-2 border rounded-md"
-                />
+                  {stepNumber}
+                </div>
               </div>
             ))}
           </div>
+        </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Creating...' : 'Create Product'}
+        {/* Step Content */}
+        <div className="mb-8">
+          {step === 1 && renderStep1()}
+          {step === 2 && renderStep2()}
+          {step === 3 && renderStep3()}
+        </div>
+
+        {/* Navigation Buttons */}
+        <div className="flex justify-between">
+          <Button
+            variant="outline"
+            onClick={() => step > 1 && setStep(step - 1)}
+            disabled={step === 1}
+          >
+            Previous
           </Button>
-        </form>
-      </DialogContent>
+          <Button
+            onClick={() => {
+              if (step < 3) {
+                setStep(step + 1)
+              } else {
+                handleSubmit()
+              }
+            }}
+            disabled={loading}
+          >
+            {step === 3 ? (loading ? 'Creating...' : 'Create Product') : 'Next'}
+          </Button>
+        </div>
+      </div>
     </Dialog>
   )
 } 

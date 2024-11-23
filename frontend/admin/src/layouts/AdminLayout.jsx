@@ -36,24 +36,24 @@ export default function AdminLayout() {
                 Dashboard
               </Button>
             </Link>
-            <Link to="/product-management">
-              <Button variant="ghost" className="w-full justify-start  mb-2">
-                Product Management
+            <Link to="/store">
+              <Button variant="ghost" className="w-full justify-start mb-2">
+                Store
               </Button>
             </Link>
             <Link to="/orders">
-              <Button variant="ghost" className="w-full justify-start  mb-2">
-                Orders
-              </Button>
-            </Link>
-            <Link to="/profile">
               <Button variant="ghost" className="w-full justify-start mb-2">
-                Profile
+                Orders
               </Button>
             </Link>
             <Link to="/apis">
               <Button variant="ghost" className="w-full justify-start mb-2">
                 APIs
+              </Button>
+            </Link>
+            <Link to="/account-settings">
+              <Button variant="ghost" className="w-full justify-start mb-2">
+                Account Settings
               </Button>
             </Link>
           </div>
@@ -62,7 +62,7 @@ export default function AdminLayout() {
           <div className="p-4 border-t">
             <Button 
               variant="ghost" 
-              className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50"
+              className="w-full justify-start text-red-500 hover:text-red-600"
               onClick={handleLogout}
             >
               <FiLogOut className="mr-2" />

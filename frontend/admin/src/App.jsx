@@ -3,9 +3,9 @@ import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './contexts/AuthContext'
 import AdminLayout from './layouts/AdminLayout'
 import Dashboard from './pages/Dashboard'
-import Products from './pages/Products'
+import Store from './pages/Store'
 import Orders from './pages/Orders'
-import Profile from './pages/Profile'
+import AccountSettings from './pages/AccountSettings'
 import Login from './pages/auth/Login'
 import Signup from './pages/auth/Signup'
 import { useAuth } from './contexts/AuthContext'
@@ -67,10 +67,10 @@ function AppRoutes() {
         }
       >
         <Route index element={<Dashboard />} />
-        <Route path="product-management/*" element={<Products />} />
+        <Route path="store/*" element={<Store />} />
         <Route path="orders" element={<Orders />} />
         <Route path="apis" element={<APIs />} />
-        <Route path="profile" element={<Profile />} />
+        <Route path="account-settings" element={<AccountSettings />} />
       </Route>
     </Routes>
   )
