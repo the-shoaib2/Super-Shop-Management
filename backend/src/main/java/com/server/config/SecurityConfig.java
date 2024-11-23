@@ -54,20 +54,37 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
             .authorizeHttpRequests(auth -> auth
+                // Static resources
+                .requestMatchers("/favicon.ico").permitAll()
+                .requestMatchers("/static/**").permitAll()
+                .requestMatchers("/uploads/**").permitAll()
+                
                 // Public endpoints
-                .requestMatchers(HttpMethod.GET, "/api/stores", "/api/stores/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/ping").permitAll()
                 .requestMatchers("/error").permitAll()
-                // Protected endpoints
-                .requestMatchers(HttpMethod.POST, "/api/stores/**").authenticated()
-                .requestMatchers(HttpMethod.PUT, "/api/stores/**").authenticated()
-                .requestMatchers(HttpMethod.DELETE, "/api/stores/**").authenticated()
-                .requestMatchers("/api/products/**").authenticated()
-                .requestMatchers(HttpMethod.PUT, "/api/products/**").authenticated()
-                .requestMatchers(HttpMethod.DELETE, "/api/products/**").authenticated()
-                .requestMatchers(HttpMethod.GET, "/api/orders/**").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/stores").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/stores/*").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/products/*").permitAll()
+                
+                // Profile endpoints
+                .requestMatchers("/api/profile/**").authenticated()
+                
+                // Store management
+                .requestMatchers(HttpMethod.POST, "/api/stores/*").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/stores/*").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/stores/*").authenticated()
+                
+                // Product management
+                .requestMatchers("/api/products/create").authenticated()
+                .requestMatchers("/api/products/update/*").authenticated()
+                .requestMatchers("/api/products/delete/*").authenticated()
+                
+                // Order management
+                .requestMatchers("/api/orders/*").authenticated()
+                
+                // Catch all
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
@@ -79,19 +96,21 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // Set allowed origins from environment variables
+        // Allow all origins during development
+        configuration.setAllowedOrigins(Arrays.asList("*"));
+        // Or use specific origins
+        /*
         configuration.setAllowedOrigins(Arrays.asList(
-            adminFrontendUrl,    // Admin frontend: http://localhost:5173
-            storeFrontendUrl,    // Store frontend: http://localhost:5174
-            "http://localhost:8080"  // Backend API
+            adminFrontendUrl,
+            storeFrontendUrl,
+            "http://localhost:8080"
         ));
+        */
         
-        // Set allowed methods
         configuration.setAllowedMethods(Arrays.asList(
             "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
         ));
         
-        // Set allowed headers
         configuration.setAllowedHeaders(Arrays.asList(
             "Authorization",
             "Content-Type",
@@ -102,17 +121,14 @@ public class SecurityConfig {
             "Access-Control-Request-Headers"
         ));
         
-        // Set exposed headers
         configuration.setExposedHeaders(Arrays.asList(
             "Authorization",
             "Access-Control-Allow-Origin",
             "Access-Control-Allow-Credentials"
         ));
         
-        // Allow credentials
-        configuration.setAllowCredentials(true);
-        
-        // Set max age
+        // Temporarily disable credentials requirement for development
+        configuration.setAllowCredentials(false);
         configuration.setMaxAge(3600L);
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

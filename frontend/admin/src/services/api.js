@@ -374,4 +374,42 @@ export const storeAPI = {
   }
 }
 
+export const profileAPI = {
+  getProfile: async () => {
+    try {
+      const response = await api.get('/api/profile')
+      return response.data
+    } catch (error) {
+      console.error('Get profile error:', error)
+      throw error
+    }
+  },
+
+  updateProfile: async (profileData) => {
+    try {
+      const response = await api.put('/api/profile', profileData)
+      return response.data
+    } catch (error) {
+      console.error('Update profile error:', error)
+      throw error
+    }
+  },
+
+  uploadAvatar: async (file) => {
+    try {
+      const formData = new FormData()
+      formData.append('avatar', file)
+      const response = await api.post('/api/profile/avatar', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+      return response.data
+    } catch (error) {
+      console.error('Upload avatar error:', error)
+      throw error
+    }
+  }
+}
+
 export default api 

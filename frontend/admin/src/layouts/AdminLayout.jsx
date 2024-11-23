@@ -46,6 +46,11 @@ export default function AdminLayout() {
                 Orders
               </Button>
             </Link>
+            <Link to="/profile">
+              <Button variant="ghost" className="w-full justify-start mb-2">
+                Profile
+              </Button>
+            </Link>
           </div>
           
           {/* Logout button at bottom */}

@@ -5,6 +5,7 @@ import AdminLayout from './layouts/AdminLayout'
 import Dashboard from './pages/Dashboard'
 import Products from './pages/Products'
 import Orders from './pages/Orders'
+import Profile from './pages/Profile'
 import Login from './pages/auth/Login'
 import Signup from './pages/auth/Signup'
 import { useAuth } from './contexts/AuthContext'
@@ -67,6 +68,7 @@ function AppRoutes() {
         <Route index element={<Dashboard />} />
         <Route path="products" element={<Products />} />
         <Route path="orders" element={<Orders />} />
+        <Route path="profile" element={<Profile />} />
       </Route>
     </Routes>
   )
