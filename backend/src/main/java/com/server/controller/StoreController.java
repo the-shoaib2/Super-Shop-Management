@@ -19,6 +19,7 @@ import com.server.entity.Store;
 import com.server.service.StoreService;
 import com.server.util.ApiResponse;
 import com.server.exception.ResourceNotFoundException;
+import com.server.exception.UnauthorizedException;
 
 import java.util.Map;
 import java.util.List;
@@ -278,6 +279,28 @@ public class StoreController {
             logger.error("Error retrieving current store: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Failed to retrieve current store: " + e.getMessage(), null));
+        }
+    }
+
+    @PostMapping("/owner/stores/{storeId}/switch")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<Store>> switchStore(@PathVariable String storeId) {
+        try {
+            // Get authenticated user's email
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String userEmail = authentication.getName();
+            
+            Store store = storeService.switchStore(storeId, userEmail);
+            return ResponseEntity.ok(ApiResponse.success("Store switched successfully", store));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error("Store not found", null));
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.error(e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("Failed to switch store: " + e.getMessage(), null));
         }
     }
 }

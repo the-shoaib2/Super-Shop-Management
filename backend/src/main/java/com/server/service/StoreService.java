@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.stream.Collectors;
+import com.server.exception.UnauthorizedException;
 
 @Service
 public class StoreService {
@@ -195,5 +196,17 @@ public class StoreService {
             logger.error("Error getting current store for owner {}: {}", ownerEmail, e.getMessage());
             throw new RuntimeException("Failed to retrieve current store: " + e.getMessage());
         }
+    }
+
+    public Store switchStore(String storeId, String userEmail) {
+        Store store = storeRepository.findById(storeId)
+            .orElseThrow(() -> new ResourceNotFoundException("Store not found with id: " + storeId));
+        
+        // Verify the user has access to this store
+        if (!store.getOwnerEmail().equals(userEmail)) {
+            throw new UnauthorizedException("You don't have access to this store");
+        }
+        
+        return store;
     }
 } 

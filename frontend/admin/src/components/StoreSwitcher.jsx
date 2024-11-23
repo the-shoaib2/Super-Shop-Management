@@ -42,13 +42,17 @@ export default function StoreSwitcher() {
 
   const handleStoreSwitch = async (store) => {
     try {
-      await storeAPI.switchStore(store.id)
-      setCurrentStore(store)
-      setShowStoreDialog(false)
-      toast.success(`Switched to ${store.name}`)
+      const response = await storeAPI.switchStore(store.id)
+      if (response.success) {
+        setCurrentStore(store)
+        setShowStoreDialog(false)
+        toast.success(`Switched to ${store.name}`)
+      } else {
+        throw new Error(response.message || 'Failed to switch store')
+      }
     } catch (error) {
       console.error('Failed to switch store:', error)
-      toast.error('Failed to switch store')
+      toast.error(error.response?.data?.message || 'Failed to switch store')
     }
   }
 
