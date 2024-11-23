@@ -7,9 +7,11 @@ import com.server.model.Order;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.stream.Collectors;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -165,5 +167,40 @@ public class AnalyticsService {
             logger.error("Error getting review analytics for store {}: {}", storeId, e.getMessage());
         }
         return analytics;
+    }
+
+    public Map<String, Object> getSalesReport(LocalDateTime start, LocalDateTime end) {
+        Map<String, Object> report = new HashMap<>();
+        try {
+            // Get orders between dates
+            List<Order> orders = orderRepository.findByCreatedAtBetween(start, end);
+            
+            // Process orders for sales data
+            List<Map<String, Object>> salesData = new ArrayList<>();
+            Map<String, Integer> orderStatusCount = new HashMap<>();
+            
+            for (Order order : orders) {
+                // Add to sales data
+                Map<String, Object> salePoint = new HashMap<>();
+                salePoint.put("date", order.getCreatedAt());
+                salePoint.put("amount", order.getTotalAmount());
+                salesData.add(salePoint);
+                
+                // Count order statuses
+                orderStatusCount.merge(order.getStatus(), 1, Integer::sum);
+            }
+            
+            // Add data to report
+            report.put("salesData", salesData);
+            report.put("pendingOrders", orderStatusCount.getOrDefault("pending", 0));
+            report.put("processingOrders", orderStatusCount.getOrDefault("processing", 0));
+            report.put("completedOrders", orderStatusCount.getOrDefault("completed", 0));
+            report.put("cancelledOrders", orderStatusCount.getOrDefault("cancelled", 0));
+            
+        } catch (Exception e) {
+            logger.error("Error generating sales report: {}", e.getMessage());
+            throw new RuntimeException("Failed to generate sales report", e);
+        }
+        return report;
     }
 } 

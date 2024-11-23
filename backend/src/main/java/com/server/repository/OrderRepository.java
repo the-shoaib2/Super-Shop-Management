@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import com.server.model.Order;
 import java.util.List;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Repository
 public interface OrderRepository extends MongoRepository<Order, String> {
@@ -26,4 +27,6 @@ public interface OrderRepository extends MongoRepository<Order, String> {
         "{ $limit: 10 }"
     })
     List<Order> findTopSellingProducts(String storeId);
+
+    List<Order> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 }

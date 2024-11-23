@@ -1,35 +1,51 @@
 package com.server.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.access.prepost.PreAuthorize;
 import com.server.service.AnalyticsService;
-import com.server.util.ApiResponse;
+import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api/dashboard")
+@RequiredArgsConstructor
 public class DashboardController {
-    
-    private static final Logger logger = LoggerFactory.getLogger(DashboardController.class);
-    
-    @Autowired
-    private AnalyticsService analyticsService;
+
+    private final AnalyticsService analyticsService;
 
     @GetMapping("/stats/{storeId}")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getStoreStats(@PathVariable String storeId) {
+    public ResponseEntity<?> getStoreStats(@PathVariable String storeId) {
         try {
-            logger.info("Fetching stats for store: {}", storeId);
             Map<String, Object> stats = analyticsService.getStoreAnalytics(storeId);
-            return ResponseEntity.ok(ApiResponse.success("Stats retrieved successfully", stats));
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "data", stats
+            ));
         } catch (Exception e) {
-            logger.error("Error fetching stats for store {}: {}", storeId, e.getMessage());
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("Failed to retrieve stats: " + e.getMessage(), null));
+                .body(Map.of(
+                    "success", false,
+                    "message", "Failed to fetch store stats: " + e.getMessage()
+                ));
+        }
+    }
+
+    @GetMapping("/sales")
+    public ResponseEntity<?> getSalesReport(
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end
+    ) {
+        try {
+            Map<String, Object> salesData = analyticsService.getSalesReport(start, end);
+            return ResponseEntity.ok(salesData);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                .body(Map.of(
+                    "success", false,
+                    "message", "Failed to fetch sales report: " + e.getMessage()
+                ));
         }
     }
 } 
