@@ -1,38 +1,29 @@
 package com.server.repository;
 
-import java.math.BigDecimal;
-import java.util.List;
-
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
-import org.springframework.stereotype.Repository;
 import org.springframework.data.mongodb.repository.Aggregation;
-
-import com.server.model.OrderProduct;
+import org.springframework.stereotype.Repository;
+import com.server.model.Order;
+import java.util.List;
+import java.math.BigDecimal;
 
 @Repository
-public interface OrderRepository extends MongoRepository<OrderProduct, String> {
-    List<OrderProduct> findByCustomerId(String customerId);
-
-    List<OrderProduct> findByStatus(String status);
-
-    @Query(value = "{ 'store.id': ?0 }", fields = "{ 'totalAmount': 1 }")
-    List<OrderProduct> findOrdersByStoreId(String storeId);
+public interface OrderRepository extends MongoRepository<Order, String> {
+    List<Order> findByCustomerId(String customerId);
+    List<Order> findByStoreId(String storeId);
+    List<Order> findByStatus(String status);
 
     @Aggregation(pipeline = {
-        "{ $match: { 'storeId': ?0 } }",
-        "{ $group: { _id: null, total: { $sum: { $multiply: ['$price', '$quantity'] } } } }"
+        "{ $match: { storeId: ?0 } }",
+        "{ $group: { _id: null, total: { $sum: '$totalAmount' } } }"
     })
     BigDecimal calculateTotalRevenue(String storeId);
 
-    @Query(value = "{ 'storeId': ?0 }", fields = "{ 'date': 1, 'totalAmount': 1 }")
-    List<OrderProduct> getMonthlySales(String storeId);
-
     @Aggregation(pipeline = {
-        "{ $match: { 'storeId': ?0 } }",
-        "{ $group: { _id: '$product', totalQuantity: { $sum: '$quantity' } } }",
-        "{ $sort: { totalQuantity: -1 } }",
+        "{ $match: { storeId: ?0 } }",
+        "{ $sort: { totalAmount: -1 } }",
         "{ $limit: 10 }"
     })
-    List<OrderProduct> findTopSellingProducts(String storeId);
+    List<Order> findTopSellingProducts(String storeId);
 }

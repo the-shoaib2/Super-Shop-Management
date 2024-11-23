@@ -64,9 +64,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/stores/**").authenticated()
                 .requestMatchers(HttpMethod.PUT, "/api/stores/**").authenticated()
                 .requestMatchers(HttpMethod.DELETE, "/api/stores/**").authenticated()
-                .requestMatchers(HttpMethod.POST, "/api/products/**").authenticated()
+                .requestMatchers("/api/products/**").authenticated()
                 .requestMatchers(HttpMethod.PUT, "/api/products/**").authenticated()
                 .requestMatchers(HttpMethod.DELETE, "/api/products/**").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/orders/**").authenticated()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

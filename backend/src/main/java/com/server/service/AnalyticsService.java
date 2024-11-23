@@ -3,7 +3,7 @@ package com.server.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.server.repository.OrderRepository;
-// import com.server.repository.StoreRepository;
+import com.server.model.Order;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -19,12 +19,6 @@ public class AnalyticsService {
     
     @Autowired
     private OrderRepository orderRepository;
-    
-    // @Autowired
-    // private StoreRepository storeRepository;
-    
-    // @Autowired
-    // private StoreService storeService;
     
     public Map<String, Object> getStoreAnalytics(String storeId) {
         Map<String, Object> analytics = new HashMap<>();
@@ -48,26 +42,22 @@ public class AnalyticsService {
             }
             
             try {
-                List<com.server.model.OrderProduct> topOrderProducts = orderRepository.findTopSellingProducts(storeId);
-                if (topOrderProducts != null && !topOrderProducts.isEmpty()) {
-                    List<Map<String, Object>> topProductsData = topOrderProducts.stream()
-                        .map(orderProduct -> {
-                            Map<String, Object> productData = new HashMap<>();
-                            com.server.model.Product product = orderProduct.getProduct();
-                            if (product != null) {
-                                productData.put("id", product.getId());
-                                productData.put("name", product.getName());
-                                productData.put("price", product.getPrice());
-                                productData.put("quantity", orderProduct.getQuantity());
-                            }
-                            return productData;
+                List<Order> topOrders = orderRepository.findTopSellingProducts(storeId);
+                if (topOrders != null && !topOrders.isEmpty()) {
+                    List<Map<String, Object>> topOrdersData = topOrders.stream()
+                        .map(order -> {
+                            Map<String, Object> orderData = new HashMap<>();
+                            orderData.put("id", order.getId());
+                            orderData.put("totalAmount", order.getTotalAmount());
+                            orderData.put("status", order.getStatus());
+                            orderData.put("createdAt", order.getCreatedAt());
+                            return orderData;
                         })
-                        .filter(map -> !map.isEmpty())
                         .collect(Collectors.toList());
-                    analytics.put("topProducts", topProductsData);
+                    analytics.put("topOrders", topOrdersData);
                 }
             } catch (Exception e) {
-                logger.error("Error fetching top products for store {}: {}", storeId, e.getMessage());
+                logger.error("Error fetching top orders for store {}: {}", storeId, e.getMessage());
             }
 
             // Get customer analytics
