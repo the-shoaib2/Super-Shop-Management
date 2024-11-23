@@ -14,79 +14,78 @@ export function AuthProvider({ children }) {
   const location = useLocation()
 
   useEffect(() => {
-    checkAuth()
-  }, [])
-
-  const checkAuth = async () => {
-    try {
-      const token = localStorage.getItem('token')
-      const storedUser = localStorage.getItem('user')
-      
-      if (!token) {
-        handleLogout()
-        return
-      }
-
-      // Try to parse stored user data
-      let userData = null
+    const checkAuth = async () => {
       try {
-        userData = storedUser ? JSON.parse(storedUser) : null
+        const storedUser = localStorage.getItem('user')
+        if (storedUser && storedUser !== 'undefined') {
+          try {
+            setUser(JSON.parse(storedUser))
+          } catch (parseError) {
+            console.error('Failed to parse stored user:', parseError)
+            localStorage.removeItem('user')
+          }
+        } else {
+          // Only check auth if no stored user
+          const response = await authAPI.checkAuth()
+          if (response?.data) {
+            setUser(response.data)
+            localStorage.setItem('user', JSON.stringify(response.data))
+          }
+        }
       } catch (error) {
-        console.warn('Failed to parse stored user data:', error)
+        console.error('Auth check failed:', error)
         localStorage.removeItem('user')
-      }
-
-      // Set initial user state if we have valid stored data
-      if (userData) {
-        setUser(userData)
-      }
-
-      // Validate token with backend
-      try {
-        const response = await authAPI.checkAuth()
-        if (response?.data?.success) {
-          setUser(response.data.data.user)
-          localStorage.setItem('user', JSON.stringify(response.data.data.user))
+        if (location.pathname !== '/login' && location.pathname !== '/signup') {
+          navigate('/login')
         }
-      } catch (error) {
-        console.error('Token validation failed:', error)
-        if (error.response?.status === 401) {
-          handleLogout()
-        }
+      } finally {
+        setLoading(false)
       }
-    } catch (error) {
-      console.error('Auth check failed:', error)
-    } finally {
-      setLoading(false)
     }
-  }
+
+    checkAuth()
+  }, [navigate, location.pathname])
 
   const login = async (credentials) => {
     try {
       const response = await authAPI.login(credentials)
+      console.log('Login response:', response) // Debug log
       
-      // Check if we have a token
-      if (!response?.data?.token) {
-        throw new Error('No token received')
+      // Check if response exists
+      if (!response) {
+        throw new Error('No response received')
       }
 
-      // Save auth data
-      localStorage.setItem('token', response.data.token)
+      // Get data from response
+      const data = response.data || response
       
-      // Handle user data
-      const userData = response.data.user || {
-        email: credentials.email,
+      // Check if we have the necessary data
+      if (!data.token && !data.email) {
+        console.error('Invalid response structure:', data)
+        throw new Error('Invalid response structure')
       }
       
-      localStorage.setItem('user', JSON.stringify(userData))
+      // Store token if present
+      if (data.token) {
+        localStorage.setItem('token', data.token)
+      }
+      
+      // Create user data object
+      const userData = {
+        email: data.email,
+        fullName: data.fullName || null,
+        storeName: data.storeName || null,
+        // Add any other relevant fields
+      }
+      
+      // Update state and storage
       setUser(userData)
-
-      return {
-        success: true,
-        data: userData
-      }
+      localStorage.setItem('user', JSON.stringify(userData))
+      
+      return userData
     } catch (error) {
-      console.error('Login error in context:', error)
+      console.error('Login failed:', error)
+      toast.error(error.message || 'Login failed')
       throw error
     }
   }
