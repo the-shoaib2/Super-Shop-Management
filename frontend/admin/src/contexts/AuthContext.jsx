@@ -136,7 +136,8 @@ export function AuthProvider({ children }) {
     currentStore,
     stores,
     switchStore,
-    setStores
+    setStores,
+    setCurrentStore
   }
 
   return (

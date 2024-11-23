@@ -1,17 +1,56 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useAuth } from '@/contexts/AuthContext'
 import { FiPlus, FiChevronDown } from 'react-icons/fi'
 import CreateStoreDialog from './dialogs/CreateStoreDialog'
+import { storeAPI } from '@/services/api'
+import { toast } from 'react-hot-toast'
+
+const truncateText = (text, maxLength) => {
+  return text?.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
+};
 
 export default function StoreSwitcher() {
-  const { stores = [], currentStore, switchStore } = useAuth()
+  const { user, currentStore, setCurrentStore } = useAuth()
   const [showStoreDialog, setShowStoreDialog] = useState(false)
   const [showCreateDialog, setShowCreateDialog] = useState(false)
+  const [stores, setStores] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  // Ensure stores is an array
-  const storesList = Array.isArray(stores) ? stores : []
+  useEffect(() => {
+    fetchStores()
+  }, [])
+
+  const fetchStores = async () => {
+    try {
+      setLoading(true)
+      const response = await storeAPI.getOwnerStores()
+      setStores(response.data || [])
+      
+      // If no current store is selected and stores exist, set the first one
+      if (!currentStore && response.data?.length > 0) {
+        setCurrentStore(response.data[0])
+      }
+    } catch (error) {
+      console.error('Failed to fetch stores:', error)
+      toast.error('Failed to load stores')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleStoreSwitch = async (store) => {
+    try {
+      await storeAPI.switchStore(store.id)
+      setCurrentStore(store)
+      setShowStoreDialog(false)
+      toast.success(`Switched to ${store.name}`)
+    } catch (error) {
+      console.error('Failed to switch store:', error)
+      toast.error('Failed to switch store')
+    }
+  }
 
   return (
     <>
@@ -20,12 +59,15 @@ export default function StoreSwitcher() {
           variant="outline"
           className="w-[200px] justify-between"
           onClick={() => setShowStoreDialog(true)}
+          disabled={loading}
         >
           <div className="flex flex-col items-start">
-            <span className="text-sm">{currentStore?.name || 'Select Store'}</span>
+            <span className="text-sm">
+              {loading ? 'Loading...' : truncateText(currentStore?.name, 10) || 'Select Store'}
+            </span>
             {currentStore?.category && (
               <span className="text-xs text-muted-foreground">
-                {currentStore.category}
+                {truncateText(currentStore.category, 15)}
               </span>
             )}
           </div>
@@ -40,39 +82,44 @@ export default function StoreSwitcher() {
         </Button>
       </div>
 
-      <Dialog open={showStoreDialog} onOpenChange={setShowStoreDialog} className="transition-opacity duration-300 ease-in-out">
-        <DialogContent className="transition-transform transform duration-300 ease-in-out">
+      <Dialog open={showStoreDialog} onOpenChange={setShowStoreDialog}>
+        <DialogContent className="max-w-[400px]">
           <DialogHeader>
             <DialogTitle>Switch Store</DialogTitle>
           </DialogHeader>
-          <div className="flex flex-col gap-2">
-            {storesList.map((store) => (
+          <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto">
+            {stores.map((store) => (
               <Button
                 key={store.id}
                 variant="ghost"
                 className="w-full justify-start"
-                onClick={() => {
-                  switchStore(store)
-                  setShowStoreDialog(false)
-                }}
+                onClick={() => handleStoreSwitch(store)}
               >
                 <div className="flex flex-col items-start">
-                  <span>{store.name}</span>
+                  <span title={store.name}>{truncateText(store.name, 20)}</span>
                   {store.category && (
-                    <span className="text-xs text-muted-foreground">
-                      {store.category}
+                    <span className="text-xs text-muted-foreground" title={store.category}>
+                      {truncateText(store.category, 25)}
                     </span>
                   )}
                 </div>
               </Button>
             ))}
+            {stores.length === 0 && !loading && (
+              <p className="text-center text-muted-foreground py-4">
+                No stores found. Create one to get started.
+              </p>
+            )}
           </div>
         </DialogContent>
       </Dialog>
 
       <CreateStoreDialog 
         open={showCreateDialog} 
-        onClose={() => setShowCreateDialog(false)} 
+        onClose={() => {
+          setShowCreateDialog(false)
+          fetchStores() // Refresh stores list after creation
+        }}
       />
     </>
   )

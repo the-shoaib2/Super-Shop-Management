@@ -55,7 +55,7 @@ export default function CreateStoreDialog({ open, onClose }) {
         email: user?.email // Use authenticated user's email
       }
 
-      const response = await api.post('/api/stores', storeData, {
+      const response = await api.post('/api/stores/owner/stores', storeData, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`

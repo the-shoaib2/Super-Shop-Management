@@ -286,20 +286,7 @@ export const storeAPI = {
 
   getOwnerStores: async () => {
     try {
-      const token = localStorage.getItem('token')
-      if (!token) {
-        throw new Error('No authentication token found')
-      }
-
-      const response = await api.get('/api/stores/owner/stores', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      
-      // Log response for debugging
-      console.log('Get owner stores response:', response)
-      
+      const response = await api.get('/api/stores/owner/stores')
       return response.data
     } catch (error) {
       console.error('Get owner stores error:', error)
@@ -307,18 +294,19 @@ export const storeAPI = {
     }
   },
 
+  switchStore: async (storeId) => {
+    try {
+      const response = await api.post(`/api/stores/owner/switch/${storeId}`)
+      return response.data
+    } catch (error) {
+      console.error('Switch store error:', error)
+      throw error
+    }
+  },
+
   getCurrentStore: async () => {
     try {
-      const token = localStorage.getItem('token')
-      if (!token) {
-        throw new Error('No authentication token found')
-      }
-
-      const response = await api.get('/api/stores/owner/current', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
+      const response = await api.get('/api/stores/owner/current')
       return response.data
     } catch (error) {
       console.error('Get current store error:', error)
