@@ -1,119 +1,155 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { authAPI } from '@/services/api'
+import { toast } from 'react-hot-toast'
 
 const AuthContext = createContext()
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [tokens, setTokens] = useState(() => ({
-    accessToken: localStorage.getItem('accessToken'),
-    refreshToken: localStorage.getItem('refreshToken')
-  }))
+  const [currentStore, setCurrentStore] = useState(null)
+  const [stores, setStores] = useState([])
   const navigate = useNavigate()
   const location = useLocation()
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const token = localStorage.getItem('token')
-        const storedUser = localStorage.getItem('user')
-        
-        if (!token || !storedUser) {
-          setUser(null)
-          setLoading(false)
-          if (!isPublicRoute(location.pathname)) {
-            navigate('/login', { replace: true })
-          }
-          return
-        }
-
-        try {
-          // Set initial user state from localStorage
-          setUser(JSON.parse(storedUser))
-          
-          // Validate token in background
-          const response = await authAPI.checkAuth()
-          if (response.success) {
-            setUser(response.data.user)
-          }
-        } catch (error) {
-          console.error('Auth validation failed:', error)
-          // Only clear auth if it's a 401 error
-          if (error.response?.status === 401) {
-            setUser(null)
-            localStorage.removeItem('token')
-            localStorage.removeItem('user')
-            if (!isPublicRoute(location.pathname)) {
-              navigate('/login', { replace: true })
-            }
-          }
-        }
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    // Helper function to check if route is public
-    const isPublicRoute = (path) => {
-      return ['/login', '/signup', '/'].includes(path)
-    }
-
     checkAuth()
-  }, [navigate, location.pathname])
+  }, [])
 
-  const saveTokens = (accessToken, refreshToken) => {
-    localStorage.setItem('accessToken', accessToken)
-    localStorage.setItem('refreshToken', refreshToken)
-    setTokens({ accessToken, refreshToken })
-  }
+  const checkAuth = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      const storedUser = localStorage.getItem('user')
+      
+      if (!token) {
+        handleLogout()
+        return
+      }
 
-  const clearTokens = () => {
-    localStorage.removeItem('accessToken')
-    localStorage.removeItem('refreshToken')
-    localStorage.removeItem('user')
-    setTokens({ accessToken: null, refreshToken: null })
-    setUser(null)
+      // Try to parse stored user data
+      let userData = null
+      try {
+        userData = storedUser ? JSON.parse(storedUser) : null
+      } catch (error) {
+        console.warn('Failed to parse stored user data:', error)
+        localStorage.removeItem('user')
+      }
+
+      // Set initial user state if we have valid stored data
+      if (userData) {
+        setUser(userData)
+      }
+
+      // Validate token with backend
+      try {
+        const response = await authAPI.checkAuth()
+        if (response?.data?.success) {
+          setUser(response.data.data.user)
+          localStorage.setItem('user', JSON.stringify(response.data.data.user))
+        }
+      } catch (error) {
+        console.error('Token validation failed:', error)
+        if (error.response?.status === 401) {
+          handleLogout()
+        }
+      }
+    } catch (error) {
+      console.error('Auth check failed:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const login = async (credentials) => {
     try {
       const response = await authAPI.login(credentials)
-      const { accessToken, refreshToken, user: userData } = response.data
       
-      saveTokens(accessToken, refreshToken)
-      setUser(userData)
+      // Check if we have a token
+      if (!response?.data?.token) {
+        throw new Error('No token received')
+      }
+
+      // Save auth data
+      localStorage.setItem('token', response.data.token)
+      
+      // Handle user data
+      const userData = response.data.user || {
+        email: credentials.email,
+      }
+      
       localStorage.setItem('user', JSON.stringify(userData))
-      
-      return response.data
+      setUser(userData)
+
+      return {
+        success: true,
+        data: userData
+      }
     } catch (error) {
+      console.error('Login error in context:', error)
       throw error
+    }
+  }
+
+  const handleLogout = () => {
+    setUser(null)
+    setCurrentStore(null)
+    setStores([])
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    localStorage.removeItem('currentStore')
+    if (!isPublicRoute(location.pathname)) {
+      navigate('/login', { replace: true })
     }
   }
 
   const logout = async () => {
     try {
-      if (tokens.refreshToken) {
-        await authAPI.logout({ refreshToken: tokens.refreshToken })
-      }
+      await authAPI.logout()
     } catch (error) {
       console.error('Logout error:', error)
     } finally {
-      clearTokens()
+      handleLogout()
     }
   }
 
+  const switchStore = async (store) => {
+    try {
+      setCurrentStore(store)
+      localStorage.setItem('currentStore', JSON.stringify(store))
+    } catch (error) {
+      console.error('Error switching store:', error)
+      toast.error('Failed to switch store')
+    }
+  }
+
+  // Helper function to check if route is public
+  const isPublicRoute = (path) => {
+    return ['/login', '/signup', '/'].includes(path)
+  }
+
+  const value = {
+    user,
+    loading,
+    login,
+    logout,
+    currentStore,
+    stores,
+    switchStore,
+    setStores
+  }
+
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      loading, 
-      login, 
-      logout
-    }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   )
 }
 
-export const useAuth = () => useContext(AuthContext) 
+export const useAuth = () => {
+  const context = useContext(AuthContext)
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+  return context
+} 

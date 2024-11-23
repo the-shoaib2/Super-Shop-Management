@@ -49,12 +49,12 @@ api.interceptors.response.use(
   }
 )
 
-// Update request interceptor
+// Update request interceptor to use the correct token header
 api.interceptors.request.use(
   (config) => {
-    const accessToken = localStorage.getItem('accessToken')
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`
     }
     return config
   },
@@ -66,13 +66,6 @@ export const authAPI = {
   register: async (userData) => {
     try {
       const response = await api.post('/api/auth/register', userData)
-      
-      if (response.data?.success && response.data?.data?.token) {
-        const { token, ...user } = response.data.data
-        localStorage.setItem('token', token)
-        localStorage.setItem('user', JSON.stringify(user))
-      }
-      
       return response.data
     } catch (error) {
       console.error('Registration Error:', error)
@@ -81,8 +74,36 @@ export const authAPI = {
   },
 
   login: async (credentials) => {
+    try {
       const response = await api.post('/api/auth/login', credentials)
-    return response
+      
+      // Check if response has data
+      if (!response.data) {
+        throw new Error('No response data received')
+      }
+
+      // Log response for debugging
+      console.log('Login response:', response.data)
+
+      // Check response structure
+      if (!response.data.success && !response.data.token) {
+        throw new Error(response.data.message || 'Invalid response format')
+      }
+
+      // Store token if present
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token)
+      }
+
+      return response.data
+    } catch (error) {
+      console.error('Login Error:', error.response || error)
+      throw new Error(
+        error.response?.data?.message || 
+        error.message || 
+        'Login failed'
+      )
+    }
   },
 
   checkAuth: async () => {
@@ -92,40 +113,27 @@ export const authAPI = {
         throw new Error('No token found')
       }
 
-      // Try to get the stored user first
-      const storedUser = localStorage.getItem('user')
-      
-      try {
-        // Try to validate token with backend
-        const response = await api.get('/api/auth/check-token')
-        return {
-          success: true,
-          data: {
-            user: response.data?.user || JSON.parse(storedUser)
-          }
-        }
-      } catch (error) {
-        // If backend validation fails but we have stored user data
-        if (storedUser) {
-          return {
-            success: true,
-            data: {
-              user: JSON.parse(storedUser)
-            }
-          }
-        }
-        throw error
-      }
+      const response = await api.get('/api/auth/check-token')
+      return response.data
     } catch (error) {
       console.error('Auth check failed:', error)
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
       throw error
     }
   },
 
-  logout: async (refreshToken) => {
-    return api.post('/api/auth/logout', { refreshToken })
+  logout: async () => {
+    try {
+      const response = await api.post('/api/auth/logout')
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      return response.data
+    } catch (error) {
+      console.error('Logout Error:', error)
+      // Still remove tokens even if API call fails
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      throw error
+    }
   }
 }
 
@@ -254,8 +262,13 @@ api.interceptors.response.use(
 export const storeAPI = {
   createStore: async (storeData) => {
     try {
-      const response = await api.post('/api/stores', storeData)
-      return response.data
+      // Ensure storeData contains all required fields
+      if (!storeData.name || !storeData.ownerEmail || !storeData.ownerId) {
+        throw new Error('Missing required fields: name, ownerEmail, or ownerId');
+      }
+
+      const response = await api.post('/api/stores', storeData);
+      return response.data;
     } catch (error) {
       // Enhanced error logging
       if (error.response) {
@@ -263,10 +276,52 @@ export const storeAPI = {
           status: error.response.status,
           data: error.response.data,
           message: error.response.data?.message || 'No message provided'
-        })
+        });
       } else {
-        console.error('Create Store Error:', error.message)
+        console.error('Create Store Error:', error.message);
       }
+      throw error; // Rethrow the error for further handling
+    }
+  },
+
+  getOwnerStores: async () => {
+    try {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        throw new Error('No authentication token found')
+      }
+
+      const response = await api.get('/api/stores/owner/stores', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      
+      // Log response for debugging
+      console.log('Get owner stores response:', response)
+      
+      return response.data
+    } catch (error) {
+      console.error('Get owner stores error:', error)
+      throw error
+    }
+  },
+
+  getCurrentStore: async () => {
+    try {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        throw new Error('No authentication token found')
+      }
+
+      const response = await api.get('/api/stores/owner/current', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      return response.data
+    } catch (error) {
+      console.error('Get current store error:', error)
       throw error
     }
   }

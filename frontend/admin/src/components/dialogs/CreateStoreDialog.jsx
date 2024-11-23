@@ -5,7 +5,6 @@ import { toast } from 'react-hot-toast'
 import { useAuth } from '@/contexts/AuthContext'
 import { cn } from "@/lib/utils"
 import api from '@/services/api'
-import { storeAPI } from '@/services/api'
 
 const STORE_CATEGORIES = [
   'Retail',
@@ -29,46 +28,55 @@ const INITIAL_FORM_STATE = {
 }
 
 export default function CreateStoreDialog({ open, onClose }) {
-  const { addStore } = useAuth()
+  const { user } = useAuth()
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState(INITIAL_FORM_STATE)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setLoading(true)
     
     try {
-      // Add validation
+      // Validate required fields
       if (!formData.name?.trim()) {
         toast.error('Store name is required')
         return
       }
 
-      // Log the request data for debugging
-      console.log('Creating store with data:', formData)
-
-      const response = await storeAPI.createStore({
+      // Prepare store data
+      const storeData = {
         name: formData.name.trim(),
+        type: formData.category ? [formData.category] : [],
         description: formData.description?.trim() || '',
         address: formData.address?.trim() || '',
-        phone: formData.phone?.trim() || '',
-        email: formData.email?.trim() || '',
         location: formData.location?.trim() || '',
-        tags: formData.tags?.trim() || ''
+        phone: formData.phone?.trim() || '',
+        tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : [],
+        email: user?.email // Use authenticated user's email
+      }
+
+      const response = await api.post('/api/stores', storeData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
       })
 
-      if (response?.success) {
+      if (response?.data?.success) {
         toast.success('Store created successfully!')
-        onClose() // Close the dialog
-        // Optionally refresh the stores list
+        onClose()
+        // Refresh user's stores list if needed
         if (typeof onStoreCreated === 'function') {
-          onStoreCreated(response.data)
+          onStoreCreated(response.data.data)
         }
+      } else {
+        throw new Error(response?.data?.message || 'Failed to create store')
       }
     } catch (error) {
       console.error('Store creation error:', error)
-      const errorMessage = error.response?.data?.message || 
-                          error.response?.data?.error || 
-                          'Failed to create store'
-      toast.error(errorMessage)
+      toast.error(error.response?.data?.message || 'Failed to create store')
+    } finally {
+      setLoading(false)
     }
   }
 

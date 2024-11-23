@@ -14,7 +14,7 @@ public interface StoreRepository extends MongoRepository<Store, String> {
     Store findByStoreId(String storeId);
 
     @Query("{ 'ownerEmail': ?0 }")
-    Optional<Store> findByOwnerEmail(String email);
+    List<Store> findAllByOwnerEmail(String email);
 
     @Query("{ 'ownerId': ?0 }")
     List<Store> findByOwnerId(String ownerId);
@@ -31,7 +31,5 @@ public interface StoreRepository extends MongoRepository<Store, String> {
     List<Store> findAllWithCategories();
 
     @Query(value = "{ 'ownerEmail': ?0 }", sort = "{ 'createdAt': -1 }")
-    Optional<Store> findFirstByOwnerEmailOrderByCreatedAtDesc(String email);
-
-    boolean existsByOwnerEmail(String email);
+    List<Store> findByOwnerEmailOrderByCreatedAtDesc(String email);
 } 

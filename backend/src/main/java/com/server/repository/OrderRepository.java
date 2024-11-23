@@ -6,36 +6,33 @@ import java.util.List;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
-
-import com.server.model.Order;
-import com.server.model.Product;
-
 import org.springframework.data.mongodb.repository.Aggregation;
 
-@Repository
-public interface OrderRepository extends MongoRepository<Order, String> {
-    List<Order> findByCustomerId(String customerId);
+import com.server.model.OrderProduct;
 
-    List<Order> findByStatus(String status);
+@Repository
+public interface OrderRepository extends MongoRepository<OrderProduct, String> {
+    List<OrderProduct> findByCustomerId(String customerId);
+
+    List<OrderProduct> findByStatus(String status);
 
     @Query(value = "{ 'store.id': ?0 }", fields = "{ 'totalAmount': 1 }")
-    List<Order> findOrdersByStoreId(String storeId);
+    List<OrderProduct> findOrdersByStoreId(String storeId);
 
     @Aggregation(pipeline = {
-        "{ $match: { 'store.id': ?0 } }",
-        "{ $group: { _id: null, total: { $sum: '$totalAmount' } } }"
+        "{ $match: { 'storeId': ?0 } }",
+        "{ $group: { _id: null, total: { $sum: { $multiply: ['$price', '$quantity'] } } } }"
     })
     BigDecimal calculateTotalRevenue(String storeId);
 
     @Query(value = "{ 'storeId': ?0 }", fields = "{ 'date': 1, 'totalAmount': 1 }")
-    List<Order> getMonthlySales(String storeId);
+    List<OrderProduct> getMonthlySales(String storeId);
 
     @Aggregation(pipeline = {
-        "{ $match: { 'store.id': ?0 } }",
-        "{ $unwind: '$items' }",
-        "{ $group: { _id: '$items.product', totalSold: { $sum: '$items.quantity' } } }",
-        "{ $sort: { totalSold: -1 } }",
+        "{ $match: { 'storeId': ?0 } }",
+        "{ $group: { _id: '$product', totalQuantity: { $sum: '$quantity' } } }",
+        "{ $sort: { totalQuantity: -1 } }",
         "{ $limit: 10 }"
     })
-    List<Product> findTopSellingProducts(String storeId);
+    List<OrderProduct> findTopSellingProducts(String storeId);
 }

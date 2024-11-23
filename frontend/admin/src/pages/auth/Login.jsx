@@ -15,14 +15,31 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setLoading(true)
+
     try {
-      await login(formData)
+      // Validate form data
+      if (!formData.email || !formData.password) {
+        toast.error('Please fill in all fields')
+        return
+      }
+
+      // Log the attempt
+      console.log('Attempting login with:', { email: formData.email })
+
+      // Attempt login
+      const response = await login(formData)
+      
+      // Log success response
+      console.log('Login successful:', response)
+
       toast.success('Login successful')
       navigate('/')
     } catch (error) {
-      console.error('Login error:', error)
-      const message = error.response?.data?.message || 'Invalid credentials'
-      toast.error(message)
+      console.error('Login error in component:', error)
+      toast.error(error.message || 'Login failed. Please check your credentials.')
+    } finally {
+      setLoading(false)
     }
   }
 

@@ -56,7 +56,8 @@ public class StoreController {
 
             // Get user details from Principal
             Object principal = authentication.getPrincipal();
-            String ownerEmail = "";
+            String ownerEmail;
+            String ownerId = authentication.getName();
 
             // Handle different types of Principal objects
             if (principal instanceof UserDetails) {
@@ -67,17 +68,20 @@ public class StoreController {
                 ownerEmail = principal.toString();
             }
 
+            // Validate owner email
             if (ownerEmail == null || ownerEmail.isEmpty()) {
                 return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(ApiResponse.error("Invalid owner email", null));
             }
 
-            // Set the owner details in the DTO
+            // Set owner details in DTO
             storeDTO.setOwnerEmail(ownerEmail);
-            storeDTO.setOwnerId(authentication.getName());
+            storeDTO.setOwnerId(ownerId);
 
+            // Create store
             Store createdStore = storeService.createStore(storeDTO);
+            
             return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Store created successfully", createdStore));
@@ -239,6 +243,41 @@ public class StoreController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Failed to retrieve categories", null));
+        }
+    }
+
+    @GetMapping("/owner/stores")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<List<Store>>> getOwnerStores() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String ownerEmail = authentication.getName();
+            List<Store> stores = storeService.getStoresByOwner(ownerEmail);
+            return ResponseEntity.ok(ApiResponse.success("Owner stores retrieved successfully", stores));
+        } catch (Exception e) {
+            logger.error("Error retrieving owner stores: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Failed to retrieve owner stores", null));
+        }
+    }
+
+    @GetMapping("/owner/current")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<Store>> getCurrentOwnerStore() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String ownerEmail = authentication.getName();
+            
+            try {
+                Store store = storeService.getCurrentStoreByOwner(ownerEmail);
+                return ResponseEntity.ok(ApiResponse.success("Current store retrieved successfully", store));
+            } catch (ResourceNotFoundException e) {
+                return ResponseEntity.ok(ApiResponse.success("No stores found", null));
+            }
+        } catch (Exception e) {
+            logger.error("Error retrieving current store: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Failed to retrieve current store: " + e.getMessage(), null));
         }
     }
 }
