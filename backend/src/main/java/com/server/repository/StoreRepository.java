@@ -2,55 +2,36 @@ package com.server.repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import com.server.entity.Store;
-
-import org.springframework.data.mongodb.repository.Aggregation;
 import java.util.List;
-import java.math.BigDecimal;
+import java.util.Optional;
 
 public interface StoreRepository extends MongoRepository<Store, String> {
-    @Query(value = "{ '_id': ?0 }")
+    
+    @Query("{ '_id': ?0 }")
     Store findByStoreId(String storeId);
 
-    @Aggregation(pipeline = {
-        "{ $match: { '_id': ?0 } }",
-        "{ $lookup: { from: 'orders', localField: '_id', foreignField: 'storeId', as: 'orders' } }",
-        "{ $project: { totalSales: { $size: '$orders' } } }"
-    })
-    Integer findTotalSalesByStoreId(String storeId);
+    @Query("{ 'ownerEmail': ?0 }")
+    Optional<Store> findByOwnerEmail(String email);
 
-    @Aggregation(pipeline = {
-        "{ $match: { '_id': ?0 } }",
-        "{ $lookup: { from: 'customers', localField: '_id', foreignField: 'storeId', as: 'customers' } }",
-        "{ $project: { customerCount: { $size: '$customers' } } }"
-    })
-    Integer findCustomerCountByStoreId(String storeId);
+    @Query("{ 'ownerId': ?0 }")
+    List<Store> findByOwnerId(String ownerId);
 
-    @Query(value = "{ '_id': ?0 }", count = true)
-    Integer findProductCountByStoreId(String storeId);
+    @Query("{ $or: [ " +
+           "{ 'name': { $regex: ?0, $options: 'i' } }, " +
+           "{ 'description': { $regex: ?0, $options: 'i' } } " +
+           "], " +
+           "'categories': { $in: ?1 }, " +
+           "'tags': { $in: ?2 } }")
+    Page<Store> findBySearchCriteria(String query, List<String> categories, List<String> tags, Pageable pageable);
 
-    @Aggregation(pipeline = {
-        "{ $match: { '_id': ?0 } }",
-        "{ $unwind: '$products' }",
-        "{ $group: { _id: null, total: { $sum: { $multiply: ['$products.price', '$products.quantity'] } } } }"
-    })
-    BigDecimal calculateInventoryValueByStoreId(String storeId);
+    @Query(value = "{ 'categories': { $exists: true } }", fields = "{ 'categories': 1 }")
+    List<Store> findAllWithCategories();
 
-    @Query(value = "{ '_id': ?0 }", count = true)
-    Integer findReviewCountByStoreId(String storeId);
+    @Query(value = "{ 'ownerEmail': ?0 }", sort = "{ 'createdAt': -1 }")
+    Optional<Store> findFirstByOwnerEmailOrderByCreatedAtDesc(String email);
 
-    @Aggregation(pipeline = {
-        "{ $match: { '_id': ?0 } }",
-        "{ $lookup: { from: 'reviews', localField: '_id', foreignField: 'storeId', as: 'reviews' } }",
-        "{ $unwind: '$reviews' }",
-        "{ $group: { _id: null, avgRating: { $avg: '$reviews.rating' } } }"
-    })
-    Double calculateAverageRatingByStoreId(String storeId);
-
-    @Query(value = "{ 'storeId': ?0, 'createdAt': { $gte: ?1 } }", count = true)
-    Integer findRecentOrdersCountByStoreId(String storeId);
-
-    @Query(value = "{ 'storeId': ?0 }", fields = "{ 'content': 1, 'createdAt': 1 }")
-    List<String> findRecentReviewsByStoreId(String storeId);
+    boolean existsByOwnerEmail(String email);
 } 

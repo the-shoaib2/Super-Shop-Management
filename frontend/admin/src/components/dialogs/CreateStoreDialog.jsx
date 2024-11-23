@@ -5,6 +5,7 @@ import { toast } from 'react-hot-toast'
 import { useAuth } from '@/contexts/AuthContext'
 import { cn } from "@/lib/utils"
 import api from '@/services/api'
+import { storeAPI } from '@/services/api'
 
 const STORE_CATEGORIES = [
   'Retail',
@@ -44,21 +45,22 @@ export default function CreateStoreDialog({ open, onClose }) {
       // Log the request data for debugging
       console.log('Creating store with data:', formData)
 
-      const response = await api.post('/api/stores', {
+      const response = await storeAPI.createStore({
         name: formData.name.trim(),
         description: formData.description?.trim() || '',
-        // Add any other required fields your API expects
         address: formData.address?.trim() || '',
         phone: formData.phone?.trim() || '',
-        email: formData.email?.trim() || ''
+        email: formData.email?.trim() || '',
+        location: formData.location?.trim() || '',
+        tags: formData.tags?.trim() || ''
       })
 
-      if (response.data?.success) {
+      if (response?.success) {
         toast.success('Store created successfully!')
         onClose() // Close the dialog
         // Optionally refresh the stores list
         if (typeof onStoreCreated === 'function') {
-          onStoreCreated(response.data.data)
+          onStoreCreated(response.data)
         }
       }
     } catch (error) {

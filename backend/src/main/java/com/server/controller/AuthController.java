@@ -147,4 +147,15 @@ public class AuthController {
         }
     }
 
+    // Check if the token is valid
+    @GetMapping("/check-token")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<String>> checkToken() {
+        try {
+            return ResponseEntity.ok(ApiResponse.success("Token is valid", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error("Token is invalid", null));
+        }
+    }
+
 }

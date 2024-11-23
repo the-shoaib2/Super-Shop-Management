@@ -7,19 +7,27 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.server.dto.StoreDTO;
 import com.server.entity.Store;
 import com.server.service.StoreService;
 import com.server.util.ApiResponse;
+import com.server.exception.ResourceNotFoundException;
 
 import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/stores")
-@CrossOrigin(origins = "*", maxAge = 3600)
-@PreAuthorize("isAuthenticated()")
 public class StoreController {
+    private static final Logger logger = LoggerFactory.getLogger(StoreController.class);
+
     @Autowired
     private StoreService storeService;
 
@@ -35,14 +43,46 @@ public class StoreController {
     }
 
     @PostMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<Store>> createStore(@RequestBody StoreDTO storeDTO) {
         try {
+            // Get the authenticated user's details
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null) {
+                return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("User not authenticated", null));
+            }
+
+            // Get user details from Principal
+            Object principal = authentication.getPrincipal();
+            String ownerEmail = "";
+
+            // Handle different types of Principal objects
+            if (principal instanceof UserDetails) {
+                ownerEmail = ((UserDetails) principal).getUsername();
+            } else if (principal instanceof OAuth2User) {
+                ownerEmail = ((OAuth2User) principal).getAttribute("email");
+            } else {
+                ownerEmail = principal.toString();
+            }
+
+            if (ownerEmail == null || ownerEmail.isEmpty()) {
+                return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.error("Invalid owner email", null));
+            }
+
+            // Set the owner details in the DTO
+            storeDTO.setOwnerEmail(ownerEmail);
+            storeDTO.setOwnerId(authentication.getName());
+
             Store createdStore = storeService.createStore(storeDTO);
             return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Store created successfully", createdStore));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error creating store: ", e);
             return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to create store: " + e.getMessage(), null));
@@ -50,6 +90,7 @@ public class StoreController {
     }
 
     @GetMapping("/{storeId}/stats")
+    @PreAuthorize("isAuthenticated() and @storeSecurityService.isStoreOwner(#storeId, principal)")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getStoreStats(@PathVariable String storeId) {
         try {
             return ResponseEntity.ok(ApiResponse.success("Store stats retrieved", storeService.getStoreStats(storeId)));
@@ -126,6 +167,78 @@ public class StoreController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Failed to retrieve review analytics", null));
+        }
+    }
+
+    @GetMapping("/{storeId}")
+    public ResponseEntity<ApiResponse<Store>> getStoreById(@PathVariable String storeId) {
+        try {
+            Store store = storeService.getStoreById(storeId);
+            return ResponseEntity.ok(ApiResponse.success("Store retrieved successfully", store));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error("Store not found", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Failed to retrieve store", null));
+        }
+    }
+
+    @PutMapping("/{storeId}")
+    @PreAuthorize("isAuthenticated() and @storeSecurityService.isStoreOwner(#storeId, principal)")
+    public ResponseEntity<ApiResponse<Store>> updateStore(
+            @PathVariable String storeId,
+            @RequestBody StoreDTO storeDTO) {
+        try {
+            Store updatedStore = storeService.updateStore(storeId, storeDTO);
+            return ResponseEntity.ok(ApiResponse.success("Store updated successfully", updatedStore));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error("Store not found", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Failed to update store", null));
+        }
+    }
+
+    @DeleteMapping("/{storeId}")
+    @PreAuthorize("isAuthenticated() and @storeSecurityService.isStoreOwner(#storeId, principal)")
+    public ResponseEntity<ApiResponse<Void>> deleteStore(@PathVariable String storeId) {
+        try {
+            storeService.deleteStore(storeId);
+            return ResponseEntity.ok(ApiResponse.success("Store deleted successfully", null));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error("Store not found", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Failed to delete store", null));
+        }
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<Page<Store>>> searchStores(
+            @RequestParam(required = false) String query,
+            @RequestParam(required = false) List<String> categories,
+            @RequestParam(required = false) List<String> tags,
+            Pageable pageable) {
+        try {
+            Page<Store> stores = storeService.searchStores(query, categories, tags, pageable);
+            return ResponseEntity.ok(ApiResponse.success("Stores retrieved successfully", stores));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Failed to search stores", null));
+        }
+    }
+
+    @GetMapping("/categories")
+    public ResponseEntity<ApiResponse<List<String>>> getAllCategories() {
+        try {
+            List<String> categories = storeService.getAllCategories();
+            return ResponseEntity.ok(ApiResponse.success("Categories retrieved successfully", categories));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Failed to retrieve categories", null));
         }
     }
 }

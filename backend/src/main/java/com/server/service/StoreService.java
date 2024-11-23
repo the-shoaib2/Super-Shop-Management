@@ -1,22 +1,18 @@
 package com.server.service;
 
 import org.springframework.stereotype.Service;
-
 import com.server.dto.StoreDTO;
 import com.server.entity.Store;
 import com.server.exception.ResourceNotFoundException;
-import com.server.repository.OrderRepository;
 import com.server.repository.StoreRepository;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
-import java.util.Map;
-import java.util.HashMap;
-
-
+import java.util.*;
+import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.stream.Collectors;
 
 @Service
 public class StoreService {
@@ -24,136 +20,138 @@ public class StoreService {
 
     @Autowired
     private StoreRepository storeRepository;
-    
-    @Autowired
-    private OrderRepository orderRepository;
-    
+
     public Page<Store> getAllStores(Pageable pageable) {
-        try {
-            return storeRepository.findAll(pageable);
-        } catch (Exception e) {
-            logger.error("Error fetching all stores: ", e);
-            throw new RuntimeException("Failed to fetch stores");
-        }
+        return storeRepository.findAll(pageable);
     }
-    
+
     public Store createStore(StoreDTO storeDTO) {
-        try {
-            Store store = new Store();
-            store.setName(storeDTO.getName());
-            return storeRepository.save(store);
-        } catch (Exception e) {
-            logger.error("Error creating store: ", e);
-            throw new RuntimeException("Failed to create store");
-        }
+        Store store = new Store();
+        store.setName(storeDTO.getName());
+        store.setType(storeDTO.getType());
+        store.setDescription(storeDTO.getDescription());
+        store.setAddress(storeDTO.getAddress());
+        store.setLocation(storeDTO.getLocation());
+        store.setPhone(storeDTO.getPhone());
+        store.setEmail(storeDTO.getEmail());
+        store.setCategories(storeDTO.getCategories());
+        store.setTags(storeDTO.getTags());
+        store.setImages(storeDTO.getImages());
+        store.setOwnerId(storeDTO.getOwnerId());
+        store.setOwnerEmail(storeDTO.getOwnerEmail());
+        store.setActive(true);
+        store.setCreatedAt(LocalDateTime.now());
+        store.setUpdatedAt(LocalDateTime.now());
+        
+        return storeRepository.save(store);
     }
-    
+
+    public Store getStoreById(String storeId) {
+        return storeRepository.findById(storeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Store not found"));
+    }
+
+    public Store updateStore(String storeId, StoreDTO storeDTO) {
+        Store store = getStoreById(storeId);
+        
+        store.setName(storeDTO.getName());
+        store.setType(storeDTO.getType());
+        store.setDescription(storeDTO.getDescription());
+        store.setAddress(storeDTO.getAddress());
+        store.setLocation(storeDTO.getLocation());
+        store.setPhone(storeDTO.getPhone());
+        store.setEmail(storeDTO.getEmail());
+        store.setCategories(storeDTO.getCategories());
+        store.setTags(storeDTO.getTags());
+        store.setImages(storeDTO.getImages());
+        store.setUpdatedAt(LocalDateTime.now());
+        
+        return storeRepository.save(store);
+    }
+
+    public void deleteStore(String storeId) {
+        Store store = getStoreById(storeId);
+        store.setActive(false);
+        store.setUpdatedAt(LocalDateTime.now());
+        storeRepository.save(store);
+    }
+
+    public Page<Store> searchStores(String query, List<String> categories, List<String> tags, Pageable pageable) {
+        return storeRepository.findBySearchCriteria(
+            query != null ? query : "",
+            categories != null ? categories : Collections.emptyList(),
+            tags != null ? tags : Collections.emptyList(),
+            pageable
+        );
+    }
+
+    public List<String> getAllCategories() {
+        return storeRepository.findAllWithCategories().stream()
+                .map(Store::getCategories)
+                .filter(Objects::nonNull)
+                .flatMap(List::stream)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    public String findOwnerIdByEmail(String email) {
+        return storeRepository.findByOwnerEmail(email)
+                .map(Store::getOwnerId)
+                .orElse(null);
+    }
+
     public Map<String, Object> getStoreStats(String storeId) {
-        try {
-            validateStore(storeId);
-            Map<String, Object> stats = new HashMap<>();
-            stats.put("totalSales", storeRepository.findTotalSalesByStoreId(storeId));
-            stats.put("customerCount", storeRepository.findCustomerCountByStoreId(storeId));
-            stats.put("productCount", storeRepository.findProductCountByStoreId(storeId));
-            stats.put("inventoryValue", storeRepository.calculateInventoryValueByStoreId(storeId));
-            stats.put("reviewCount", storeRepository.findReviewCountByStoreId(storeId));
-            stats.put("averageRating", storeRepository.calculateAverageRatingByStoreId(storeId));
-            stats.put("recentOrders", storeRepository.findRecentOrdersCountByStoreId(storeId));
-            stats.put("topSellingProducts", orderRepository.findTopSellingProducts(storeId));
-            stats.put("recentReviews", storeRepository.findRecentReviewsByStoreId(storeId));
-            return stats;
-        } catch (Exception e) {
-            logger.error("Error fetching store stats: ", e);
-            throw new RuntimeException("Failed to fetch store statistics");
-        }
+        Store store = getStoreById(storeId);
+        Map<String, Object> stats = new HashMap<>();
+        // Add your stats logic here
+        return stats;
     }
 
     public Map<String, Object> getStoreAnalytics(String storeId) {
-        try {
-            validateStore(storeId);
-            Map<String, Object> analytics = new HashMap<>();
-            analytics.put("sales", getStoreSalesAnalytics(storeId));
-            analytics.put("customers", getStoreCustomersAnalytics(storeId));
-            analytics.put("products", getStoreProductsAnalytics(storeId));
-            analytics.put("inventory", getStoreInventoryAnalytics(storeId));
-            analytics.put("reviews", getStoreReviewsAnalytics(storeId));
-            return analytics;
-        } catch (Exception e) {
-            logger.error("Error fetching store analytics: ", e);
-            throw new RuntimeException("Failed to fetch store analytics");
-        }
+        Store store = getStoreById(storeId);
+        Map<String, Object> analytics = new HashMap<>();
+        // Add your analytics logic here
+        return analytics;
     }
 
     public Map<String, Object> getStoreSalesAnalytics(String storeId) {
-        try {
-            validateStore(storeId);
-            Map<String, Object> salesAnalytics = new HashMap<>();
-            salesAnalytics.put("totalRevenue", orderRepository.calculateTotalRevenue(storeId));
-            salesAnalytics.put("monthlySales", orderRepository.getMonthlySales(storeId));
-            salesAnalytics.put("topProducts", orderRepository.findTopSellingProducts(storeId));
-            return salesAnalytics;
-        } catch (Exception e) {
-            logger.error("Error fetching sales analytics: ", e);
-            throw new RuntimeException("Failed to fetch sales analytics");
-        }
+        Store store = getStoreById(storeId);
+        Map<String, Object> salesAnalytics = new HashMap<>();
+        // Add your sales analytics logic here
+        return salesAnalytics;
     }
 
     public Map<String, Object> getStoreCustomersAnalytics(String storeId) {
-        try {
-            validateStore(storeId);
-            Map<String, Object> customerAnalytics = new HashMap<>();
-            customerAnalytics.put("totalCustomers", storeRepository.findCustomerCountByStoreId(storeId));
-            // Add more customer analytics as needed
-            return customerAnalytics;
-        } catch (Exception e) {
-            logger.error("Error fetching customer analytics: ", e);
-            throw new RuntimeException("Failed to fetch customer analytics");
-        }
+        Store store = getStoreById(storeId);
+        Map<String, Object> customerAnalytics = new HashMap<>();
+        // Add your customer analytics logic here
+        return customerAnalytics;
     }
 
     public Map<String, Object> getStoreProductsAnalytics(String storeId) {
-        try {
-            validateStore(storeId);
-            Map<String, Object> productAnalytics = new HashMap<>();
-            productAnalytics.put("totalProducts", storeRepository.findProductCountByStoreId(storeId));
-            productAnalytics.put("topSelling", orderRepository.findTopSellingProducts(storeId));
-            return productAnalytics;
-        } catch (Exception e) {
-            logger.error("Error fetching product analytics: ", e);
-            throw new RuntimeException("Failed to fetch product analytics");
-        }
+        Store store = getStoreById(storeId);
+        Map<String, Object> productAnalytics = new HashMap<>();
+        // Add your product analytics logic here
+        return productAnalytics;
     }
 
     public Map<String, Object> getStoreInventoryAnalytics(String storeId) {
-        try {
-            validateStore(storeId);
-            Map<String, Object> inventoryAnalytics = new HashMap<>();
-            inventoryAnalytics.put("totalValue", storeRepository.calculateInventoryValueByStoreId(storeId));
-            return inventoryAnalytics;
-        } catch (Exception e) {
-            logger.error("Error fetching inventory analytics: ", e);
-            throw new RuntimeException("Failed to fetch inventory analytics");
-        }
+        Store store = getStoreById(storeId);
+        Map<String, Object> inventoryAnalytics = new HashMap<>();
+        // Add your inventory analytics logic here
+        return inventoryAnalytics;
     }
 
     public Map<String, Object> getStoreReviewsAnalytics(String storeId) {
-        try {
-            validateStore(storeId);
-            Map<String, Object> reviewAnalytics = new HashMap<>();
-            reviewAnalytics.put("totalReviews", storeRepository.findReviewCountByStoreId(storeId));
-            reviewAnalytics.put("averageRating", storeRepository.calculateAverageRatingByStoreId(storeId));
-            reviewAnalytics.put("recentReviews", storeRepository.findRecentReviewsByStoreId(storeId));
-            return reviewAnalytics;
-        } catch (Exception e) {
-            logger.error("Error fetching review analytics: ", e);
-            throw new RuntimeException("Failed to fetch review analytics");
-        }
+        Store store = getStoreById(storeId);
+        Map<String, Object> reviewAnalytics = new HashMap<>();
+        // Add your review analytics logic here
+        return reviewAnalytics;
     }
 
-    private void validateStore(String storeId) {
-        Store store = storeRepository.findByStoreId(storeId);
-        if (store == null) {
-            throw new ResourceNotFoundException("Store not found with id: " + storeId);
-        }
+    public String findEmailById(String ownerId) {
+        return storeRepository.findById(ownerId)
+                .map(Store::getOwnerEmail)
+                .orElse(null);
     }
 } 

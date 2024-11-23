@@ -15,8 +15,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
-@CrossOrigin(origins = "*", maxAge = 3600)
-@PreAuthorize("isAuthenticated()")
 @RequiredArgsConstructor
 public class ProductController {
     @Autowired
@@ -28,7 +26,8 @@ public class ProductController {
             return ResponseEntity.ok(ApiResponse.success("Products retrieved successfully", 
                 productService.getAllProducts()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error("Failed to retrieve products", null));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("Failed to retrieve products", null));
         }
     }
 
@@ -38,7 +37,8 @@ public class ProductController {
             return ResponseEntity.ok(ApiResponse.success("Store products retrieved successfully",
                 productService.getProductsByStore(storeId)));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error("Failed to retrieve store products", null));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("Failed to retrieve store products", null));
         }
     }
 
@@ -46,25 +46,29 @@ public class ProductController {
     public ResponseEntity<ApiResponse<Product>> getProduct(@PathVariable String id) {
         return ResponseEntity.ok(ApiResponse.success("Product retrieved successfully",
                 productService.getProduct(id)));
-        }
+    }
 
     @PostMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<Product>> createProduct(@RequestBody Product product) {
         try {
             return ResponseEntity.ok(ApiResponse.success("Product created successfully",
                 productService.createProduct(product)));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error("Failed to create product", null));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("Failed to create product", null));
         }
     }
 
-    @DeleteMapping("/{id}") 
+    @DeleteMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable String id) {
         try {
             productService.deleteProduct(id);
             return ResponseEntity.ok(ApiResponse.success("Product deleted successfully", null));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error("Failed to delete product", null));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("Failed to delete product", null));
         }
     }
 }

@@ -1,53 +1,105 @@
 package com.server.dto;
 
 import lombok.Data;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class StoreDTO {
+    private Long id;
     private String name;
+    private List<String> type;
     private String description;
     private String address;
+    private String location;
     private String phone;
     private String email;
+    private List<String> categories;
+    private List<String> tags;
+    private List<String> images;
+    private String ownerId;
+    private String ownerEmail;
+    private boolean isActive;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     
-    // Getters and Setters
-    public String getName() {
-        return name;
+    // Add missing getters and setters for the new fields
+    public Long getId() {
+        return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public String getDescription() {
-        return description;
+    public List<String> getType() {
+        return type;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setType(List<String> type) {
+        this.type = type;
     }
 
-    public String getAddress() {
-        return address;
+    public String getLocation() {
+        return location;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setLocation(String location) {
+        this.location = location;
     }
 
-    public String getPhone() {
-        return phone;
+    public List<String> getCategories() {
+        return categories;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setCategories(List<String> categories) {
+        this.categories = categories;
     }
 
-    public String getEmail() {
-        return email;
+    public List<String> getTags() {
+        return tags;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
+
+    public List<String> getImages() {
+        return images;
+    }
+
+    public void setImages(List<String> images) {
+        this.images = images;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public String getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
+    public String getOwnerEmail() {
+        return ownerEmail;
+    }
+
+    public void setOwnerEmail(String ownerEmail) {
+        this.ownerEmail = ownerEmail;
     }
 } 

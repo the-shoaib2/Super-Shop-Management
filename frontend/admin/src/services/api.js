@@ -7,9 +7,59 @@ const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
-  },
-  withCredentials: true,
+  }
 })
+
+// Add response interceptor for token refresh
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config
+    
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true
+      
+      try {
+        const refreshToken = localStorage.getItem('refreshToken')
+        if (!refreshToken) {
+          throw new Error('No refresh token')
+        }
+        
+        const response = await api.post('/api/auth/refresh', { 
+          refreshToken 
+        })
+        
+        const { accessToken, refreshToken: newRefreshToken } = response.data
+        
+        localStorage.setItem('accessToken', accessToken)
+        localStorage.setItem('refreshToken', newRefreshToken)
+        
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`
+        return api(originalRequest)
+      } catch (refreshError) {
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('refreshToken')
+        localStorage.removeItem('user')
+        window.location.href = '/login'
+        return Promise.reject(refreshError)
+      }
+    }
+    
+    return Promise.reject(error)
+  }
+)
+
+// Update request interceptor
+api.interceptors.request.use(
+  (config) => {
+    const accessToken = localStorage.getItem('accessToken')
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`
+    }
+    return config
+  },
+  (error) => Promise.reject(error)
+)
 
 // Auth APIs
 export const authAPI = {
@@ -31,30 +81,8 @@ export const authAPI = {
   },
 
   login: async (credentials) => {
-    try {
       const response = await api.post('/api/auth/login', credentials)
-      console.log('Server response:', response.data)
-      const data = response.data?.data || response.data
-
-      if (!data) {
-        throw new Error('No data received from server')
-      }
-
-      const token = data.token || data.accessToken
-      const user = data.user || data
-
-      if (!token) {
-        throw new Error('No token received from server')
-      }
-
-      localStorage.setItem('token', token)
-      localStorage.setItem('user', JSON.stringify(user))
-      
-      return { user, token }
-    } catch (error) {
-      console.error('Login Error:', error)
-      throw error
-    }
+    return response
   },
 
   checkAuth: async () => {
@@ -69,7 +97,7 @@ export const authAPI = {
       
       try {
         // Try to validate token with backend
-        const response = await api.get('/api/auth/check-token') // or whatever your actual endpoint is
+        const response = await api.get('/api/auth/check-token')
         return {
           success: true,
           data: {
@@ -96,14 +124,8 @@ export const authAPI = {
     }
   },
 
-  logout: async () => {
-    try {
-      await api.post('/api/auth/logout')
-    } finally {
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      localStorage.removeItem('currentStoreId')
-    }
+  logout: async (refreshToken) => {
+    return api.post('/api/auth/logout', { refreshToken })
   }
 }
 
@@ -227,5 +249,27 @@ api.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
+// Add this function to the existing API functions
+export const storeAPI = {
+  createStore: async (storeData) => {
+    try {
+      const response = await api.post('/api/stores', storeData)
+      return response.data
+    } catch (error) {
+      // Enhanced error logging
+      if (error.response) {
+        console.error('Create Store Error:', {
+          status: error.response.status,
+          data: error.response.data,
+          message: error.response.data?.message || 'No message provided'
+        })
+      } else {
+        console.error('Create Store Error:', error.message)
+      }
+      throw error
+    }
+  }
+}
 
 export default api 

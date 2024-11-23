@@ -1,36 +1,37 @@
 package com.server.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@ConfigurationProperties(prefix = "jwt")
 public class JwtConfig {
-    @Value("${jwt.access-secret}")
-    private String accessSecret;
-    
-    @Value("${jwt.refresh-secret}")
-    private String refreshSecret;
-    
-    @Value("${jwt.access-expiration}")
-    private Long accessExpiration;
-    
-    @Value("${jwt.refresh-expiration}")
-    private Long refreshExpiration;
+    private String secret;
+    private long accessTokenExpiration;
+    private long refreshTokenExpiration;
 
-    // Getters
-    public String getAccessSecret() {
-        return accessSecret;
+    // Getters and setters
+    public String getSecret() {
+        return secret;
     }
 
-    public String getRefreshSecret() {
-        return refreshSecret;
+    public void setSecret(String secret) {
+        this.secret = secret;
     }
 
-    public Long getAccessExpiration() {
-        return accessExpiration;
+    public long getAccessTokenExpiration() {
+        return accessTokenExpiration;
     }
 
-    public Long getRefreshExpiration() {
-        return refreshExpiration;
+    public void setAccessTokenExpiration(long accessTokenExpiration) {
+        this.accessTokenExpiration = accessTokenExpiration;
+    }
+
+    public long getRefreshTokenExpiration() {
+        return refreshTokenExpiration;
+    }
+
+    public void setRefreshTokenExpiration(long refreshTokenExpiration) {
+        this.refreshTokenExpiration = refreshTokenExpiration;
     }
 } 

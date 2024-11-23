@@ -7,6 +7,10 @@ const AuthContext = createContext()
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [tokens, setTokens] = useState(() => ({
+    accessToken: localStorage.getItem('accessToken'),
+    refreshToken: localStorage.getItem('refreshToken')
+  }))
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -59,32 +63,44 @@ export function AuthProvider({ children }) {
     checkAuth()
   }, [navigate, location.pathname])
 
+  const saveTokens = (accessToken, refreshToken) => {
+    localStorage.setItem('accessToken', accessToken)
+    localStorage.setItem('refreshToken', refreshToken)
+    setTokens({ accessToken, refreshToken })
+  }
+
+  const clearTokens = () => {
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
+    localStorage.removeItem('user')
+    setTokens({ accessToken: null, refreshToken: null })
+    setUser(null)
+  }
+
   const login = async (credentials) => {
     try {
       const response = await authAPI.login(credentials)
+      const { accessToken, refreshToken, user: userData } = response.data
       
-      setUser(response.user)
-      return true
-
+      saveTokens(accessToken, refreshToken)
+      setUser(userData)
+      localStorage.setItem('user', JSON.stringify(userData))
+      
+      return response.data
     } catch (error) {
-      console.error('Login error:', error)
-      const errorMessage = error.response?.data?.message || 
-                          error.response?.data?.error || 
-                          error.message || 
-                          'Login failed'
-      throw new Error(errorMessage)
+      throw error
     }
   }
 
   const logout = async () => {
     try {
-      await authAPI.logout()
+      if (tokens.refreshToken) {
+        await authAPI.logout({ refreshToken: tokens.refreshToken })
+      }
     } catch (error) {
-      console.error('Logout failed:', error)
+      console.error('Logout error:', error)
     } finally {
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      navigate('/login')
+      clearTokens()
     }
   }
 

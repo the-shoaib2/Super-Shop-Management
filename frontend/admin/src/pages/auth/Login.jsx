@@ -15,25 +15,14 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
     try {
-      setLoading(true)
-      await login({
-        email: formData.email,
-        password: formData.password
-      })
-      
-      toast.success('Login successful!')
+      await login(formData)
+      toast.success('Login successful')
       navigate('/')
     } catch (error) {
       console.error('Login error:', error)
-      // Show more specific error message from server
-      const errorMessage = error.response?.data?.message || 
-                          error.response?.data?.error || 
-                          'Invalid email or password'
-      toast.error(errorMessage)
-    } finally {
-      setLoading(false)
+      const message = error.response?.data?.message || 'Invalid credentials'
+      toast.error(message)
     }
   }
 
