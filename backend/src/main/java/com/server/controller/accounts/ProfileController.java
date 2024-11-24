@@ -5,8 +5,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import com.server.service.ProfileService;
+
 import com.server.dto.ProfileUpdateRequest;
+import com.server.service.user.ProfileService;
 
 @RestController
 @RequestMapping("/api/profile")

@@ -1,4 +1,4 @@
-package com.server.service;
+package com.server.service.auth;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

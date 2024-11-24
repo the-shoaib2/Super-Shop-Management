@@ -1,4 +1,4 @@
-package com.server.controller.product;
+package com.server.controller.store.settings;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.server.model.Product;
-import com.server.service.ProductService;
+import com.server.service.product.ProductService;
 import com.server.util.ApiResponse;
 
 import java.util.List;

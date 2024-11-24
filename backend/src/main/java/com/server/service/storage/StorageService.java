@@ -1,4 +1,4 @@
-package com.server.service;
+package com.server.service.storage;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

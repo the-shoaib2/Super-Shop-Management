@@ -1,11 +1,13 @@
-package com.server.service;
+package com.server.service.user;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 import com.server.dto.ProfileUpdateRequest;
 import com.server.repository.UserRepository;
+import com.server.service.storage.StorageService;
 import com.server.entity.User;
 
 @Service

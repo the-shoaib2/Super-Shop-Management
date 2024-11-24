@@ -1,4 +1,4 @@
-package com.server.service;
+package com.server.service.store;
 
 import org.springframework.stereotype.Service;
 import com.server.repository.OrderRepository;

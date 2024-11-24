@@ -16,10 +16,10 @@ import org.slf4j.LoggerFactory;
 
 import com.server.dto.StoreDTO;
 import com.server.entity.Store;
-import com.server.service.StoreService;
 import com.server.util.ApiResponse;
 import com.server.exception.ResourceNotFoundException;
 import com.server.exception.UnauthorizedException;
+import com.server.service.store.StoreService;
 
 import java.util.Map;
 import java.util.List;

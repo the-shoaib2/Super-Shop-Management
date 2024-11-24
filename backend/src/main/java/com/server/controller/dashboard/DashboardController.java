@@ -3,7 +3,9 @@ package com.server.controller.dashboard;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.server.service.AnalyticsService;
+
+import com.server.service.analytics.AnalyticsService;
+
 import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.Map;
