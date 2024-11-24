@@ -1,4 +1,4 @@
-package com.server.admin;
+package com.server.service.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

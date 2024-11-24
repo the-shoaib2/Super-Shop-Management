@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.server.admin.AdminService;
+import com.server.service.admin.AdminService;
 import com.server.util.ApiResponse;
 
 import java.util.Map;
