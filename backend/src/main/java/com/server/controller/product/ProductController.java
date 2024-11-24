@@ -1,4 +1,4 @@
-package com.server.controller;
+package com.server.controller.product;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

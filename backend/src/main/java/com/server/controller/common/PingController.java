@@ -1,4 +1,4 @@
-package com.server.controller;
+package com.server.controller.common;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;

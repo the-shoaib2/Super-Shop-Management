@@ -1,10 +1,11 @@
-package com.server.admin;
+package com.server.controller.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.server.admin.AdminService;
 import com.server.util.ApiResponse;
 
 import java.util.Map;

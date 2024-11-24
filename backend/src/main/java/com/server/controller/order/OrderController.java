@@ -1,4 +1,4 @@
-package com.server.controller;
+package com.server.controller.order;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;

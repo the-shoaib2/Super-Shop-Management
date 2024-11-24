@@ -1,4 +1,4 @@
-package com.server.controller;
+package com.server.controller.accounts;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
