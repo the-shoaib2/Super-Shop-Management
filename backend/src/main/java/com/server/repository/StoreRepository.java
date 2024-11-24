@@ -6,7 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import com.server.entity.Store;
 import java.util.List;
-import java.util.Optional;
 
 public interface StoreRepository extends MongoRepository<Store, String> {
     

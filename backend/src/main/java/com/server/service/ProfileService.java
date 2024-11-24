@@ -4,7 +4,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.server.dto.ProfileUpdateRequest;
 import com.server.repository.UserRepository;
 import com.server.entity.User;
@@ -15,7 +14,6 @@ public class ProfileService {
     private final UserRepository userRepository;
     private final StorageService storageService;
 
-    @Autowired
     public ProfileService(UserRepository userRepository, StorageService storageService) {
         this.userRepository = userRepository;
         this.storageService = storageService;

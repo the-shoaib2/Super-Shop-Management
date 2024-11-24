@@ -1,7 +1,6 @@
 package com.server.service;
 
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.server.repository.OrderRepository;
 import com.server.model.Order;
 import java.util.List;
@@ -11,7 +10,6 @@ public class OrderService {
     
     private final OrderRepository orderRepository;
 
-    @Autowired
     public OrderService(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
     }
