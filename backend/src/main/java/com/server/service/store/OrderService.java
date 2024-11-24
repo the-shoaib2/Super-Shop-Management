@@ -1,8 +1,10 @@
 package com.server.service.store;
 
 import org.springframework.stereotype.Service;
+
+import com.server.model.order.Order;
 import com.server.repository.OrderRepository;
-import com.server.model.Order;
+
 import java.util.List;
 
 @Service

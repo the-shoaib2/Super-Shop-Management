@@ -1,4 +1,4 @@
-package com.server.model;
+package com.server.model.order;
 
 import lombok.Data;
 import java.math.BigDecimal;

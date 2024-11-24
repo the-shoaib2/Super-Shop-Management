@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.server.model.Store;
+import com.server.model.store.Store;
 
 import lombok.Data;
 

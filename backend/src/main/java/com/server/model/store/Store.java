@@ -1,7 +1,10 @@
-package com.server.model;
+package com.server.model.store;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.server.model.product.Product;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import jakarta.validation.constraints.NotBlank;

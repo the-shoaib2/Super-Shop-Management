@@ -1,4 +1,4 @@
-package com.server.model;
+package com.server.model.store;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Email;

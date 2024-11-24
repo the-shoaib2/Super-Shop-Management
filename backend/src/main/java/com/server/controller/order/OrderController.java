@@ -3,7 +3,7 @@ package com.server.controller.order;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 
-import com.server.model.Order;
+import com.server.model.order.Order;
 import com.server.service.store.OrderService;
 
 import java.util.List;

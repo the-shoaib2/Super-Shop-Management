@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import com.server.dto.AuthRequest;
 import com.server.exception.AuthenticationException;
 import com.server.exception.UserAlreadyExistsException;
-import com.server.model.StoreOwner;
+import com.server.model.store.StoreOwner;
 import com.server.repository.StoreOwnerRepository;
 
 import java.time.LocalDateTime;

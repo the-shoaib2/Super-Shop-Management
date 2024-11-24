@@ -2,8 +2,10 @@ package com.server.service.analytics;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.server.model.order.Order;
 import com.server.repository.OrderRepository;
-import com.server.model.Order;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;

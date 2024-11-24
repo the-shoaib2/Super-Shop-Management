@@ -1,4 +1,4 @@
-package com.server.model;
+package com.server.model.store;
 
 import java.util.List;
 import java.time.LocalDateTime;

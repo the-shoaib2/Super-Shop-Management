@@ -11,7 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import com.server.dto.AuthRequest;
 import com.server.dto.AuthResponse;
 import com.server.dto.ValidationErrorResponse;
-import com.server.model.StoreOwner;
+import com.server.model.store.StoreOwner;
 import com.server.service.auth.AuthService;
 import com.server.util.ApiResponse;
 import com.server.util.TokenUtil;

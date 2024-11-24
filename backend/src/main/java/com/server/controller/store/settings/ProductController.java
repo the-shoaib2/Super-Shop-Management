@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import com.server.model.Product;
+import com.server.model.product.Product;
 import com.server.service.product.ProductService;
 import com.server.util.ApiResponse;
 

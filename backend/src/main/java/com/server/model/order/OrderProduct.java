@@ -1,6 +1,9 @@
-package com.server.model;
+package com.server.model.order;
 
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.server.model.product.Product;
+
 import org.springframework.data.annotation.Id;
 import java.math.BigDecimal;
 import java.util.Date;

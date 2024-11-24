@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.server.exception.ResourceNotFoundException;
-import com.server.model.Product;
+import com.server.model.product.Product;
 import com.server.repository.ProductRepository;
 
 import java.util.List;
