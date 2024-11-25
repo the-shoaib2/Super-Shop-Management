@@ -7,10 +7,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
+import jakarta.persistence.PrePersist;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
+import com.server.util.IdGenerator;
 
 @Document(collection = "storeOwners")
 @Data
@@ -20,7 +22,8 @@ public class StoreOwner {
     @Id
     private String id;
     
-    private String ownerId; // Custom 12-digit ID
+    @Indexed(unique = true)
+    private String ownerId; // 12-digit ID (OWN + 9 digits)
     
     @NotBlank(message = "Full name is required")
     private String fullName;
@@ -106,20 +109,14 @@ public class StoreOwner {
         private LocalDateTime addedAt;
     }
     
-    // Generate custom 12-digit owner ID
-    public void generateOwnerId() {
-        if (this.ownerId == null) {
-            this.ownerId = String.format("%012d", 
-                new Random().nextInt(1000000000));
-        }
-    }
-    
-    // Pre-persist hook
+    @PrePersist
     public void prePersist() {
         LocalDateTime now = LocalDateTime.now();
         if (createdAt == null) {
             createdAt = now;
-            generateOwnerId();
+            if (ownerId == null) {
+                ownerId = IdGenerator.generateOwnerId();
+            }
         }
         updatedAt = now;
     }

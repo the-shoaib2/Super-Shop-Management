@@ -2,17 +2,22 @@ package com.server.model.store;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 import com.server.model.store.product.Product;
+import com.server.util.IdGenerator;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.persistence.PrePersist;
 
 @Document(collection = "stores")
 public class Store {
     @Id
     private String id;
+    @Indexed(unique = true)
+    private String storeId;
     private String name;
     private String description;
     private String address;
@@ -37,6 +42,14 @@ public class Store {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getStoreId() {
+        return storeId;
+    }
+
+    public void setStoreId(String storeId) {
+        this.storeId = storeId;
     }
 
     public String getName() {
@@ -171,5 +184,17 @@ public class Store {
 
     public void setTags(List<String> tags) {
         this.tags = tags;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        LocalDateTime now = LocalDateTime.now();
+        if (createdAt == null) {
+            createdAt = now;
+            if (storeId == null) {
+                storeId = IdGenerator.generateStoreId();
+            }
+        }
+        updatedAt = now;
     }
 } 

@@ -9,6 +9,7 @@ import com.server.exception.AuthenticationException;
 import com.server.exception.UserAlreadyExistsException;
 import com.server.model.store.StoreOwner;
 import com.server.repository.StoreOwnerRepository;
+import com.server.util.IdGenerator;
 
 import java.time.LocalDateTime;
 
@@ -23,6 +24,10 @@ public class AuthService {
             .ifPresent(user -> {
                 throw new UserAlreadyExistsException("Email already exists");
             });
+            
+        if (storeOwner.getOwnerId() == null) {
+            storeOwner.setOwnerId(IdGenerator.generateOwnerId());
+        }
             
         storeOwner.setPassword(passwordEncoder.encode(storeOwner.getPassword()));
         storeOwner.setCreatedAt(LocalDateTime.now());

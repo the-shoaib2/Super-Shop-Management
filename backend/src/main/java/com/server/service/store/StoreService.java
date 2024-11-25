@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.stream.Collectors;
 import com.server.exception.UnauthorizedException;
+import com.server.util.IdGenerator;
 
 @Service
 public class StoreService {
@@ -29,6 +30,7 @@ public class StoreService {
     public Store createStore(StoreDTO storeDTO) {
         try {
             Store store = new Store();
+            store.setStoreId(IdGenerator.generateStoreId());
             store.setName(storeDTO.getName());
             store.setType(storeDTO.getType());
             store.setDescription(storeDTO.getDescription());
@@ -38,7 +40,7 @@ public class StoreService {
             store.setEmail(storeDTO.getEmail());
             store.setCategories(storeDTO.getCategories());
             store.setTags(storeDTO.getTags());
-            store.setImages(new ArrayList<>()); // Initialize empty images list
+            store.setImages(new ArrayList<>());
             store.setOwnerId(storeDTO.getOwnerId());
             store.setOwnerEmail(storeDTO.getOwnerEmail());
             store.setActive(true);

@@ -2,6 +2,7 @@ package com.server.entity;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.index.Indexed;
 import java.util.List;
 import lombok.Data;
 import java.time.LocalDateTime;
@@ -10,6 +11,8 @@ import java.time.LocalDateTime;
 public class Store {
     @Id
     private String id;
+    @Indexed(unique = true)
+    private String storeId;
     private String name;
     private List<String> type;
     private String description;
