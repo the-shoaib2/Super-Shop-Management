@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.server.dto.ProfileUpdateRequest;
-import com.server.service.user.ProfileService;
+import com.server.service.accounts.ProfileService;
 
 @RestController
 @RequestMapping("/api/profile")

@@ -60,9 +60,9 @@ public class AuthController {
                 refreshToken,
                 savedOwner.getEmail(),
                 savedOwner.getFullName(),
-                savedOwner.getStoreName(),
+                savedOwner.getCurrentStoreId(),
                 LocalDateTime.now(),
-                savedOwner.getStoreName() != null
+                savedOwner.getCurrentStoreId() != null
             );
 
             return ResponseEntity.ok(ApiResponse.success("Registration successful", authResponse));
@@ -99,10 +99,10 @@ public class AuthController {
                     token,
                     refreshToken,
                     owner.getEmail(),
-                    owner.getStoreName(),
                     owner.getFullName(),
+                    owner.getCurrentStoreId(),
                     LocalDateTime.now(),
-                    owner.getStoreName() != null
+                    owner.getCurrentStoreId() != null
             );
 
             return ResponseEntity.ok(authResponse);

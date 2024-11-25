@@ -10,18 +10,17 @@ import java.time.LocalDateTime;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.index.CompoundIndex;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
 @Document(collection = "storeOwners")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@CompoundIndex(name = "email_idx", unique = true, def = "{'email': 1}")
 public class StoreOwner {
     @Id
-    private String id; 
+    private String id;
+    
+    private String ownerId; // Custom 12-digit ID
     
     @NotBlank(message = "Full name is required")
     private String fullName;
@@ -34,20 +33,94 @@ public class StoreOwner {
     @NotBlank(message = "Password is required")
     private String password;
     
-    private String storeName;
-    private String location;
-    private String description;
-    private String refreshToken;
-    private List<String> tags;
-    private LocalDateTime lastLogin;
-    private List<String> images = new ArrayList<>();
-    private boolean isActive = true;
-    private boolean isEdited;
-    private List<String> editedList;
+    // Account Settings
+    private AccountSettings accountSettings;
     
-    @CreatedDate
+    // Store References
+    @DBRef
+    private List<Store> stores;
+    
+    private String currentStoreId;
+    private String refreshToken;
+    private LocalDateTime lastLogin;
+    private List<String> images;
+    private boolean isActive;
+    private boolean isVerified;
+    private String verificationToken;
+    private LocalDateTime verificationExpiry;
+    
+    // Audit fields
     private LocalDateTime createdAt;
-
-    @LastModifiedDate
     private LocalDateTime updatedAt;
+    
+    @Data
+    public static class AccountSettings {
+        // General Settings
+        private String timezone;
+        private String dateFormat;
+        private String currency;
+        
+        // Security Settings
+        private boolean twoFactorEnabled;
+        private String twoFactorMethod;
+        private List<String> trustedDevices;
+        
+        // Notification Settings
+        private boolean emailNotifications;
+        private boolean pushNotifications;
+        private boolean orderNotifications;
+        private boolean marketingNotifications;
+        
+        // Appearance Settings
+        private String theme;
+        private String layout;
+        private boolean compactMode;
+        
+        // Language & Region
+        private String language;
+        private String region;
+        private String numberFormat;
+        
+        // Privacy Settings
+        private boolean profileVisible;
+        private boolean activityVisible;
+        private boolean storeVisible;
+        
+        // Billing Settings
+        private String billingEmail;
+        private String billingAddress;
+        private String taxId;
+        private List<PaymentMethod> paymentMethods;
+        
+        // Integration Settings
+        private Map<String, String> apiKeys;
+        private List<String> connectedServices;
+    }
+    
+    @Data
+    public static class PaymentMethod {
+        private String type;
+        private String provider;
+        private String accountNumber;
+        private boolean isDefault;
+        private LocalDateTime addedAt;
+    }
+    
+    // Generate custom 12-digit owner ID
+    public void generateOwnerId() {
+        if (this.ownerId == null) {
+            this.ownerId = String.format("%012d", 
+                new Random().nextInt(1000000000));
+        }
+    }
+    
+    // Pre-persist hook
+    public void prePersist() {
+        LocalDateTime now = LocalDateTime.now();
+        if (createdAt == null) {
+            createdAt = now;
+            generateOwnerId();
+        }
+        updatedAt = now;
+    }
 } 
