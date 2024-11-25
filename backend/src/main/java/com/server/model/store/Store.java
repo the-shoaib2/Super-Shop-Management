@@ -1,39 +1,46 @@
 package com.server.model.store;
 
+import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.index.Indexed;
-
-import com.server.model.store.product.Product;
-import com.server.util.IdGenerator;
-
 import java.time.LocalDateTime;
 import java.util.List;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.persistence.PrePersist;
 
+@Data
 @Document(collection = "stores")
 public class Store {
     @Id
     private String id;
+    
     @Indexed(unique = true)
     private String storeId;
+    
     private String name;
+    private List<String> type;
     private String description;
     private String address;
+    private String location;
     private String phone;
-    private String category;
-    private List<Product> products;
+    private String email;
+    private List<String> categories;
+    private List<String> tags;
+    private List<String> images;
     private String ownerId;
-    private String ownerName;
-    private boolean isEdited;
-    private List<String> editedList;
+    
+    @Indexed
+    private String ownerEmail;
+    
+    private boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private String logo;
-    private boolean isActive;
-    private String location;
-    private List<String> tags;
+    
+    // Default constructor
+    public Store() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+        this.isActive = true;
+    }
     
     // Getters and Setters
     public String getId() {
@@ -56,16 +63,22 @@ public class Store {
         return name;
     }
 
-    @NotBlank(message = "Store name is required")
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List<String> getType() {
+        return type;
+    }
+
+    public void setType(List<String> type) {
+        this.type = type;
     }
 
     public String getDescription() {
         return description;
     }
 
-    @NotBlank(message = "Store description is required")
     public void setDescription(String description) {
         this.description = description;
     }
@@ -74,35 +87,56 @@ public class Store {
         return address;
     }
 
-    @NotBlank(message = "Store address is required")
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     public String getPhone() {
         return phone;
     }
 
-    @NotBlank(message = "Store phone is required")
     public void setPhone(String phone) {
         this.phone = phone;
     }
 
-    public String getCategory() {
-        return category;
+    public String getEmail() {
+        return email;
     }
 
-    @NotBlank(message = "Store category is required")
-    public void setCategory(String category) {
-        this.category = category;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public List<Product> getProducts() {
-        return products;
+    public List<String> getCategories() {
+        return categories;
     }
 
-    public void setProducts(List<Product> products) {
-        this.products = products;
+    public void setCategories(List<String> categories) {
+        this.categories = categories;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
+
+    public List<String> getImages() {
+        return images;
+    }
+
+    public void setImages(List<String> images) {
+        this.images = images;
     }
 
     public String getOwnerId() {
@@ -113,28 +147,20 @@ public class Store {
         this.ownerId = ownerId;
     }
 
-    public String getOwnerName() {
-        return ownerName;
+    public String getOwnerEmail() {
+        return ownerEmail;
     }
 
-    public void setOwnerName(String ownerName) {
-        this.ownerName = ownerName;
+    public void setOwnerEmail(String ownerEmail) {
+        this.ownerEmail = ownerEmail;
     }
 
-    public boolean isEdited() {
-        return isEdited;
+    public boolean isActive() {
+        return isActive;
     }
 
-    public void setEdited(boolean isEdited) {
-        this.isEdited = isEdited;
-    }
-
-    public List<String> getEditedList() {
-        return editedList;
-    }
-
-    public void setEditedList(List<String> editedList) {
-        this.editedList = editedList;
+    public void setActive(boolean active) {
+        this.isActive = active;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -153,48 +179,18 @@ public class Store {
         this.updatedAt = updatedAt;
     }
 
-    public String getLogo() {
-        return logo;
+    // Helper methods
+    public void updateTimestamp() {
+        this.updatedAt = LocalDateTime.now();
     }
 
-    public void setLogo(String logo) {
-        this.logo = logo;
+    public void deactivate() {
+        this.isActive = false;
+        updateTimestamp();
     }
 
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    @NotBlank(message = "Store location is required")
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public List<String> getTags() {
-        return tags;
-    }
-
-    public void setTags(List<String> tags) {
-        this.tags = tags;
-    }
-
-    @PrePersist
-    public void prePersist() {
-        LocalDateTime now = LocalDateTime.now();
-        if (createdAt == null) {
-            createdAt = now;
-            if (storeId == null) {
-                storeId = IdGenerator.generateStoreId();
-            }
-        }
-        updatedAt = now;
+    public void activate() {
+        this.isActive = true;
+        updateTimestamp();
     }
 } 

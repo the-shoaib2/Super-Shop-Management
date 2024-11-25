@@ -20,6 +20,7 @@ import com.server.util.ApiResponse;
 import com.server.exception.ResourceNotFoundException;
 import com.server.exception.UnauthorizedException;
 import com.server.service.store.StoreService;
+import com.server.service.analytics.AnalyticsService;
 
 import java.util.Map;
 import java.util.List;
@@ -31,6 +32,9 @@ public class StoreController {
 
     @Autowired
     private StoreService storeService;
+    
+    @Autowired
+    private AnalyticsService analyticsService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<Page<Store>>> getAllStores(Pageable pageable) {
@@ -98,80 +102,96 @@ public class StoreController {
     @PreAuthorize("isAuthenticated() and @storeSecurityService.isStoreOwner(#storeId, principal)")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getStoreStats(@PathVariable String storeId) {
         try {
-            return ResponseEntity.ok(ApiResponse.success("Store stats retrieved", storeService.getStoreStats(storeId)));
+            return ResponseEntity.ok(ApiResponse.success(
+                "Store stats retrieved", 
+                analyticsService.getStoreAnalytics(storeId)
+            ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("Failed to retrieve store stats", null));
+                .body(ApiResponse.error("Failed to retrieve store stats", null));
         }
     }
 
     @GetMapping("/{storeId}/analytics")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getStoreAnalytics(@PathVariable String storeId) {
         try {
-            return ResponseEntity
-                    .ok(ApiResponse.success("Store analytics retrieved", storeService.getStoreAnalytics(storeId)));
+            return ResponseEntity.ok(ApiResponse.success(
+                "Store analytics retrieved", 
+                analyticsService.getStoreAnalytics(storeId)
+            ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("Failed to retrieve store analytics", null));
+                .body(ApiResponse.error("Failed to retrieve store analytics", null));
         }
     }
 
     @GetMapping("/{storeId}/analytics/sales")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getStoreSalesAnalytics(@PathVariable String storeId) {
+    public ResponseEntity<ApiResponse<Object>> getStoreSalesAnalytics(@PathVariable String storeId) {
         try {
-            return ResponseEntity
-                    .ok(ApiResponse.success("Sales analytics retrieved", storeService.getStoreSalesAnalytics(storeId)));
+            Map<String, Object> salesAnalytics = analyticsService.getStoreAnalytics(storeId);
+            return ResponseEntity.ok(ApiResponse.success(
+                "Sales analytics retrieved", 
+                salesAnalytics.get("sales")
+            ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("Failed to retrieve sales analytics", null));
+                .body(ApiResponse.error("Failed to retrieve sales analytics", null));
         }
     }
 
     @GetMapping("/{storeId}/analytics/customers")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getStoreCustomersAnalytics(@PathVariable String storeId) {
+    public ResponseEntity<ApiResponse<Object>> getStoreCustomersAnalytics(@PathVariable String storeId) {
         try {
-            return ResponseEntity.ok(
-                    ApiResponse.success("Customer analytics retrieved",
-                            storeService.getStoreCustomersAnalytics(storeId)));
+            Map<String, Object> analytics = analyticsService.getStoreAnalytics(storeId);
+            return ResponseEntity.ok(ApiResponse.success(
+                "Customer analytics retrieved",
+                analytics.get("customers")
+            ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("Failed to retrieve customer analytics", null));
+                .body(ApiResponse.error("Failed to retrieve customer analytics", null));
         }
     }
 
     @GetMapping("/{storeId}/analytics/products")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getStoreProductsAnalytics(@PathVariable String storeId) {
+    public ResponseEntity<ApiResponse<Object>> getStoreProductsAnalytics(@PathVariable String storeId) {
         try {
-            return ResponseEntity.ok(
-                    ApiResponse.success("Product analytics retrieved",
-                            storeService.getStoreProductsAnalytics(storeId)));
+            Map<String, Object> analytics = analyticsService.getStoreAnalytics(storeId);
+            return ResponseEntity.ok(ApiResponse.success(
+                "Product analytics retrieved",
+                analytics.get("products")
+            ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("Failed to retrieve product analytics", null));
+                .body(ApiResponse.error("Failed to retrieve product analytics", null));
         }
     }
 
     @GetMapping("/{storeId}/analytics/inventory")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getStoreInventoryAnalytics(@PathVariable String storeId) {
+    public ResponseEntity<ApiResponse< Object>> getStoreInventoryAnalytics(@PathVariable String storeId) {
         try {
-            return ResponseEntity.ok(
-                    ApiResponse.success("Inventory analytics retrieved",
-                            storeService.getStoreInventoryAnalytics(storeId)));
+            Map<String, Object> analytics = analyticsService.getStoreAnalytics(storeId);
+            return ResponseEntity.ok(ApiResponse.success(
+                "Inventory analytics retrieved",
+                analytics.get("inventory")
+            ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("Failed to retrieve inventory analytics", null));
+                .body(ApiResponse.error("Failed to retrieve inventory analytics", null));
         }
     }
-    
-    
+
     @GetMapping("/{storeId}/analytics/reviews")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getStoreReviewsAnalytics(@PathVariable String storeId) {
+    public ResponseEntity<ApiResponse< Object>> getStoreReviewsAnalytics(@PathVariable String storeId) {
         try {
-            return ResponseEntity.ok(
-                    ApiResponse.success("Review analytics retrieved", storeService.getStoreReviewsAnalytics(storeId)));
+            Map<String, Object> analytics = analyticsService.getStoreAnalytics(storeId);
+            return ResponseEntity.ok(ApiResponse.success(
+                "Review analytics retrieved", 
+                analytics.get("reviews")
+            ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("Failed to retrieve review analytics", null));
+                .body(ApiResponse.error("Failed to retrieve review analytics", null));
         }
     }
 

@@ -5,16 +5,23 @@ import com.server.dto.StoreDTO;
 import com.server.entity.Store;
 import com.server.exception.ResourceNotFoundException;
 import com.server.repository.StoreRepository;
+import com.server.model.store.StoreOwner;
+import com.server.repository.StoreOwnerRepository;
+import com.server.exception.StoreOperationException;
+import com.server.exception.UnauthorizedException;
+import com.server.util.IdGenerator;
+import com.server.dto.StoreWithOwnerDTO;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.*;
+import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.stream.Collectors;
-import com.server.exception.UnauthorizedException;
-import com.server.util.IdGenerator;
 
 @Service
 public class StoreService {
@@ -23,35 +30,71 @@ public class StoreService {
     @Autowired
     private StoreRepository storeRepository;
 
+    @Autowired
+    private StoreOwnerRepository storeOwnerRepository;
+
     public Page<Store> getAllStores(Pageable pageable) {
         return storeRepository.findAll(pageable);
     }
 
+    @Transactional
     public Store createStore(StoreDTO storeDTO) {
         try {
+            // Validate owner exists
+            StoreOwner owner = storeOwnerRepository.findByEmail(storeDTO.getOwnerEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("Store owner not found"));
+
             Store store = new Store();
             store.setStoreId(IdGenerator.generateStoreId());
             store.setName(storeDTO.getName());
-            store.setType(storeDTO.getType());
             store.setDescription(storeDTO.getDescription());
             store.setAddress(storeDTO.getAddress());
             store.setLocation(storeDTO.getLocation());
-            store.setPhone(storeDTO.getPhone());
-            store.setEmail(storeDTO.getEmail());
             store.setCategories(storeDTO.getCategories());
             store.setTags(storeDTO.getTags());
-            store.setImages(new ArrayList<>());
-            store.setOwnerId(storeDTO.getOwnerId());
-            store.setOwnerEmail(storeDTO.getOwnerEmail());
+            store.setOwnerEmail(owner.getEmail());
             store.setActive(true);
             store.setCreatedAt(LocalDateTime.now());
             store.setUpdatedAt(LocalDateTime.now());
+
+            Store savedStore = storeRepository.save(store);
+
+            // Convert entity.Store to model.Store for StoreOwner
+            com.server.model.store.Store modelStore = convertToModelStore(savedStore);
             
-            return storeRepository.save(store);
+            // Update owner's stores list
+            List<com.server.model.store.Store> ownerStores = owner.getStores();
+            if (ownerStores == null) {
+                ownerStores = new ArrayList<>();
+            }
+            ownerStores.add(modelStore);
+            owner.setStores(ownerStores);
+            storeOwnerRepository.save(owner);
+
+            return savedStore;
+
         } catch (Exception e) {
             logger.error("Error creating store: ", e);
-            throw new RuntimeException("Failed to create store: " + e.getMessage());
+            throw new StoreOperationException("Failed to create store: " + e.getMessage());
         }
+    }
+
+    // Helper method to convert entity.Store to model.Store
+    private com.server.model.store.Store convertToModelStore(Store entityStore) {
+        com.server.model.store.Store modelStore = new com.server.model.store.Store();
+        modelStore.setId(entityStore.getId());
+        modelStore.setStoreId(entityStore.getStoreId());
+        modelStore.setName(entityStore.getName());
+        modelStore.setDescription(entityStore.getDescription());
+        modelStore.setAddress(entityStore.getAddress());
+        modelStore.setLocation(entityStore.getLocation());
+        modelStore.setCategories(entityStore.getCategories());
+        modelStore.setTags(entityStore.getTags());
+        modelStore.setOwnerEmail(entityStore.getOwnerEmail());
+        modelStore.setActive(entityStore.isActive());
+        modelStore.setCreatedAt(entityStore.getCreatedAt());
+        modelStore.setUpdatedAt(entityStore.getUpdatedAt());
+        return modelStore;
     }
 
     public Store getStoreById(String storeId) {
@@ -67,11 +110,8 @@ public class StoreService {
         store.setDescription(storeDTO.getDescription());
         store.setAddress(storeDTO.getAddress());
         store.setLocation(storeDTO.getLocation());
-        store.setPhone(storeDTO.getPhone());
-        store.setEmail(storeDTO.getEmail());
         store.setCategories(storeDTO.getCategories());
         store.setTags(storeDTO.getTags());
-        store.setImages(storeDTO.getImages());
         store.setUpdatedAt(LocalDateTime.now());
         
         return storeRepository.save(store);
@@ -102,83 +142,6 @@ public class StoreService {
                 .collect(Collectors.toList());
     }
 
-    public String findOwnerIdByEmail(String email) {
-        return storeRepository.findByOwnerEmailOrderByCreatedAtDesc(email)
-                .stream()
-                .findFirst()
-                .map(Store::getOwnerId)
-                .orElse(null);
-    }
-
-    public Map<String, Object> getStoreStats(String storeId) {
-        Store store = getStoreById(storeId);
-        
-        Map<String, Object> stats = new HashMap<>();
-        stats.put("totalProducts", 0);
-        stats.put("totalOrders", 0);
-        stats.put("totalRevenue", 0.0);
-        stats.put("totalCustomers", 0);
-        return stats;
-    }
-
-    public Map<String, Object> getStoreAnalytics(String storeId) {
-        Store store = getStoreById(storeId);
-        Map<String, Object> analytics = new HashMap<>();
-        analytics.put("sales", getStoreSalesAnalytics(storeId));
-        analytics.put("customers", getStoreCustomersAnalytics(storeId));
-        analytics.put("products", getStoreProductsAnalytics(storeId));
-        analytics.put("inventory", getStoreInventoryAnalytics(storeId));
-        analytics.put("reviews", getStoreReviewsAnalytics(storeId));
-        return analytics;
-    }
-
-    public Map<String, Object> getStoreSalesAnalytics(String storeId) {
-        Map<String, Object> salesAnalytics = new HashMap<>();
-        salesAnalytics.put("totalRevenue", 0.0);
-        salesAnalytics.put("monthlySales", Collections.emptyList());
-        salesAnalytics.put("topProducts", Collections.emptyList());
-        return salesAnalytics;
-    }
-
-    public Map<String, Object> getStoreCustomersAnalytics(String storeId) {
-        Map<String, Object> customerAnalytics = new HashMap<>();
-        customerAnalytics.put("totalCustomers", 0);
-        customerAnalytics.put("newCustomers", 0);
-        customerAnalytics.put("returningCustomers", 0);
-        return customerAnalytics;
-    }
-
-    public Map<String, Object> getStoreProductsAnalytics(String storeId) {
-        Map<String, Object> productAnalytics = new HashMap<>();
-        productAnalytics.put("totalProducts", 0);
-        productAnalytics.put("activeProducts", 0);
-        productAnalytics.put("outOfStock", 0);
-        productAnalytics.put("lowStock", 0);
-        return productAnalytics;
-    }
-
-    public Map<String, Object> getStoreInventoryAnalytics(String storeId) {
-        Map<String, Object> inventoryAnalytics = new HashMap<>();
-        inventoryAnalytics.put("totalValue", 0.0);
-        inventoryAnalytics.put("totalItems", 0);
-        inventoryAnalytics.put("lowStockItems", Collections.emptyList());
-        return inventoryAnalytics;
-    }
-
-    public Map<String, Object> getStoreReviewsAnalytics(String storeId) {
-        Map<String, Object> reviewAnalytics = new HashMap<>();
-        reviewAnalytics.put("averageRating", 0.0);
-        reviewAnalytics.put("totalReviews", 0);
-        reviewAnalytics.put("recentReviews", Collections.emptyList());
-        return reviewAnalytics;
-    }
-
-    public String findEmailById(String ownerId) {
-        return storeRepository.findById(ownerId)
-                .map(Store::getOwnerEmail)
-                .orElse(null);
-    }
-
     public List<Store> getStoresByOwner(String ownerEmail) {
         return storeRepository.findAllByOwnerEmail(ownerEmail);
     }
@@ -191,7 +154,6 @@ public class StoreService {
                 return stores.get(0);
             }
             
-            // If no stores at all, throw exception
             throw new ResourceNotFoundException("No stores found for owner: " + ownerEmail);
             
         } catch (Exception e) {
@@ -204,11 +166,22 @@ public class StoreService {
         Store store = storeRepository.findById(storeId)
             .orElseThrow(() -> new ResourceNotFoundException("Store not found with id: " + storeId));
         
-        // Verify the user has access to this store
         if (!store.getOwnerEmail().equals(userEmail)) {
             throw new UnauthorizedException("You don't have access to this store");
         }
         
         return store;
+    }
+
+    public StoreWithOwnerDTO getStoreWithOwner(String storeId) {
+        Store store = getStoreById(storeId);
+        StoreOwner owner = storeOwnerRepository.findByEmail(store.getOwnerEmail())
+            .orElseThrow(() -> new ResourceNotFoundException("Store owner not found"));
+
+        return StoreWithOwnerDTO.builder()
+            .store(store)
+            .ownerName(owner.getFullName())
+            .ownerEmail(owner.getEmail())
+            .build();
     }
 } 
