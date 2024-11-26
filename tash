@@ -1,0 +1,48 @@
+[33m31633f4[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m FIX SOME BUGS. & ADD SOME BUGS . 1.To fix backend 2.Some UI changes in frontend.
+[33m2d82542[m FIX SOME BUGS. & ADD SOME BUGS . 1.To fix backend 2.Some UI changes in frontend.
+[33mf7118e4[m FIX SOME BUGS. & ADD SOME BUGS . 1.To fix backend 2.Some UI changes in frontend.
+[33maefffad[m FIX SOME BUGS. & ADD SOME BUGS . 1.To fix backend 2.Some UI changes in frontend.
+[33m62834c2[m FIX SOME BUGS. & ADD SOME BUGS .
+[33m58c0842[m FIX SOME BUGS. & ADD SOME BUGS .
+[33mae7e8d8[m FIX SOME BUGS. & ADD SOME BUGS . 1.To fix backend 2.Some UI changes in frontend.
+[33m8f97b23[m FIX SOME BUGS. & ADD SOME BUGS . 1.To fix backend 2.Some UI changes in frontend.
+[33mb71f7c9[m FIX SOME BUGS. & ADD SOME BUGS . 1.To fix backend 2.Some UI changes in frontend.
+[33m4b3dcf6[m FIX SOME BUGS. & ADD SOME BUGS . 1.To fix backend 2.Some UI changes in frontend.
+[33m8cfab30[m FIX SOME BUGS. & ADD SOME BUGS . 1.To fix backend 2.Some UI changes in frontend.
+[33m30db65b[m FIX SOME BUGS. & ADD SOME BUGS . 1.To fix backend 2.Some UI changes in frontend.
+[33mfa62f85[m FIX SOME BUGS. & ADD SOME BUGS
+[33m73b7942[m FIX SOME BUGS. & ADD SOME BUGS
+[33m7442e42[m FIX SOME BUGS.
+[33m171d5ab[m FIX SOME BUGS.
+[33mc6f8b0d[m FIX SOME BUGS.
+[33m4b12cc7[m FIX SOME BUGS.
+[33m0fa3418[m FIX SOME BUGS.
+[33mfbc79bb[m FIX SOME BUGS.
+[33m342eaa6[m FIX SOME BUGS.
+[33m5662247[m FIX SOME BUGS.
+[33mc64f393[m FIX SOME BUGS.
+[33md1d11e6[m FIX SOME BUGS.
+[33m2c39ef1[m Fix return type incompatibility in getDatabaseName method
+[33me6fa384[m Update README.md
+[33mc4fad02[m Update README.md
+[33m0db5ef6[m Fix bugs related to CORS, security configuration, and error handling
+[33md150308[m Update README.md
+[33m5d1c36e[m Update README.md
+[33m0c4e1fb[m Update README.md
+[33m2678cbc[m Update README.md
+[33mcc06581[m Update README.md
+[33m43bdaf1[m Update README.md
+[33mc0ab9df[m Update README.md
+[33m0d9ae4c[m Update README.md
+[33m2ff746d[m Update README.md
+[33m382a56f[m Update README.md
+[33m5ae4ba0[m Update StoreService.java & DatabseConfig.java  with necessary changes.
+[33me41a6f6[m Rename folder 'admin' to 'server'.
+[33m3827179[m Fix some bugs in API related functionality.
+[33mec05050[m Pushing all changes made in the last day
+[33m53c5caf[m Implement Authincation
+[33m480c8ce[m Initial commit: Spring Boot backend setup
+[33mfc1cd16[m Your commit message here
+[33mac20a91[m initial test commit
+[33m51ce869[m initial test commit
+[33m3326d2d[m Initial commit
