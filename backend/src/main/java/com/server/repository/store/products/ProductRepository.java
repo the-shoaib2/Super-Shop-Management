@@ -3,14 +3,13 @@ package com.server.repository.store.products;
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
-
 import com.server.model.store.products.Product;
-
-import org.springframework.data.mongodb.repository.MongoRepository;
+import com.server.repository.store.base.StoreBaseRepository;
 import org.springframework.data.mongodb.repository.Query;
 
+
 @Repository
-public interface ProductRepository extends MongoRepository<Product, String> {
+public interface ProductRepository extends StoreBaseRepository<Product, String> {
     List<Product> findByStoreId(String storeId);
     
     @Query("{ 'storeId': ?0, 'isActive': true }")
