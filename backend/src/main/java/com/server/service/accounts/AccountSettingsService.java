@@ -1,14 +1,12 @@
 package com.server.service.accounts;
 
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.server.dto.AccountSettingsDTO;
 import com.server.repository.StoreOwnerRepository;
 import com.server.exception.ResourceNotFoundException;
 import com.server.model.accounts.Owner;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,7 +16,6 @@ import java.util.stream.Collectors;
 public class AccountSettingsService {
     
     private final StoreOwnerRepository storeOwnerRepository;
-    private final PasswordEncoder passwordEncoder;
 
     public AccountSettingsDTO getSettings(String userId) {
         Owner owner = getStoreOwner(userId);
