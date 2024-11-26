@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.server.dto.StoreDTO;
-import com.server.entity.Store;
+import com.server.model.store.Store;
 import com.server.util.ApiResponse;
 import com.server.exception.ResourceNotFoundException;
 import com.server.exception.UnauthorizedException;
@@ -37,13 +37,25 @@ public class StoreController {
     private AnalyticsService analyticsService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<Store>>> getAllStores(Pageable pageable) {
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<List<Store>>> getAllStores() {
         try {
-            return ResponseEntity
-                    .ok(ApiResponse.success("Stores retrieved successfully", storeService.getAllStores(pageable)));
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            
+            if (email == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("User not authenticated", null));
+            }
+
+            List<Store> stores = storeService.getStoresByOwnerEmail(email);
+            return ResponseEntity.ok(ApiResponse.success("Stores retrieved successfully", stores));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(e.getMessage(), null));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("Failed to retrieve stores", null));
+                .body(ApiResponse.error("Failed to retrieve stores: " + e.getMessage(), null));
         }
     }
 
@@ -51,53 +63,105 @@ public class StoreController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<Store>> createStore(@RequestBody StoreDTO storeDTO) {
         try {
-            // Get the authenticated user's details
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication == null) {
-                return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(ApiResponse.error("User not authenticated", null));
             }
 
-            // Get user details from Principal
-            Object principal = authentication.getPrincipal();
-            String ownerEmail;
-            String ownerId = authentication.getName();
-
-            // Handle different types of Principal objects
-            if (principal instanceof UserDetails) {
-                ownerEmail = ((UserDetails) principal).getUsername();
-            } else if (principal instanceof OAuth2User) {
-                ownerEmail = ((OAuth2User) principal).getAttribute("email");
-            } else {
-                ownerEmail = principal.toString();
-            }
-
-            // Validate owner email
-            if (ownerEmail == null || ownerEmail.isEmpty()) {
-                return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(ApiResponse.error("Invalid owner email", null));
-            }
-
-            // Set owner details in DTO
+            String ownerEmail = authentication.getName();
             storeDTO.setOwnerEmail(ownerEmail);
-            storeDTO.setOwnerId(ownerId);
 
-            // Create store
             Store createdStore = storeService.createStore(storeDTO);
-            
-            return ResponseEntity
-                .status(HttpStatus.CREATED)
+            return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Store created successfully", createdStore));
         } catch (Exception e) {
             logger.error("Error creating store: ", e);
-            return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Failed to create store: " + e.getMessage(), null));
         }
     }
 
+    @GetMapping("/{storeId}")
+    public ResponseEntity<ApiResponse<Store>> getStoreById(@PathVariable String storeId) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            
+            // Get owner's stores
+            List<Store> ownerStores = storeService.getStoresByOwnerEmail(email);
+            
+            // Find the requested store in owner's stores
+            Store store = ownerStores.stream()
+                .filter(s -> s.getId().equals(storeId))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Store not found or access denied"));
+            
+            return ResponseEntity.ok(ApiResponse.success("Store retrieved successfully", store));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("Failed to retrieve store", null));
+        }
+    }
+
+    @GetMapping("/owner/stores")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<List<Store>>> getOwnerStores() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            List<Store> stores = storeService.getStoresByOwnerEmail(email);
+            return ResponseEntity.ok(ApiResponse.success("Owner stores retrieved successfully", stores));
+        } catch (Exception e) {
+            logger.error("Error retrieving owner stores: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("Failed to retrieve owner stores", null));
+        }
+    }
+
+    @GetMapping("/owner/current")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<Store>> getCurrentOwnerStore() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            
+            Store store = storeService.getCurrentStoreByOwner(email);
+            return ResponseEntity.ok(ApiResponse.success("Current store retrieved successfully", store));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.ok(ApiResponse.success("No stores found", null));
+        } catch (Exception e) {
+            logger.error("Error retrieving current store: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("Failed to retrieve current store: " + e.getMessage(), null));
+        }
+    }
+
+    @PostMapping("/owner/stores/{storeId}/switch")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<Store>> switchStore(@PathVariable String storeId) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            
+            Store store = storeService.switchStore(storeId, email);
+            return ResponseEntity.ok(ApiResponse.success("Store switched successfully", store));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error("Store not found", null));
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.error(e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("Failed to switch store: " + e.getMessage(), null));
+        }
+    }
+
+    // Analytics endpoints
     @GetMapping("/{storeId}/stats")
     @PreAuthorize("isAuthenticated() and @storeSecurityService.isStoreOwner(#storeId, principal)")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getStoreStats(@PathVariable String storeId) {
@@ -112,135 +176,6 @@ public class StoreController {
         }
     }
 
-    @GetMapping("/{storeId}/analytics")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getStoreAnalytics(@PathVariable String storeId) {
-        try {
-            return ResponseEntity.ok(ApiResponse.success(
-                "Store analytics retrieved", 
-                analyticsService.getStoreAnalytics(storeId)
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("Failed to retrieve store analytics", null));
-        }
-    }
-
-    @GetMapping("/{storeId}/analytics/sales")
-    public ResponseEntity<ApiResponse<Object>> getStoreSalesAnalytics(@PathVariable String storeId) {
-        try {
-            Map<String, Object> salesAnalytics = analyticsService.getStoreAnalytics(storeId);
-            return ResponseEntity.ok(ApiResponse.success(
-                "Sales analytics retrieved", 
-                salesAnalytics.get("sales")
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("Failed to retrieve sales analytics", null));
-        }
-    }
-
-    @GetMapping("/{storeId}/analytics/customers")
-    public ResponseEntity<ApiResponse<Object>> getStoreCustomersAnalytics(@PathVariable String storeId) {
-        try {
-            Map<String, Object> analytics = analyticsService.getStoreAnalytics(storeId);
-            return ResponseEntity.ok(ApiResponse.success(
-                "Customer analytics retrieved",
-                analytics.get("customers")
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("Failed to retrieve customer analytics", null));
-        }
-    }
-
-    @GetMapping("/{storeId}/analytics/products")
-    public ResponseEntity<ApiResponse<Object>> getStoreProductsAnalytics(@PathVariable String storeId) {
-        try {
-            Map<String, Object> analytics = analyticsService.getStoreAnalytics(storeId);
-            return ResponseEntity.ok(ApiResponse.success(
-                "Product analytics retrieved",
-                analytics.get("products")
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("Failed to retrieve product analytics", null));
-        }
-    }
-
-    @GetMapping("/{storeId}/analytics/inventory")
-    public ResponseEntity<ApiResponse< Object>> getStoreInventoryAnalytics(@PathVariable String storeId) {
-        try {
-            Map<String, Object> analytics = analyticsService.getStoreAnalytics(storeId);
-            return ResponseEntity.ok(ApiResponse.success(
-                "Inventory analytics retrieved",
-                analytics.get("inventory")
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("Failed to retrieve inventory analytics", null));
-        }
-    }
-
-    @GetMapping("/{storeId}/analytics/reviews")
-    public ResponseEntity<ApiResponse< Object>> getStoreReviewsAnalytics(@PathVariable String storeId) {
-        try {
-            Map<String, Object> analytics = analyticsService.getStoreAnalytics(storeId);
-            return ResponseEntity.ok(ApiResponse.success(
-                "Review analytics retrieved", 
-                analytics.get("reviews")
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("Failed to retrieve review analytics", null));
-        }
-    }
-
-    @GetMapping("/{storeId}")
-    public ResponseEntity<ApiResponse<Store>> getStoreById(@PathVariable String storeId) {
-        try {
-            Store store = storeService.getStoreById(storeId);
-            return ResponseEntity.ok(ApiResponse.success("Store retrieved successfully", store));
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.error("Store not found", null));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("Failed to retrieve store", null));
-        }
-    }
-
-    @PutMapping("/{storeId}")
-    @PreAuthorize("isAuthenticated() and @storeSecurityService.isStoreOwner(#storeId, principal)")
-    public ResponseEntity<ApiResponse<Store>> updateStore(
-            @PathVariable String storeId,
-            @RequestBody StoreDTO storeDTO) {
-        try {
-            Store updatedStore = storeService.updateStore(storeId, storeDTO);
-            return ResponseEntity.ok(ApiResponse.success("Store updated successfully", updatedStore));
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.error("Store not found", null));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("Failed to update store", null));
-        }
-    }
-
-    @DeleteMapping("/{storeId}")
-    @PreAuthorize("isAuthenticated() and @storeSecurityService.isStoreOwner(#storeId, principal)")
-    public ResponseEntity<ApiResponse<Void>> deleteStore(@PathVariable String storeId) {
-        try {
-            storeService.deleteStore(storeId);
-            return ResponseEntity.ok(ApiResponse.success("Store deleted successfully", null));
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.error("Store not found", null));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("Failed to delete store", null));
-        }
-    }
-
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<Page<Store>>> searchStores(
             @RequestParam(required = false) String query,
@@ -252,75 +187,7 @@ public class StoreController {
             return ResponseEntity.ok(ApiResponse.success("Stores retrieved successfully", stores));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("Failed to search stores", null));
-        }
-    }
-
-    @GetMapping("/categories")
-    public ResponseEntity<ApiResponse<List<String>>> getAllCategories() {
-        try {
-            List<String> categories = storeService.getAllCategories();
-            return ResponseEntity.ok(ApiResponse.success("Categories retrieved successfully", categories));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("Failed to retrieve categories", null));
-        }
-    }
-
-    @GetMapping("/owner/stores")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<List<Store>>> getOwnerStores() {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String ownerEmail = authentication.getName();
-            List<Store> stores = storeService.getStoresByOwner(ownerEmail);
-            return ResponseEntity.ok(ApiResponse.success("Owner stores retrieved successfully", stores));
-        } catch (Exception e) {
-            logger.error("Error retrieving owner stores: ", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("Failed to retrieve owner stores", null));
-        }
-    }
-
-    @GetMapping("/owner/current")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<Store>> getCurrentOwnerStore() {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String ownerEmail = authentication.getName();
-            
-            try {
-                Store store = storeService.getCurrentStoreByOwner(ownerEmail);
-                return ResponseEntity.ok(ApiResponse.success("Current store retrieved successfully", store));
-            } catch (ResourceNotFoundException e) {
-                return ResponseEntity.ok(ApiResponse.success("No stores found", null));
-            }
-        } catch (Exception e) {
-            logger.error("Error retrieving current store: ", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("Failed to retrieve current store: " + e.getMessage(), null));
-        }
-    }
-
-    @PostMapping("/owner/stores/{storeId}/switch")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<Store>> switchStore(@PathVariable String storeId) {
-        try {
-            // Get authenticated user's email
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String userEmail = authentication.getName();
-            
-            Store store = storeService.switchStore(storeId, userEmail);
-            return ResponseEntity.ok(ApiResponse.success("Store switched successfully", store));
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.error("Store not found", null));
-        } catch (UnauthorizedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ApiResponse.error(e.getMessage(), null));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("Failed to switch store: " + e.getMessage(), null));
+                .body(ApiResponse.error("Failed to search stores", null));
         }
     }
 }

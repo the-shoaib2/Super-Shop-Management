@@ -54,6 +54,9 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
             .authorizeHttpRequests(auth -> auth
+                // Health check endpoints - moved to top of the matchers
+                .requestMatchers(HttpMethod.GET, "/api/health", "/api/ping").permitAll()
+                
                 // Static resources
                 .requestMatchers("/favicon.ico").permitAll()
                 .requestMatchers("/static/**").permitAll()
@@ -61,33 +64,10 @@ public class SecurityConfig {
                 
                 // Public endpoints
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/ping").permitAll()
+                .requestMatchers("/api/v1/store/public/**").permitAll()
                 .requestMatchers("/error").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/stores").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/stores/*").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/products/*").permitAll()
                 
-                // Profile endpoints
-                .requestMatchers(HttpMethod.PUT,"/api/profile/me").authenticated()
-                .requestMatchers(HttpMethod.GET,"/api/profile/me").authenticated()
-                .requestMatchers(HttpMethod.PUT,"/api/profile/me/avatar").authenticated()
-                .requestMatchers(HttpMethod.GET,"/api/profile/me/avatar").authenticated()
-
-                // Store management
-                .requestMatchers(HttpMethod.POST, "/api/stores/*").authenticated()
-                .requestMatchers(HttpMethod.PUT, "/api/stores/*").authenticated()
-                .requestMatchers(HttpMethod.DELETE, "/api/stores/*").authenticated()
-                
-                // Product management
-                .requestMatchers("/api/products/create").authenticated()
-                .requestMatchers("/api/products/update/*").authenticated()
-                .requestMatchers("/api/products/delete/*").authenticated()
-                
-                // Order management
-                .requestMatchers("/api/orders/*").authenticated()
-                
-                // Catch all
+                // Protected endpoints
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

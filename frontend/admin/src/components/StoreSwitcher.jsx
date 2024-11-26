@@ -26,15 +26,24 @@ export default function StoreSwitcher() {
     try {
       setLoading(true)
       const response = await storeAPI.getOwnerStores()
-      setStores(response.data || [])
       
-      // If no current store is selected and stores exist, set the first one
-      if (!currentStore && response.data?.length > 0) {
-        setCurrentStore(response.data[0])
+      if (response.success && response.data) {
+        const validStores = response.data.filter(store => 
+          store && store.id && store.name
+        )
+        
+        setStores(validStores)
+        
+        if (!currentStore && validStores.length > 0) {
+          setCurrentStore(validStores[0])
+        }
+      } else {
+        console.error('Failed to fetch stores:', response.error)
+        toast.error(response.error || 'Failed to load stores')
       }
     } catch (error) {
       console.error('Failed to fetch stores:', error)
-      toast.error('Failed to load stores')
+      toast.error(error.response?.data?.message || 'Failed to load stores')
     } finally {
       setLoading(false)
     }

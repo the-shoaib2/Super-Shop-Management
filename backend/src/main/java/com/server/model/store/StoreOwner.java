@@ -23,7 +23,7 @@ public class StoreOwner {
     private String id;
     
     @Indexed(unique = true)
-    private String ownerId; // 12-digit ID (OWN + 9 digits)
+    private String ownerId; // OWN + numbers format
     
     @NotBlank(message = "Full name is required")
     private String fullName;

@@ -1,127 +1,116 @@
 package com.server.service.store;
 
 import org.springframework.stereotype.Service;
-import com.server.dto.StoreDTO;
-import com.server.entity.Store;
-import com.server.exception.ResourceNotFoundException;
-import com.server.repository.StoreRepository;
-import com.server.model.store.StoreOwner;
-import com.server.repository.StoreOwnerRepository;
-import com.server.exception.StoreOperationException;
-import com.server.exception.UnauthorizedException;
-import com.server.util.IdGenerator;
-import com.server.dto.StoreWithOwnerDTO;
-
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.*;
-import java.util.stream.Collectors;
-import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.mongodb.core.MongoTemplate;
+
+import com.server.model.store.Store;
+import com.server.model.store.StoreOwner;
+import com.server.repository.StoreRepository;
+import com.server.repository.StoreOwnerRepository;
+import com.server.dto.StoreDTO;
+import com.server.exception.ResourceNotFoundException;
+import com.server.exception.UnauthorizedException;
+import com.server.util.IdGenerator;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class StoreService {
     private static final Logger logger = LoggerFactory.getLogger(StoreService.class);
-
+    
+    @Autowired
+    private MongoTemplate mongoTemplate;
+    
     @Autowired
     private StoreRepository storeRepository;
-
+    
     @Autowired
     private StoreOwnerRepository storeOwnerRepository;
 
-    public Page<Store> getAllStores(Pageable pageable) {
-        return storeRepository.findAll(pageable);
+    public List<Store> getStoresByOwnerEmail(String email) {
+        StoreOwner owner = storeOwnerRepository.findByEmail(email)
+            .orElseThrow(() -> new ResourceNotFoundException("Store owner not found"));
+            
+        // Get store IDs from owner's stores
+        List<Store> stores = owner.getStores();
+        if (stores == null) {
+            return new ArrayList<>();
+        }
+        
+        // MongoDB will automatically dereference the DBRef
+        return stores;
     }
 
     @Transactional
     public Store createStore(StoreDTO storeDTO) {
         try {
-            // Validate owner exists
+            // Find owner
             StoreOwner owner = storeOwnerRepository.findByEmail(storeDTO.getOwnerEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("Store owner not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Owner not found"));
 
+            // Create store
             Store store = new Store();
             store.setStoreId(IdGenerator.generateStoreId());
             store.setName(storeDTO.getName());
             store.setDescription(storeDTO.getDescription());
-            store.setAddress(storeDTO.getAddress());
-            store.setLocation(storeDTO.getLocation());
-            store.setCategories(storeDTO.getCategories());
-            store.setTags(storeDTO.getTags());
+            store.setOwnerId(owner.getOwnerId());  // Use the OWN format ID
             store.setOwnerEmail(owner.getEmail());
-            store.setActive(true);
-            store.setCreatedAt(LocalDateTime.now());
-            store.setUpdatedAt(LocalDateTime.now());
-
+            // ... set other fields
+            
+            // Save store first
             Store savedStore = storeRepository.save(store);
 
-            // Convert entity.Store to model.Store for StoreOwner
-            com.server.model.store.Store modelStore = convertToModelStore(savedStore);
-            
-            // Update owner's stores list
-            List<com.server.model.store.Store> ownerStores = owner.getStores();
+            // Update owner's stores list using DBRef
+            List<Store> ownerStores = owner.getStores();
             if (ownerStores == null) {
                 ownerStores = new ArrayList<>();
             }
-            ownerStores.add(modelStore);
+            ownerStores.add(savedStore);
             owner.setStores(ownerStores);
             storeOwnerRepository.save(owner);
 
             return savedStore;
-
         } catch (Exception e) {
-            logger.error("Error creating store: ", e);
-            throw new StoreOperationException("Failed to create store: " + e.getMessage());
+            logger.error("Error creating store: {}", e.getMessage());
+            throw new RuntimeException("Failed to create store", e);
         }
     }
 
-    // Helper method to convert entity.Store to model.Store
-    private com.server.model.store.Store convertToModelStore(Store entityStore) {
-        com.server.model.store.Store modelStore = new com.server.model.store.Store();
-        modelStore.setId(entityStore.getId());
-        modelStore.setStoreId(entityStore.getStoreId());
-        modelStore.setName(entityStore.getName());
-        modelStore.setDescription(entityStore.getDescription());
-        modelStore.setAddress(entityStore.getAddress());
-        modelStore.setLocation(entityStore.getLocation());
-        modelStore.setCategories(entityStore.getCategories());
-        modelStore.setTags(entityStore.getTags());
-        modelStore.setOwnerEmail(entityStore.getOwnerEmail());
-        modelStore.setActive(entityStore.isActive());
-        modelStore.setCreatedAt(entityStore.getCreatedAt());
-        modelStore.setUpdatedAt(entityStore.getUpdatedAt());
-        return modelStore;
-    }
-
-    public Store getStoreById(String storeId) {
-        return storeRepository.findById(storeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Store not found"));
-    }
-
-    public Store updateStore(String storeId, StoreDTO storeDTO) {
-        Store store = getStoreById(storeId);
+    public Store getCurrentStoreByOwner(String email) {
+        StoreOwner owner = storeOwnerRepository.findByEmail(email)
+            .orElseThrow(() -> new ResourceNotFoundException("Owner not found"));
+            
+        List<Store> stores = owner.getStores();
+        if (stores == null || stores.isEmpty()) {
+            throw new ResourceNotFoundException("No stores found for owner");
+        }
         
-        store.setName(storeDTO.getName());
-        store.setType(storeDTO.getType());
-        store.setDescription(storeDTO.getDescription());
-        store.setAddress(storeDTO.getAddress());
-        store.setLocation(storeDTO.getLocation());
-        store.setCategories(storeDTO.getCategories());
-        store.setTags(storeDTO.getTags());
-        store.setUpdatedAt(LocalDateTime.now());
-        
-        return storeRepository.save(store);
+        // Return first store (MongoDB will dereference the DBRef)
+        return stores.get(0);
     }
 
-    public void deleteStore(String storeId) {
-        Store store = getStoreById(storeId);
-        store.setActive(false);
-        store.setUpdatedAt(LocalDateTime.now());
-        storeRepository.save(store);
+    public Store switchStore(String storeId, String email) {
+        // Find owner
+        StoreOwner owner = storeOwnerRepository.findByEmail(email)
+            .orElseThrow(() -> new ResourceNotFoundException("Owner not found"));
+            
+        // Find store in owner's stores list
+        return owner.getStores().stream()
+            .filter(store -> store.getId().equals(storeId))
+            .findFirst()
+            .orElseThrow(() -> new ResourceNotFoundException("Store not found"));
     }
 
     public Page<Store> searchStores(String query, List<String> categories, List<String> tags, Pageable pageable) {
@@ -131,57 +120,5 @@ public class StoreService {
             tags != null ? tags : Collections.emptyList(),
             pageable
         );
-    }
-
-    public List<String> getAllCategories() {
-        return storeRepository.findAllWithCategories().stream()
-                .map(Store::getCategories)
-                .filter(Objects::nonNull)
-                .flatMap(List::stream)
-                .distinct()
-                .collect(Collectors.toList());
-    }
-
-    public List<Store> getStoresByOwner(String ownerEmail) {
-        return storeRepository.findAllByOwnerEmail(ownerEmail);
-    }
-
-    public Store getCurrentStoreByOwner(String ownerEmail) {
-        try {
-            List<Store> stores = storeRepository.findByOwnerEmailOrderByCreatedAtDesc(ownerEmail);
-            
-            if (!stores.isEmpty()) {
-                return stores.get(0);
-            }
-            
-            throw new ResourceNotFoundException("No stores found for owner: " + ownerEmail);
-            
-        } catch (Exception e) {
-            logger.error("Error getting current store for owner {}: {}", ownerEmail, e.getMessage());
-            throw new RuntimeException("Failed to retrieve current store: " + e.getMessage());
-        }
-    }
-
-    public Store switchStore(String storeId, String userEmail) {
-        Store store = storeRepository.findById(storeId)
-            .orElseThrow(() -> new ResourceNotFoundException("Store not found with id: " + storeId));
-        
-        if (!store.getOwnerEmail().equals(userEmail)) {
-            throw new UnauthorizedException("You don't have access to this store");
-        }
-        
-        return store;
-    }
-
-    public StoreWithOwnerDTO getStoreWithOwner(String storeId) {
-        Store store = getStoreById(storeId);
-        StoreOwner owner = storeOwnerRepository.findByEmail(store.getOwnerEmail())
-            .orElseThrow(() -> new ResourceNotFoundException("Store owner not found"));
-
-        return StoreWithOwnerDTO.builder()
-            .store(store)
-            .ownerName(owner.getFullName())
-            .ownerEmail(owner.getEmail())
-            .build();
     }
 } 

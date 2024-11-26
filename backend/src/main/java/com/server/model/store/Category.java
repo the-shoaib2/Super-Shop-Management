@@ -10,7 +10,7 @@ import lombok.Data;
 @Data
 public class Category {
     @Id
-    private Long id;
+    private String id;
     private String name;
     private String description;
     private String imageUrl;
@@ -19,10 +19,10 @@ public class Category {
     private String rank;
     private String status;
     private String type;
+    private String storeId;
     private boolean isEdited;
     private List<String> editedList;
     private List<String> topSellingProducts;
-    private String storeId;
     private String storeName;
     private String storeOwnerId;
     private String storeOwnerEmail;

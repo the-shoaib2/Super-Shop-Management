@@ -12,6 +12,7 @@ public class ProductSize {
     private String id;
     private String name;         // S, M, L, XL, etc.
     private String productId;
+    private String storeId;
     private String measurement;  // Actual measurements in cm/inches
     private String sizeType;     // EU, US, UK, etc.
     private Integer quantity;

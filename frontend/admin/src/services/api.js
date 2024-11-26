@@ -58,7 +58,9 @@ api.interceptors.request.use(
     }
     return config
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    return Promise.reject(error)
+  }
 )
 
 // Auth APIs
@@ -286,7 +288,9 @@ api.interceptors.request.use(
     }
     return config
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    return Promise.reject(error)
+  }
 )
 
 // Response interceptor
@@ -296,80 +300,177 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
-      localStorage.removeItem('currentStoreId')
       window.location.href = '/login'
     }
     return Promise.reject(error)
   }
 )
 
-// Add this function to the existing API functions
+// Store APIs
 export const storeAPI = {
-  createStore: async (storeData) => {
+  // Get all stores for the authenticated owner
+  getOwnerStores: async () => {
     try {
-      // Ensure storeData contains all required fields
-      if (!storeData.name || !storeData.ownerEmail || !storeData.ownerId) {
-        throw new Error('Missing required fields: name, ownerEmail, or ownerId');
+      const response = await api.get('/api/stores')  // Changed from /api/stores/owner/stores
+      return {
+        success: true,
+        data: response.data?.data || []
       }
-
-      const response = await api.post('/api/stores', storeData);
-      return response.data;
     } catch (error) {
-      // Enhanced error logging
-      if (error.response) {
-        console.error('Create Store Error:', {
-          status: error.response.status,
-          data: error.response.data,
-          message: error.response.data?.message || 'No message provided'
-        });
-      } else {
-        console.error('Create Store Error:', error.message);
+      console.error('Get owner stores error:', error)
+      return {
+        success: false,
+        data: [],
+        error: error.response?.data?.message || 'Failed to retrieve stores'
       }
-      throw error; // Rethrow the error for further handling
     }
   },
 
-  getOwnerStores: async () => {
+  // Create a new store
+  createStore: async (storeData) => {
     try {
-      const response = await api.get('/api/stores/owner/stores')
-      return response.data
+      const response = await api.post('/api/stores', {
+        name: storeData.name,
+        type: storeData.category ? [storeData.category] : [],
+        description: storeData.description,
+        address: storeData.address,
+        location: storeData.location,
+        phone: storeData.phone,
+        email: storeData.email,
+        tags: storeData.tags
+      })
+      return {
+        success: true,
+        data: response.data?.data
+      }
     } catch (error) {
-      console.error('Get owner stores error:', error)
+      console.error('Create store error:', error)
       throw error
     }
   },
 
+  // Switch current store
   switchStore: async (storeId) => {
     try {
-      const token = localStorage.getItem('token')
-      if (!token) {
-        throw new Error('No authentication token found')
-      }
-
-      const response = await api.post(`/api/stores/owner/stores/${storeId}/switch`, null, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      
-      if (response.data?.success) {
-        return response.data
-      } else {
-        throw new Error(response.data?.message || 'Failed to switch store')
+      const response = await api.post(`/api/stores/owner/stores/${storeId}/switch`)
+      return {
+        success: true,
+        data: response.data?.data
       }
     } catch (error) {
       console.error('Switch store error:', error)
-      throw error
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Failed to switch store'
+      }
     }
   },
 
+  // Get current store
   getCurrentStore: async () => {
     try {
       const response = await api.get('/api/stores/owner/current')
-      return response.data
+      return {
+        success: true,
+        data: response.data?.data
+      }
     } catch (error) {
       console.error('Get current store error:', error)
-      throw error
+      return {
+        success: false,
+        data: null,
+        error: error.response?.data?.message || 'Failed to get current store'
+      }
+    }
+  },
+
+  // Get store settings
+  getStoreSettings: async (storeId) => {
+    try {
+      const response = await api.get(`/api/stores/${storeId}/settings`)
+      return {
+        success: true,
+        data: response.data?.data
+      }
+    } catch (error) {
+      console.error('Get store settings error:', error)
+      return {
+        success: false,
+        data: null,
+        error: error.response?.data?.message || 'Failed to get store settings'
+      }
+    }
+  },
+
+  // Get store colors
+  getStoreColors: async (storeId) => {
+    try {
+      const response = await api.get(`/api/${storeId}/colors`)
+      return {
+        success: true,
+        data: response.data?.data || []
+      }
+    } catch (error) {
+      console.error('Get store colors error:', error)
+      return {
+        success: false,
+        data: [],
+        error: error.response?.data?.message || 'Failed to get store colors'
+      }
+    }
+  },
+
+  // Get store sizes
+  getStoreSizes: async (storeId) => {
+    try {
+      const response = await api.get(`/api/${storeId}/sizes`)
+      return {
+        success: true,
+        data: response.data?.data || []
+      }
+    } catch (error) {
+      console.error('Get store sizes error:', error)
+      return {
+        success: false,
+        data: [],
+        error: error.response?.data?.message || 'Failed to get store sizes'
+      }
+    }
+  },
+
+  // Get store categories
+  getStoreCategories: async (storeId) => {
+    try {
+      const response = await api.get(`/api/${storeId}/categories`)
+      return {
+        success: true,
+        data: response.data?.data || []
+      }
+    } catch (error) {
+      console.error('Get store categories error:', error)
+      return {
+        success: false,
+        data: [],
+        error: error.response?.data?.message || 'Failed to get store categories'
+      }
+    }
+  },
+
+  // Get store billboards
+  getStoreBillboards: async (storeId) => {
+    try {
+      const response = await api.get(`/api/${storeId}/billboards`)
+      return {
+        success: true,
+        data: response.data?.data || []
+      }
+    } catch (error) {
+      console.error('Get store billboards error:', error)
+      return {
+        success: false,
+        data: [],
+        error: error.response?.data?.message || 'Failed to get store billboards'
+      }
     }
   }
 }

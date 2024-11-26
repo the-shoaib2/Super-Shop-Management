@@ -14,6 +14,7 @@ public class ProductColor {
     private String name;
     private String colorCode;    // Hex code
     private String productId;
+    private String storeId;
     private Integer quantity;
     private Integer availableQuantity;
     private boolean isActive;
