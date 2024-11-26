@@ -12,8 +12,8 @@ import com.server.model.accounts.Owner;
 import com.server.model.store.Store;
 import com.server.repository.accounts.StoreOwnerRepository;
 import com.server.repository.store.StoreRepository;
-import com.server.dto.StoreDTO;
-import com.server.exception.ResourceNotFoundException;
+import com.server.dto.store.StoreDTO;
+import com.server.exception.common.ResourceNotFoundException;
 import com.server.util.IdGenerator;
 
 import java.util.ArrayList;

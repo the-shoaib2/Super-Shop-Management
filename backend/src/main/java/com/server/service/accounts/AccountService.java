@@ -3,7 +3,7 @@ package com.server.service.accounts;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.server.exception.ResourceNotFoundException;
+import com.server.exception.common.ResourceNotFoundException;
 import com.server.model.accounts.Owner;
 import com.server.repository.accounts.StoreOwnerRepository;
 

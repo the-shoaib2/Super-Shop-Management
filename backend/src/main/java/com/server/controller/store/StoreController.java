@@ -12,11 +12,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.server.dto.StoreDTO;
 import com.server.model.store.Store;
 import com.server.util.ApiResponse;
-import com.server.exception.ResourceNotFoundException;
-import com.server.exception.UnauthorizedException;
+import com.server.dto.store.StoreDTO;
+import com.server.exception.auth.UnauthorizedException;
+import com.server.exception.common.ResourceNotFoundException;
 import com.server.service.store.StoreService;
 import com.server.service.analytics.AnalyticsService;
 

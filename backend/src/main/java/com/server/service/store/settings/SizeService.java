@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.server.service.store.base.StoreAwareService;
-import com.server.exception.ResourceNotFoundException;
+import com.server.exception.common.ResourceNotFoundException;
 import com.server.model.store.products.ProductSize;
 import com.server.repository.store.products.ProductSizeRepository;
 

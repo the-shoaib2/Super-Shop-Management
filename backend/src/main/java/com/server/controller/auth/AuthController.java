@@ -8,9 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import com.server.dto.AuthRequest;
-import com.server.dto.AuthResponse;
-import com.server.dto.ValidationErrorResponse;
+import com.server.dto.accounts.auth.AuthRequest;
+import com.server.dto.accounts.auth.AuthResponse;
+import com.server.dto.common.ValidationErrorResponse;
 import com.server.model.accounts.Owner;
 import com.server.service.auth.AuthService;
 import com.server.util.ApiResponse;

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.server.exception.ResourceNotFoundException;
+import com.server.exception.common.ResourceNotFoundException;
 import com.server.model.store.products.Product;
 import com.server.repository.store.products.ProductRepository;
 import com.server.service.store.base.StoreAwareService;

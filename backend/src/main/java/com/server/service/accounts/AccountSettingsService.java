@@ -1,8 +1,10 @@
 package com.server.service.accounts;
 
 import org.springframework.stereotype.Service;
-import com.server.dto.AccountSettingsDTO;
-import com.server.exception.ResourceNotFoundException;
+
+import com.server.dto.accounts.settings.AccountSettingsDTO;
+import com.server.dto.accounts.settings.AccountSettingsDTO.*;
+import com.server.exception.common.ResourceNotFoundException;
 import com.server.model.accounts.Owner;
 import com.server.repository.accounts.StoreOwnerRepository;
 
@@ -22,159 +24,69 @@ public class AccountSettingsService {
         return mapToDTO(owner.getAccountSettings());
     }
     
-    public AccountSettingsDTO.GeneralSettings updateGeneralSettings(
-            String userId, 
-            AccountSettingsDTO.GeneralSettings settings) {
+    public LanguageSettings updateLanguageSettings(String userId, LanguageSettings settings) {
         Owner owner = getStoreOwner(userId);
-        Owner.AccountSettings accountSettings = owner.getAccountSettings();
+        Owner.AccountSettings accountSettings = getOrCreateAccountSettings(owner);
         
-        if (accountSettings == null) {
-            accountSettings = new Owner.AccountSettings();
-            owner.setAccountSettings(accountSettings);
+        if (settings.getLanguage() != null) {
+            accountSettings.setLanguage(settings.getLanguage().getPrimaryLanguage());
         }
         
-        accountSettings.setTimezone(settings.getTimezone());
-        accountSettings.setDateFormat(settings.getDateFormat());
-        accountSettings.setCurrency(settings.getCurrency());
+        if (settings.getTimezone() != null) {
+            accountSettings.setTimezone(settings.getTimezone().getTimezone());
+        }
+        
+        if (settings.getDateTime() != null) {
+            accountSettings.setDateFormat(settings.getDateTime().getDateFormat());
+            accountSettings.setTimeFormat(settings.getDateTime().getTimeFormat());
+        }
         
         storeOwnerRepository.save(owner);
         return settings;
     }
     
-    public AccountSettingsDTO.SecuritySettings updateSecuritySettings(
-            String userId, 
-            AccountSettingsDTO.SecuritySettings settings) {
+    public AppearanceSettings updateAppearanceSettings(String userId, AppearanceSettings settings) {
         Owner owner = getStoreOwner(userId);
-        Owner.AccountSettings accountSettings = owner.getAccountSettings();
+        Owner.AccountSettings accountSettings = getOrCreateAccountSettings(owner);
         
-        if (accountSettings == null) {
-            accountSettings = new Owner.AccountSettings();
-            owner.setAccountSettings(accountSettings);
+        if (settings.getTheme() != null) {
+            accountSettings.setTheme(settings.getTheme().getMode().toString());
+            accountSettings.setAutoSwitchTheme(settings.getTheme().isAutoSwitch());
         }
         
-        accountSettings.setTwoFactorEnabled(settings.isTwoFactorEnabled());
-        accountSettings.setTwoFactorMethod(settings.getTwoFactorMethod());
-        accountSettings.setTrustedDevices(settings.getTrustedDevices());
+        if (settings.getFont() != null) {
+            accountSettings.setFontSize(settings.getFont().getFontSize().getSize());
+            accountSettings.setFontFamily(settings.getFont().getFontFamily());
+        }
+        
+        if (settings.getAccessibility() != null) {
+            accountSettings.setReduceMotion(settings.getAccessibility().isReduceMotion());
+            accountSettings.setHighContrast(settings.getAccessibility().isHighContrast());
+        }
         
         storeOwnerRepository.save(owner);
         return settings;
     }
     
-    public AccountSettingsDTO.NotificationSettings updateNotificationSettings(
-            String userId, 
-            AccountSettingsDTO.NotificationSettings settings) {
+    public NotificationSettings updateNotificationSettings(String userId, NotificationSettings settings) {
         Owner owner = getStoreOwner(userId);
-        Owner.AccountSettings accountSettings = owner.getAccountSettings();
+        Owner.AccountSettings accountSettings = getOrCreateAccountSettings(owner);
         
-        if (accountSettings == null) {
-            accountSettings = new Owner.AccountSettings();
-            owner.setAccountSettings(accountSettings);
+        if (settings.getEmail() != null) {
+            accountSettings.setEmailNotifications(settings.getEmail().isEnabled());
+            accountSettings.setMarketingEmails(settings.getEmail().isMarketingEmails());
+            accountSettings.setOrderUpdates(settings.getEmail().isOrderUpdates());
         }
         
-        accountSettings.setEmailNotifications(settings.isEmailNotifications());
-        accountSettings.setPushNotifications(settings.isPushNotifications());
-        accountSettings.setOrderNotifications(settings.isOrderNotifications());
-        accountSettings.setMarketingNotifications(settings.isMarketingNotifications());
-        
-        storeOwnerRepository.save(owner);
-        return settings;
-    }
-    
-    public AccountSettingsDTO.AppearanceSettings updateAppearanceSettings(
-            String userId, 
-            AccountSettingsDTO.AppearanceSettings settings) {
-        Owner owner = getStoreOwner(userId);
-        Owner.AccountSettings accountSettings = owner.getAccountSettings();
-        
-        if (accountSettings == null) {
-            accountSettings = new Owner.AccountSettings();
-            owner.setAccountSettings(accountSettings);
+        if (settings.getPush() != null) {
+            accountSettings.setPushNotifications(settings.getPush().isEnabled());
+            accountSettings.setDesktopNotifications(settings.getPush().isDesktopNotifications());
         }
         
-        accountSettings.setTheme(settings.getTheme());
-        accountSettings.setLayout(settings.getLayout());
-        accountSettings.setCompactMode(settings.isCompactMode());
-        
-        storeOwnerRepository.save(owner);
-        return settings;
-    }
-    
-    public AccountSettingsDTO.LanguageSettings updateLanguageSettings(
-            String userId, 
-            AccountSettingsDTO.LanguageSettings settings) {
-        Owner owner = getStoreOwner(userId);
-        Owner.AccountSettings accountSettings = owner.getAccountSettings();
-        
-        if (accountSettings == null) {
-            accountSettings = new Owner.AccountSettings();
-            owner.setAccountSettings(accountSettings);
+        if (settings.getSecurity() != null) {
+            accountSettings.setLoginAlerts(settings.getSecurity().isLoginAlerts());
+            accountSettings.setPasswordChangeAlerts(settings.getSecurity().isPasswordChanges());
         }
-        
-        accountSettings.setLanguage(settings.getLanguage());
-        accountSettings.setRegion(settings.getRegion());
-        accountSettings.setNumberFormat(settings.getNumberFormat());
-        
-        storeOwnerRepository.save(owner);
-        return settings;
-    }
-    
-    public AccountSettingsDTO.PrivacySettings updatePrivacySettings(
-            String userId, 
-            AccountSettingsDTO.PrivacySettings settings) {
-        Owner owner = getStoreOwner(userId);
-        Owner.AccountSettings accountSettings = owner.getAccountSettings();
-        
-        if (accountSettings == null) {
-            accountSettings = new Owner.AccountSettings();
-            owner.setAccountSettings(accountSettings);
-        }
-        
-        accountSettings.setProfileVisible(settings.isProfileVisible());
-        accountSettings.setActivityVisible(settings.isActivityVisible());
-        accountSettings.setStoreVisible(settings.isStoreVisible());
-        
-        storeOwnerRepository.save(owner);
-        return settings;
-    }
-    
-    public AccountSettingsDTO.BillingSettings updateBillingSettings(
-            String userId, 
-            AccountSettingsDTO.BillingSettings settings) {
-        Owner owner = getStoreOwner(userId);
-        Owner.AccountSettings accountSettings = owner.getAccountSettings();
-        
-        if (accountSettings == null) {
-            accountSettings = new Owner.AccountSettings();
-            owner.setAccountSettings(accountSettings);
-        }
-        
-        accountSettings.setBillingEmail(settings.getBillingEmail());
-        accountSettings.setBillingAddress(settings.getBillingAddress());
-        accountSettings.setTaxId(settings.getTaxId());
-        
-        // Convert DTO payment methods to entity payment methods
-        List<Owner.PaymentMethod> paymentMethods = settings.getPaymentMethods().stream()
-            .map(this::convertToPaymentMethod)
-            .collect(Collectors.toList());
-        accountSettings.setPaymentMethods(paymentMethods);
-        
-        storeOwnerRepository.save(owner);
-        return settings;
-    }
-    
-    public AccountSettingsDTO.IntegrationSettings updateIntegrationSettings(
-            String userId, 
-            AccountSettingsDTO.IntegrationSettings settings) {
-        Owner owner = getStoreOwner(userId);
-        Owner.AccountSettings accountSettings = owner.getAccountSettings();
-        
-        if (accountSettings == null) {
-            accountSettings = new Owner.AccountSettings();
-            owner.setAccountSettings(accountSettings);
-        }
-        
-        accountSettings.setApiKeys(settings.getApiKeys());
-        accountSettings.setConnectedServices(settings.getConnectedServices());
         
         storeOwnerRepository.save(owner);
         return settings;
@@ -185,6 +97,15 @@ public class AccountSettingsService {
             .orElseThrow(() -> new ResourceNotFoundException("Store owner not found"));
     }
     
+    private Owner.AccountSettings getOrCreateAccountSettings(Owner owner) {
+        Owner.AccountSettings accountSettings = owner.getAccountSettings();
+        if (accountSettings == null) {
+            accountSettings = new Owner.AccountSettings();
+            owner.setAccountSettings(accountSettings);
+        }
+        return accountSettings;
+    }
+    
     private AccountSettingsDTO mapToDTO(Owner.AccountSettings settings) {
         if (settings == null) {
             return new AccountSettingsDTO();
@@ -192,26 +113,51 @@ public class AccountSettingsService {
         
         AccountSettingsDTO dto = new AccountSettingsDTO();
         
-        // Map general settings
-        AccountSettingsDTO.GeneralSettings general = new AccountSettingsDTO.GeneralSettings();
-        general.setTimezone(settings.getTimezone());
-        general.setDateFormat(settings.getDateFormat());
-        general.setCurrency(settings.getCurrency());
-        dto.setGeneral(general);
+        // Map Language Settings
+        LanguageSettings language = new LanguageSettings();
+        LanguageSettings.LanguagePreferences languagePrefs = new LanguageSettings.LanguagePreferences();
+        languagePrefs.setPrimaryLanguage(settings.getLanguage());
+        language.setLanguage(languagePrefs);
         
-        // Map other settings similarly...
-        // Add mapping for all other setting categories
+        LanguageSettings.TimeZoneSettings timezone = new LanguageSettings.TimeZoneSettings();
+        timezone.setTimezone(settings.getTimezone());
+        language.setTimezone(timezone);
+        
+        LanguageSettings.DateTimeSettings dateTime = new LanguageSettings.DateTimeSettings();
+        dateTime.setDateFormat(settings.getDateFormat());
+        dateTime.setTimeFormat(settings.getTimeFormat());
+        language.setDateTime(dateTime);
+        
+        dto.setLanguage(language);
+        
+        // Map Appearance Settings
+        AppearanceSettings appearance = new AppearanceSettings();
+        AppearanceSettings.ThemeSettings theme = new AppearanceSettings.ThemeSettings();
+        theme.setMode(AppearanceSettings.ThemeMode.valueOf(settings.getTheme()));
+        theme.setAutoSwitch(settings.isAutoSwitchTheme());
+        appearance.setTheme(theme);
+        
+        AppearanceSettings.FontSettings font = new AppearanceSettings.FontSettings();
+        font.setFontFamily(settings.getFontFamily());
+        font.setFontSize(getFontSizeEnum(settings.getFontSize()));
+        appearance.setFont(font);
+        
+        AppearanceSettings.AccessibilitySettings accessibility = new AppearanceSettings.AccessibilitySettings();
+        accessibility.setReduceMotion(settings.isReduceMotion());
+        accessibility.setHighContrast(settings.isHighContrast());
+        appearance.setAccessibility(accessibility);
+        
+        dto.setAppearance(appearance);
         
         return dto;
     }
     
-    private Owner.PaymentMethod convertToPaymentMethod(AccountSettingsDTO.PaymentMethodDTO dto) {
-        Owner.PaymentMethod paymentMethod = new Owner.PaymentMethod();
-        paymentMethod.setType(dto.getType());
-        paymentMethod.setProvider(dto.getProvider());
-        paymentMethod.setAccountNumber(dto.getAccountNumber());
-        paymentMethod.setDefault(dto.isDefault());
-        paymentMethod.setAddedAt(LocalDateTime.now());
-        return paymentMethod;
+    private AppearanceSettings.FontSize getFontSizeEnum(int size) {
+        for (AppearanceSettings.FontSize fontSize : AppearanceSettings.FontSize.values()) {
+            if (fontSize.getSize() == size) {
+                return fontSize;
+            }
+        }
+        return AppearanceSettings.FontSize.MEDIUM;
     }
 } 

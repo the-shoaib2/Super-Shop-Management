@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.server.dto.AuthRequest;
-import com.server.exception.AuthenticationException;
-import com.server.exception.UserAlreadyExistsException;
+import com.server.dto.accounts.auth.AuthRequest;
+import com.server.exception.auth.AuthenticationException;
+import com.server.exception.auth.UserAlreadyExistsException;
 import com.server.model.accounts.Owner;
 import com.server.repository.accounts.StoreOwnerRepository;
 import com.server.util.IdGenerator;

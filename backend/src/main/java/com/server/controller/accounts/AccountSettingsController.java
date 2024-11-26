@@ -3,7 +3,8 @@ package com.server.controller.accounts;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import com.server.dto.AccountSettingsDTO;
+
+import com.server.dto.accounts.settings.AccountSettingsDTO;
 import com.server.service.accounts.AccountSettingsService;
 import com.server.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
