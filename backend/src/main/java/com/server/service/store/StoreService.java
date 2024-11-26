@@ -7,7 +7,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.mongodb.core.MongoTemplate;
 
 import com.server.model.accounts.Owner;
 import com.server.model.store.Store;
@@ -15,24 +14,18 @@ import com.server.repository.StoreRepository;
 import com.server.repository.StoreOwnerRepository;
 import com.server.dto.StoreDTO;
 import com.server.exception.ResourceNotFoundException;
-import com.server.exception.UnauthorizedException;
 import com.server.util.IdGenerator;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class StoreService {
     private static final Logger logger = LoggerFactory.getLogger(StoreService.class);
     
-    @Autowired
-    private MongoTemplate mongoTemplate;
-    
+
     @Autowired
     private StoreRepository storeRepository;
     

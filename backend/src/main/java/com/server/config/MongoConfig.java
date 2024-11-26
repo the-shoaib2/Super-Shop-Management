@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.lang.NonNull;
 
 @Configuration
 @EnableMongoRepositories(basePackages = "com.server.repository")
@@ -22,12 +23,14 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
     private String databaseName;
 
     @Override
+    @NonNull
     protected String getDatabaseName() {
         return databaseName;
     }
 
     @Override
     @Bean
+    @NonNull
     public MongoClient mongoClient() {
         try {
             ConnectionString connectionString = new ConnectionString(mongoUri);
