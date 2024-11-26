@@ -3,8 +3,8 @@ package com.server.service.admin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.server.repository.OrderRepository;
-import com.server.repository.StoreRepository;
+import com.server.repository.order.OrderRepository;
+import com.server.repository.store.StoreRepository;
 
 import java.util.Map;
 import java.util.HashMap;

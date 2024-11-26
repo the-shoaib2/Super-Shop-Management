@@ -1,4 +1,4 @@
-package com.server.repository;
+package com.server.repository.order;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Aggregation;

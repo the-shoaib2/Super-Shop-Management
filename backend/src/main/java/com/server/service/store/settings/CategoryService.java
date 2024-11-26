@@ -3,7 +3,7 @@ package com.server.service.store.settings;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.server.model.store.Category;
-import com.server.repository.CategoryRepository;
+import com.server.repository.store.settings.CategoryRepository;
 import com.server.service.store.base.StoreAwareService;
 import com.server.exception.ResourceNotFoundException;
 import java.util.List;

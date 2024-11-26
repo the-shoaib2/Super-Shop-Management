@@ -1,4 +1,4 @@
-package com.server.repository;
+package com.server.repository.store.settings;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;

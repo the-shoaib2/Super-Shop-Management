@@ -3,10 +3,10 @@ package com.server.service.store.settings;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.server.repository.ProductSizeRepository;
 import com.server.service.store.base.StoreAwareService;
 import com.server.exception.ResourceNotFoundException;
 import com.server.model.store.products.ProductSize;
+import com.server.repository.store.products.ProductSizeRepository;
 
 import java.util.List;
 import java.time.LocalDateTime;

@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.server.model.order.Order;
-import com.server.repository.OrderRepository;
+import com.server.repository.order.OrderRepository;
 
 import java.util.HashMap;
 import java.util.Map;

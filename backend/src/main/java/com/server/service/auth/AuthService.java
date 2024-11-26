@@ -8,7 +8,7 @@ import com.server.dto.AuthRequest;
 import com.server.exception.AuthenticationException;
 import com.server.exception.UserAlreadyExistsException;
 import com.server.model.accounts.Owner;
-import com.server.repository.StoreOwnerRepository;
+import com.server.repository.accounts.StoreOwnerRepository;
 import com.server.util.IdGenerator;
 
 import java.time.LocalDateTime;

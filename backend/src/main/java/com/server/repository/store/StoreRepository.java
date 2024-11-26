@@ -1,4 +1,4 @@
-package com.server.repository;
+package com.server.repository.store;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;

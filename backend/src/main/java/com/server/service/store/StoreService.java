@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import com.server.model.accounts.Owner;
 import com.server.model.store.Store;
-import com.server.repository.StoreRepository;
-import com.server.repository.StoreOwnerRepository;
+import com.server.repository.accounts.StoreOwnerRepository;
+import com.server.repository.store.StoreRepository;
 import com.server.dto.StoreDTO;
 import com.server.exception.ResourceNotFoundException;
 import com.server.util.IdGenerator;

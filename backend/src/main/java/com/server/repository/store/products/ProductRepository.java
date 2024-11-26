@@ -1,4 +1,4 @@
-package com.server.repository;
+package com.server.repository.store.products;
 
 import java.util.List;
 

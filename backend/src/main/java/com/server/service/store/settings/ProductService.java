@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.server.exception.ResourceNotFoundException;
 import com.server.model.store.products.Product;
-import com.server.repository.ProductRepository;
+import com.server.repository.store.products.ProductRepository;
 import com.server.service.store.base.StoreAwareService;
 
 import java.time.LocalDateTime;

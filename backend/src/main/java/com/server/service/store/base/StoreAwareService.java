@@ -1,8 +1,9 @@
 package com.server.service.store.base;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import com.server.repository.StoreRepository;
+
 import com.server.exception.ResourceNotFoundException;
+import com.server.repository.store.StoreRepository;
 
 public abstract class StoreAwareService {
     @Autowired

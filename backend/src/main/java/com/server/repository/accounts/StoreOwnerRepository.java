@@ -1,4 +1,4 @@
-package com.server.repository;
+package com.server.repository.accounts;
 
 import java.util.Optional;
 import org.springframework.data.mongodb.repository.MongoRepository;

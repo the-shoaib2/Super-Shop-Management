@@ -3,7 +3,7 @@ package com.server.service.store;
 import org.springframework.stereotype.Service;
 
 import com.server.model.order.Order;
-import com.server.repository.OrderRepository;
+import com.server.repository.order.OrderRepository;
 
 import java.util.List;
 
