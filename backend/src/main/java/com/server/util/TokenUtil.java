@@ -7,7 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.server.model.store.StoreOwner;
+import com.server.model.accounts.Owner;
 
 import java.util.Date;
 
@@ -87,7 +87,7 @@ public class TokenUtil {
         }
     }
 
-    public String generateToken(StoreOwner owner) {
+    public String generateToken(Owner owner) {
         return Jwts.builder()
             .setSubject(owner.getEmail())
             .setIssuedAt(new Date())

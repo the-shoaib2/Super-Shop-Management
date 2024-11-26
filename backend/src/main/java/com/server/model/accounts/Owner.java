@@ -1,4 +1,4 @@
-package com.server.model.store;
+package com.server.model.accounts;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Email;
@@ -12,13 +12,15 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
+
+import com.server.model.store.Store;
 import com.server.util.IdGenerator;
 
 @Document(collection = "storeOwners")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class StoreOwner {
+public class Owner {
     @Id
     private String id;
     
@@ -36,16 +38,21 @@ public class StoreOwner {
     @NotBlank(message = "Password is required")
     private String password;
     
+    // Store References using DBRef for proper relationships
+    @DBRef(lazy = true)
+    private List<Store> stores;
+    
+    // Current active store
+    private String currentStoreId;
+    
     // Account Settings
     private AccountSettings accountSettings;
     
-    // Store References
-    @DBRef
-    private List<Store> stores;
-    
-    private String currentStoreId;
+    // Auth fields
     private String refreshToken;
     private LocalDateTime lastLogin;
+    
+    // Profile fields
     private List<String> images;
     private boolean isActive;
     private boolean isVerified;

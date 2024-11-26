@@ -9,8 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
+import com.server.model.accounts.Owner;
 import com.server.model.store.Store;
-import com.server.model.store.StoreOwner;
 import com.server.repository.StoreRepository;
 import com.server.repository.StoreOwnerRepository;
 import com.server.dto.StoreDTO;
@@ -40,7 +40,7 @@ public class StoreService {
     private StoreOwnerRepository storeOwnerRepository;
 
     public List<Store> getStoresByOwnerEmail(String email) {
-        StoreOwner owner = storeOwnerRepository.findByEmail(email)
+        Owner owner = storeOwnerRepository.findByEmail(email)
             .orElseThrow(() -> new ResourceNotFoundException("Store owner not found"));
             
         // Get store IDs from owner's stores
@@ -57,7 +57,7 @@ public class StoreService {
     public Store createStore(StoreDTO storeDTO) {
         try {
             // Find owner
-            StoreOwner owner = storeOwnerRepository.findByEmail(storeDTO.getOwnerEmail())
+            Owner owner = storeOwnerRepository.findByEmail(storeDTO.getOwnerEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("Owner not found"));
 
             // Create store
@@ -89,7 +89,7 @@ public class StoreService {
     }
 
     public Store getCurrentStoreByOwner(String email) {
-        StoreOwner owner = storeOwnerRepository.findByEmail(email)
+        Owner owner = storeOwnerRepository.findByEmail(email)
             .orElseThrow(() -> new ResourceNotFoundException("Owner not found"));
             
         List<Store> stores = owner.getStores();
@@ -103,7 +103,7 @@ public class StoreService {
 
     public Store switchStore(String storeId, String email) {
         // Find owner
-        StoreOwner owner = storeOwnerRepository.findByEmail(email)
+        Owner owner = storeOwnerRepository.findByEmail(email)
             .orElseThrow(() -> new ResourceNotFoundException("Owner not found"));
             
         // Find store in owner's stores list

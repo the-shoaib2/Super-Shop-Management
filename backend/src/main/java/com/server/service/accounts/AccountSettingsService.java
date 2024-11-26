@@ -3,9 +3,10 @@ package com.server.service.accounts;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.server.dto.AccountSettingsDTO;
-import com.server.model.store.StoreOwner;
 import com.server.repository.StoreOwnerRepository;
 import com.server.exception.ResourceNotFoundException;
+import com.server.model.accounts.Owner;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.LocalDateTime;
@@ -20,18 +21,18 @@ public class AccountSettingsService {
     private final PasswordEncoder passwordEncoder;
 
     public AccountSettingsDTO getSettings(String userId) {
-        StoreOwner owner = getStoreOwner(userId);
+        Owner owner = getStoreOwner(userId);
         return mapToDTO(owner.getAccountSettings());
     }
     
     public AccountSettingsDTO.GeneralSettings updateGeneralSettings(
             String userId, 
             AccountSettingsDTO.GeneralSettings settings) {
-        StoreOwner owner = getStoreOwner(userId);
-        StoreOwner.AccountSettings accountSettings = owner.getAccountSettings();
+        Owner owner = getStoreOwner(userId);
+        Owner.AccountSettings accountSettings = owner.getAccountSettings();
         
         if (accountSettings == null) {
-            accountSettings = new StoreOwner.AccountSettings();
+            accountSettings = new Owner.AccountSettings();
             owner.setAccountSettings(accountSettings);
         }
         
@@ -46,11 +47,11 @@ public class AccountSettingsService {
     public AccountSettingsDTO.SecuritySettings updateSecuritySettings(
             String userId, 
             AccountSettingsDTO.SecuritySettings settings) {
-        StoreOwner owner = getStoreOwner(userId);
-        StoreOwner.AccountSettings accountSettings = owner.getAccountSettings();
+        Owner owner = getStoreOwner(userId);
+        Owner.AccountSettings accountSettings = owner.getAccountSettings();
         
         if (accountSettings == null) {
-            accountSettings = new StoreOwner.AccountSettings();
+            accountSettings = new Owner.AccountSettings();
             owner.setAccountSettings(accountSettings);
         }
         
@@ -65,11 +66,11 @@ public class AccountSettingsService {
     public AccountSettingsDTO.NotificationSettings updateNotificationSettings(
             String userId, 
             AccountSettingsDTO.NotificationSettings settings) {
-        StoreOwner owner = getStoreOwner(userId);
-        StoreOwner.AccountSettings accountSettings = owner.getAccountSettings();
+        Owner owner = getStoreOwner(userId);
+        Owner.AccountSettings accountSettings = owner.getAccountSettings();
         
         if (accountSettings == null) {
-            accountSettings = new StoreOwner.AccountSettings();
+            accountSettings = new Owner.AccountSettings();
             owner.setAccountSettings(accountSettings);
         }
         
@@ -85,11 +86,11 @@ public class AccountSettingsService {
     public AccountSettingsDTO.AppearanceSettings updateAppearanceSettings(
             String userId, 
             AccountSettingsDTO.AppearanceSettings settings) {
-        StoreOwner owner = getStoreOwner(userId);
-        StoreOwner.AccountSettings accountSettings = owner.getAccountSettings();
+        Owner owner = getStoreOwner(userId);
+        Owner.AccountSettings accountSettings = owner.getAccountSettings();
         
         if (accountSettings == null) {
-            accountSettings = new StoreOwner.AccountSettings();
+            accountSettings = new Owner.AccountSettings();
             owner.setAccountSettings(accountSettings);
         }
         
@@ -104,11 +105,11 @@ public class AccountSettingsService {
     public AccountSettingsDTO.LanguageSettings updateLanguageSettings(
             String userId, 
             AccountSettingsDTO.LanguageSettings settings) {
-        StoreOwner owner = getStoreOwner(userId);
-        StoreOwner.AccountSettings accountSettings = owner.getAccountSettings();
+        Owner owner = getStoreOwner(userId);
+        Owner.AccountSettings accountSettings = owner.getAccountSettings();
         
         if (accountSettings == null) {
-            accountSettings = new StoreOwner.AccountSettings();
+            accountSettings = new Owner.AccountSettings();
             owner.setAccountSettings(accountSettings);
         }
         
@@ -123,11 +124,11 @@ public class AccountSettingsService {
     public AccountSettingsDTO.PrivacySettings updatePrivacySettings(
             String userId, 
             AccountSettingsDTO.PrivacySettings settings) {
-        StoreOwner owner = getStoreOwner(userId);
-        StoreOwner.AccountSettings accountSettings = owner.getAccountSettings();
+        Owner owner = getStoreOwner(userId);
+        Owner.AccountSettings accountSettings = owner.getAccountSettings();
         
         if (accountSettings == null) {
-            accountSettings = new StoreOwner.AccountSettings();
+            accountSettings = new Owner.AccountSettings();
             owner.setAccountSettings(accountSettings);
         }
         
@@ -142,11 +143,11 @@ public class AccountSettingsService {
     public AccountSettingsDTO.BillingSettings updateBillingSettings(
             String userId, 
             AccountSettingsDTO.BillingSettings settings) {
-        StoreOwner owner = getStoreOwner(userId);
-        StoreOwner.AccountSettings accountSettings = owner.getAccountSettings();
+        Owner owner = getStoreOwner(userId);
+        Owner.AccountSettings accountSettings = owner.getAccountSettings();
         
         if (accountSettings == null) {
-            accountSettings = new StoreOwner.AccountSettings();
+            accountSettings = new Owner.AccountSettings();
             owner.setAccountSettings(accountSettings);
         }
         
@@ -155,7 +156,7 @@ public class AccountSettingsService {
         accountSettings.setTaxId(settings.getTaxId());
         
         // Convert DTO payment methods to entity payment methods
-        List<StoreOwner.PaymentMethod> paymentMethods = settings.getPaymentMethods().stream()
+        List<Owner.PaymentMethod> paymentMethods = settings.getPaymentMethods().stream()
             .map(this::convertToPaymentMethod)
             .collect(Collectors.toList());
         accountSettings.setPaymentMethods(paymentMethods);
@@ -167,11 +168,11 @@ public class AccountSettingsService {
     public AccountSettingsDTO.IntegrationSettings updateIntegrationSettings(
             String userId, 
             AccountSettingsDTO.IntegrationSettings settings) {
-        StoreOwner owner = getStoreOwner(userId);
-        StoreOwner.AccountSettings accountSettings = owner.getAccountSettings();
+        Owner owner = getStoreOwner(userId);
+        Owner.AccountSettings accountSettings = owner.getAccountSettings();
         
         if (accountSettings == null) {
-            accountSettings = new StoreOwner.AccountSettings();
+            accountSettings = new Owner.AccountSettings();
             owner.setAccountSettings(accountSettings);
         }
         
@@ -182,12 +183,12 @@ public class AccountSettingsService {
         return settings;
     }
     
-    private StoreOwner getStoreOwner(String userId) {
+    private Owner getStoreOwner(String userId) {
         return storeOwnerRepository.findById(userId)
             .orElseThrow(() -> new ResourceNotFoundException("Store owner not found"));
     }
     
-    private AccountSettingsDTO mapToDTO(StoreOwner.AccountSettings settings) {
+    private AccountSettingsDTO mapToDTO(Owner.AccountSettings settings) {
         if (settings == null) {
             return new AccountSettingsDTO();
         }
@@ -207,8 +208,8 @@ public class AccountSettingsService {
         return dto;
     }
     
-    private StoreOwner.PaymentMethod convertToPaymentMethod(AccountSettingsDTO.PaymentMethodDTO dto) {
-        StoreOwner.PaymentMethod paymentMethod = new StoreOwner.PaymentMethod();
+    private Owner.PaymentMethod convertToPaymentMethod(AccountSettingsDTO.PaymentMethodDTO dto) {
+        Owner.PaymentMethod paymentMethod = new Owner.PaymentMethod();
         paymentMethod.setType(dto.getType());
         paymentMethod.setProvider(dto.getProvider());
         paymentMethod.setAccountNumber(dto.getAccountNumber());

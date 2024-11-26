@@ -4,11 +4,11 @@ import java.util.Optional;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import com.server.model.store.StoreOwner;
+import com.server.model.accounts.Owner;
 
 @Repository
-public interface StoreOwnerRepository extends MongoRepository<StoreOwner, String> {
-    Optional<StoreOwner> findByEmail(String email);
-    Optional<StoreOwner> findByOwnerId(String ownerId);
+public interface StoreOwnerRepository extends MongoRepository<Owner, String> {
+    Optional<Owner> findByEmail(String email);
+    Optional<Owner> findByOwnerId(String ownerId);
     boolean existsByEmail(String email);
 }   

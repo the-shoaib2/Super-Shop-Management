@@ -3,8 +3,9 @@ package com.server.controller.accounts;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import com.server.model.accounts.Owner;
 import com.server.service.accounts.AccountService;
-import com.server.model.store.StoreOwner;
 import com.server.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
@@ -17,7 +18,7 @@ public class AccountController {
     private final AccountService accountService;
 
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<StoreOwner>> getAccount(@AuthenticationPrincipal String userId) {
+    public ResponseEntity<ApiResponse<Owner>> getAccount(@AuthenticationPrincipal String userId) {
         return ResponseEntity.ok(ApiResponse.success(
             "Account retrieved successfully",
             accountService.getAccount(userId)
@@ -25,9 +26,9 @@ public class AccountController {
     }
 
     @PutMapping("/me")
-    public ResponseEntity<ApiResponse<StoreOwner>> updateAccount(
+    public ResponseEntity<ApiResponse<Owner>> updateAccount(
             @AuthenticationPrincipal String userId,
-            @Valid @RequestBody StoreOwner.AccountSettings settings) {
+            @Valid @RequestBody Owner.AccountSettings settings) {
         return ResponseEntity.ok(ApiResponse.success(
             "Account updated successfully",
             accountService.updateAccount(userId, settings)
@@ -45,9 +46,9 @@ public class AccountController {
 
     // General Settings
     @PutMapping("/me/general")
-    public ResponseEntity<ApiResponse<StoreOwner.AccountSettings>> updateGeneralSettings(
+    public ResponseEntity<ApiResponse<Owner.AccountSettings>> updateGeneralSettings(
             @AuthenticationPrincipal String userId,
-            @Valid @RequestBody StoreOwner.AccountSettings settings) {
+            @Valid @RequestBody Owner.AccountSettings settings) {
         return ResponseEntity.ok(ApiResponse.success(
             "General settings updated",
             accountService.updateGeneralSettings(userId, settings)
@@ -56,9 +57,9 @@ public class AccountController {
 
     // Security Settings
     @PutMapping("/me/security")
-    public ResponseEntity<ApiResponse<StoreOwner.AccountSettings>> updateSecuritySettings(
+    public ResponseEntity<ApiResponse<Owner.AccountSettings>> updateSecuritySettings(
             @AuthenticationPrincipal String userId,
-            @Valid @RequestBody StoreOwner.AccountSettings settings) {
+            @Valid @RequestBody Owner.AccountSettings settings) {
         return ResponseEntity.ok(ApiResponse.success(
             "Security settings updated",
             accountService.updateSecuritySettings(userId, settings)
@@ -67,9 +68,9 @@ public class AccountController {
 
     // Notification Settings
     @PutMapping("/me/notifications")
-    public ResponseEntity<ApiResponse<StoreOwner.AccountSettings>> updateNotificationSettings(
+    public ResponseEntity<ApiResponse<Owner.AccountSettings>> updateNotificationSettings(
             @AuthenticationPrincipal String userId,
-            @Valid @RequestBody StoreOwner.AccountSettings settings) {
+            @Valid @RequestBody Owner.AccountSettings settings) {
         return ResponseEntity.ok(ApiResponse.success(
             "Notification settings updated",
             accountService.updateNotificationSettings(userId, settings)
@@ -78,9 +79,9 @@ public class AccountController {
 
     // Appearance Settings
     @PutMapping("/me/appearance")
-    public ResponseEntity<ApiResponse<StoreOwner.AccountSettings>> updateAppearanceSettings(
+    public ResponseEntity<ApiResponse<Owner.AccountSettings>> updateAppearanceSettings(
             @AuthenticationPrincipal String userId,
-            @Valid @RequestBody StoreOwner.AccountSettings settings) {
+            @Valid @RequestBody Owner.AccountSettings settings) {
         return ResponseEntity.ok(ApiResponse.success(
             "Appearance settings updated",
             accountService.updateAppearanceSettings(userId, settings)
@@ -89,9 +90,9 @@ public class AccountController {
 
     // Language Settings
     @PutMapping("/me/language")
-    public ResponseEntity<ApiResponse<StoreOwner.AccountSettings>> updateLanguageSettings(
+    public ResponseEntity<ApiResponse<Owner.AccountSettings>> updateLanguageSettings(
             @AuthenticationPrincipal String userId,
-            @Valid @RequestBody StoreOwner.AccountSettings settings) {
+            @Valid @RequestBody Owner.AccountSettings settings) {
         return ResponseEntity.ok(ApiResponse.success(
             "Language settings updated",
             accountService.updateLanguageSettings(userId, settings)
@@ -100,9 +101,9 @@ public class AccountController {
 
     // Privacy Settings
     @PutMapping("/me/privacy")
-    public ResponseEntity<ApiResponse<StoreOwner.AccountSettings>> updatePrivacySettings(
+    public ResponseEntity<ApiResponse<Owner.AccountSettings>> updatePrivacySettings(
             @AuthenticationPrincipal String userId,
-            @Valid @RequestBody StoreOwner.AccountSettings settings) {
+            @Valid @RequestBody Owner.AccountSettings settings) {
         return ResponseEntity.ok(ApiResponse.success(
             "Privacy settings updated",
             accountService.updatePrivacySettings(userId, settings)
@@ -111,9 +112,9 @@ public class AccountController {
 
     // Billing Settings
     @PutMapping("/me/billing")
-    public ResponseEntity<ApiResponse<StoreOwner.AccountSettings>> updateBillingSettings(
+    public ResponseEntity<ApiResponse<Owner.AccountSettings>> updateBillingSettings(
             @AuthenticationPrincipal String userId,
-            @Valid @RequestBody StoreOwner.AccountSettings settings) {
+            @Valid @RequestBody Owner.AccountSettings settings) {
         return ResponseEntity.ok(ApiResponse.success(
             "Billing settings updated",
             accountService.updateBillingSettings(userId, settings)
@@ -122,9 +123,9 @@ public class AccountController {
 
     // Integration Settings
     @PutMapping("/me/integrations")
-    public ResponseEntity<ApiResponse<StoreOwner.AccountSettings>> updateIntegrationSettings(
+    public ResponseEntity<ApiResponse<Owner.AccountSettings>> updateIntegrationSettings(
             @AuthenticationPrincipal String userId,
-            @Valid @RequestBody StoreOwner.AccountSettings settings) {
+            @Valid @RequestBody Owner.AccountSettings settings) {
         return ResponseEntity.ok(ApiResponse.success(
             "Integration settings updated",
             accountService.updateIntegrationSettings(userId, settings)

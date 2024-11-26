@@ -2,7 +2,7 @@ package com.server.model.order;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.server.model.store.product.Product;
+import com.server.model.store.products.Product;
 
 import org.springframework.data.annotation.Id;
 import java.math.BigDecimal;

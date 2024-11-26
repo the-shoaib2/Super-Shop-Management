@@ -1,23 +1,20 @@
 package com.server.model.store;
 
 import lombok.Data;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
+@Document(collection = "billboards")
 public class Billboard {
+    @Id
     private String id;
-    private String content;
-    private String image;
-    private String link;
-    private String type;
-    private String status;
-    private boolean isEdited;
-    private List<String> editedList;
+    private String label;
+    private String imageUrl;
+    private String description;
     private String storeId;
-    private String storeName;
-    private String storeOwnerId;
-    private String storeOwnerEmail;
+    private boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 } 

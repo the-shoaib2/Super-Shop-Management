@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.server.model.store.Billboard;
 import com.server.repository.BillboardRepository;
-import com.server.service.base.StoreAwareService;
+import com.server.service.store.base.StoreAwareService;
 import com.server.exception.ResourceNotFoundException;
 import java.util.List;
 import java.time.LocalDateTime;

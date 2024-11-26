@@ -11,7 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import com.server.dto.AuthRequest;
 import com.server.dto.AuthResponse;
 import com.server.dto.ValidationErrorResponse;
-import com.server.model.store.StoreOwner;
+import com.server.model.accounts.Owner;
 import com.server.service.auth.AuthService;
 import com.server.util.ApiResponse;
 import com.server.util.TokenUtil;
@@ -35,7 +35,7 @@ public class AuthController {
     // Register a new store owner
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<AuthResponse>> register(
-            @Valid @RequestBody StoreOwner storeOwner,
+            @Valid @RequestBody Owner storeOwner,
             HttpServletResponse response) {
         try {
             // Set default values
@@ -43,7 +43,7 @@ public class AuthController {
             storeOwner.setLastLogin(LocalDateTime.now());
             storeOwner.setImages(new ArrayList<>());
             
-            StoreOwner savedOwner = authService.register(storeOwner);
+            Owner savedOwner = authService.register(storeOwner);
             
             // Generate tokens
             String token = tokenUtil.generateToken(savedOwner);
@@ -85,7 +85,7 @@ public class AuthController {
         }
 
         try {
-            StoreOwner owner = (StoreOwner) authService.login(request);
+            Owner owner = (Owner) authService.login(request);
             String token = tokenUtil.generateToken(owner);
             String refreshToken = tokenUtil.generateRefreshToken(owner.getEmail());
             

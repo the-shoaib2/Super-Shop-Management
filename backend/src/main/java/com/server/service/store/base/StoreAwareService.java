@@ -1,4 +1,4 @@
-package com.server.service.base;
+package com.server.service.store.base;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import com.server.repository.StoreRepository;

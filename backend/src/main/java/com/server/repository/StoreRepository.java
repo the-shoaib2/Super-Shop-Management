@@ -21,17 +21,19 @@ public interface StoreRepository extends MongoRepository<Store, String> {
     @Query("{ 'ownerEmail': ?0 }")
     List<Store> findByOwnerEmail(String ownerEmail);
     
-    @Query("{ '_id': ?0, 'ownerId': ?1 }")
-    Optional<Store> findByIdAndOwnerId(String id, String ownerId);
+    // Store with child entities
+    @Query(value = "{ '_id': ?0 }", fields = "{ 'products': 1, 'colors': 1, 'sizes': 1, 'billboards': 1, 'storeCategories': 1 }")
+    Store findStoreWithChildEntities(String storeId);
     
     // Active store queries
     @Query("{ 'ownerEmail': ?0, 'isActive': true }")
     List<Store> findActiveStoresByOwnerEmail(String email);
     
-    @Query("{ 'ownerId': ?0, 'isActive': true }")
-    List<Store> findActiveStoresByOwnerId(String ownerId);
+    // Store settings
+    @Query(value = "{ '_id': ?0 }", fields = "{ 'settings': 1 }")
+    Store findStoreSettings(String storeId);
     
-    // Search queries
+    // Search with relationships
     @Query("{ $or: [ " +
            "{ 'name': { $regex: ?0, $options: 'i' } }, " +
            "{ 'description': { $regex: ?0, $options: 'i' } } " +
@@ -39,16 +41,4 @@ public interface StoreRepository extends MongoRepository<Store, String> {
            "'categories': { $in: ?1 }, " +
            "'tags': { $in: ?2 } }")
     Page<Store> findBySearchCriteria(String query, List<String> categories, List<String> tags, Pageable pageable);
-    
-    // Category queries
-    @Query(value = "{ 'categories': { $exists: true } }", fields = "{ 'categories': 1 }")
-    List<Store> findAllWithCategories();
-    
-    // Ordered queries
-    @Query(value = "{ 'ownerEmail': ?0 }", sort = "{ 'createdAt': -1 }")
-    List<Store> findByOwnerEmailOrderByCreatedAtDesc(String email);
-    
-    // DBRef queries
-    @Query(value = "{ '_id': { $in: ?0 } }")
-    List<Store> findByIds(List<String> storeIds);
 } 

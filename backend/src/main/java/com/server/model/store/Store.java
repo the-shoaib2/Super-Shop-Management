@@ -4,9 +4,12 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import com.server.model.store.products.Product;
+
 import java.time.LocalDateTime;
 import java.util.List;
-import jakarta.persistence.PrePersist;
+
 
 @Data
 @Document(collection = "stores")
@@ -18,15 +21,11 @@ public class Store {
     private String storeId;
     
     private String name;
-    private List<String> type;
     private String description;
     private String address;
     private String location;
     private String phone;
     private String email;
-    private List<String> categories;
-    private List<String> tags;
-    private List<String> images;
     
     @Indexed
     private String ownerId;
@@ -34,15 +33,10 @@ public class Store {
     @Indexed
     private String ownerEmail;
     
+    @DBRef(lazy = true)
+    private List<Product> products;
+    
     private boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    
-    @PrePersist
-    public void prePersist() {
-        if (this.createdAt == null) {
-            this.createdAt = LocalDateTime.now();
-        }
-        this.updatedAt = LocalDateTime.now();
-    }
 } 

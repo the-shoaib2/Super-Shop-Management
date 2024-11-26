@@ -1,4 +1,4 @@
-package com.server.controller.dashboard;
+package com.server.controller.store.settings.dashboard;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;

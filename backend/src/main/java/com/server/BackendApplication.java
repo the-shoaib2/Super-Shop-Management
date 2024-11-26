@@ -9,9 +9,12 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @ComponentScan(basePackages = {
     "com.server.controller",
     "com.server.service",
+    "com.server.service.base",
+    "com.server.service.store.settings",
     "com.server.config",
     "com.server.admin",
-    "com.server.exception"
+    "com.server.exception",
+    "com.server.model.store.products"
 })
 @EnableMongoRepositories(basePackages = "com.server.repository")
 public class BackendApplication {

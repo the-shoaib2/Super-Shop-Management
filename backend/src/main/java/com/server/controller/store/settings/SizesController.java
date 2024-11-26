@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import com.server.model.store.product.ProductSize;
+import com.server.model.store.products.ProductSize;
 import com.server.service.store.settings.SizeService;
 import com.server.util.ApiResponse;
 

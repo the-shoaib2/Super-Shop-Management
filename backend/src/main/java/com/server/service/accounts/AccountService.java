@@ -2,9 +2,11 @@ package com.server.service.accounts;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.server.model.store.StoreOwner;
+
 import com.server.repository.StoreOwnerRepository;
 import com.server.exception.ResourceNotFoundException;
+import com.server.model.accounts.Owner;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -13,30 +15,30 @@ public class AccountService {
     
     private final StoreOwnerRepository storeOwnerRepository;
 
-    public StoreOwner getAccount(String userId) {
+    public Owner getAccount(String userId) {
         return getStoreOwner(userId);
     }
 
     @Transactional
-    public StoreOwner updateAccount(String userId, StoreOwner.AccountSettings settings) {
-        StoreOwner owner = getStoreOwner(userId);
+    public Owner updateAccount(String userId, Owner.AccountSettings settings) {
+        Owner owner = getStoreOwner(userId);
         owner.setAccountSettings(settings);
         return storeOwnerRepository.save(owner);
     }
 
     @Transactional
     public void deleteAccount(String userId) {
-        StoreOwner owner = getStoreOwner(userId);
+        Owner owner = getStoreOwner(userId);
         owner.setActive(false);
         storeOwnerRepository.save(owner);
     }
 
     @Transactional
-    public StoreOwner.AccountSettings updateGeneralSettings(String userId, StoreOwner.AccountSettings settings) {
-        StoreOwner owner = getStoreOwner(userId);
-        StoreOwner.AccountSettings currentSettings = owner.getAccountSettings();
+    public Owner.AccountSettings updateGeneralSettings(String userId, Owner.AccountSettings settings) {
+        Owner owner = getStoreOwner(userId);
+        Owner.AccountSettings currentSettings = owner.getAccountSettings();
         if (currentSettings == null) {
-            currentSettings = new StoreOwner.AccountSettings();
+            currentSettings = new Owner.AccountSettings();
         }
         
         // Update general settings
@@ -50,11 +52,11 @@ public class AccountService {
     }
 
     @Transactional
-    public StoreOwner.AccountSettings updateSecuritySettings(String userId, StoreOwner.AccountSettings settings) {
-        StoreOwner owner = getStoreOwner(userId);
-        StoreOwner.AccountSettings currentSettings = owner.getAccountSettings();
+    public Owner.AccountSettings updateSecuritySettings(String userId, Owner.AccountSettings settings) {
+        Owner owner = getStoreOwner(userId);
+        Owner.AccountSettings currentSettings = owner.getAccountSettings();
         if (currentSettings == null) {
-            currentSettings = new StoreOwner.AccountSettings();
+            currentSettings = new Owner.AccountSettings();
         }
         
         // Update security settings
@@ -68,11 +70,11 @@ public class AccountService {
     }
 
     @Transactional
-    public StoreOwner.AccountSettings updateNotificationSettings(String userId, StoreOwner.AccountSettings settings) {
-        StoreOwner owner = getStoreOwner(userId);
-        StoreOwner.AccountSettings currentSettings = owner.getAccountSettings();
+    public Owner.AccountSettings updateNotificationSettings(String userId, Owner.AccountSettings settings) {
+        Owner owner = getStoreOwner(userId);
+        Owner.AccountSettings currentSettings = owner.getAccountSettings();
         if (currentSettings == null) {
-            currentSettings = new StoreOwner.AccountSettings();
+            currentSettings = new Owner.AccountSettings();
         }
         
         // Update notification settings
@@ -87,11 +89,11 @@ public class AccountService {
     }
 
     @Transactional
-    public StoreOwner.AccountSettings updateAppearanceSettings(String userId, StoreOwner.AccountSettings settings) {
-        StoreOwner owner = getStoreOwner(userId);
-        StoreOwner.AccountSettings currentSettings = owner.getAccountSettings();
+    public Owner.AccountSettings updateAppearanceSettings(String userId, Owner.AccountSettings settings) {
+        Owner owner = getStoreOwner(userId);
+        Owner.AccountSettings currentSettings = owner.getAccountSettings();
         if (currentSettings == null) {
-            currentSettings = new StoreOwner.AccountSettings();
+            currentSettings = new Owner.AccountSettings();
         }
         
         // Update appearance settings
@@ -105,11 +107,11 @@ public class AccountService {
     }
 
     @Transactional
-    public StoreOwner.AccountSettings updateLanguageSettings(String userId, StoreOwner.AccountSettings settings) {
-        StoreOwner owner = getStoreOwner(userId);
-        StoreOwner.AccountSettings currentSettings = owner.getAccountSettings();
+    public Owner.AccountSettings updateLanguageSettings(String userId, Owner.AccountSettings settings) {
+        Owner owner = getStoreOwner(userId);
+        Owner.AccountSettings currentSettings = owner.getAccountSettings();
         if (currentSettings == null) {
-            currentSettings = new StoreOwner.AccountSettings();
+            currentSettings = new Owner.AccountSettings();
         }
         
         // Update language settings
@@ -123,11 +125,11 @@ public class AccountService {
     }
 
     @Transactional
-    public StoreOwner.AccountSettings updatePrivacySettings(String userId, StoreOwner.AccountSettings settings) {
-        StoreOwner owner = getStoreOwner(userId);
-        StoreOwner.AccountSettings currentSettings = owner.getAccountSettings();
+    public Owner.AccountSettings updatePrivacySettings(String userId, Owner.AccountSettings settings) {
+        Owner owner = getStoreOwner(userId);
+        Owner.AccountSettings currentSettings = owner.getAccountSettings();
         if (currentSettings == null) {
-            currentSettings = new StoreOwner.AccountSettings();
+            currentSettings = new Owner.AccountSettings();
         }
         
         // Update privacy settings
@@ -141,11 +143,11 @@ public class AccountService {
     }
 
     @Transactional
-    public StoreOwner.AccountSettings updateBillingSettings(String userId, StoreOwner.AccountSettings settings) {
-        StoreOwner owner = getStoreOwner(userId);
-        StoreOwner.AccountSettings currentSettings = owner.getAccountSettings();
+    public Owner.AccountSettings updateBillingSettings(String userId, Owner.AccountSettings settings) {
+        Owner owner = getStoreOwner(userId);
+        Owner.AccountSettings currentSettings = owner.getAccountSettings();
         if (currentSettings == null) {
-            currentSettings = new StoreOwner.AccountSettings();
+            currentSettings = new Owner.AccountSettings();
         }
         
         // Update billing settings
@@ -160,11 +162,11 @@ public class AccountService {
     }
 
     @Transactional
-    public StoreOwner.AccountSettings updateIntegrationSettings(String userId, StoreOwner.AccountSettings settings) {
-        StoreOwner owner = getStoreOwner(userId);
-        StoreOwner.AccountSettings currentSettings = owner.getAccountSettings();
+    public Owner.AccountSettings updateIntegrationSettings(String userId, Owner.AccountSettings settings) {
+        Owner owner = getStoreOwner(userId);
+        Owner.AccountSettings currentSettings = owner.getAccountSettings();
         if (currentSettings == null) {
-            currentSettings = new StoreOwner.AccountSettings();
+            currentSettings = new Owner.AccountSettings();
         }
         
         // Update integration settings
@@ -176,7 +178,7 @@ public class AccountService {
         return currentSettings;
     }
 
-    private StoreOwner getStoreOwner(String userId) {
+    private Owner getStoreOwner(String userId) {
         return storeOwnerRepository.findById(userId)
             .orElseThrow(() -> new ResourceNotFoundException("Store owner not found"));
     }

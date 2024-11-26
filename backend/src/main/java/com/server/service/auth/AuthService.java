@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import com.server.dto.AuthRequest;
 import com.server.exception.AuthenticationException;
 import com.server.exception.UserAlreadyExistsException;
-import com.server.model.store.StoreOwner;
+import com.server.model.accounts.Owner;
 import com.server.repository.StoreOwnerRepository;
 import com.server.util.IdGenerator;
 
@@ -19,7 +19,7 @@ public class AuthService {
     private final StoreOwnerRepository storeOwnerRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public StoreOwner register(StoreOwner storeOwner) {
+    public Owner register(Owner storeOwner) {
         storeOwnerRepository.findByEmail(storeOwner.getEmail())
             .ifPresent(user -> {
                 throw new UserAlreadyExistsException("Email already exists");
@@ -34,7 +34,7 @@ public class AuthService {
         return storeOwnerRepository.save(storeOwner);
     }
 
-    public StoreOwner login(AuthRequest request) {
+    public Owner login(AuthRequest request) {
         return storeOwnerRepository.findByEmail(request.getEmail())
             .filter(user -> passwordEncoder.matches(request.getPassword(), user.getPassword()))
             .map(user -> {
@@ -45,7 +45,7 @@ public class AuthService {
             .orElseThrow(() -> new AuthenticationException("Invalid credentials"));
     }
 
-    public StoreOwner updateOwner(StoreOwner owner) {
+    public Owner updateOwner(Owner owner) {
         return storeOwnerRepository.save(owner);
     }
 } 
