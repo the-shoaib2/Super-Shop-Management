@@ -11,6 +11,21 @@ import Signup from './pages/auth/Signup'
 import { useAuth } from './contexts/AuthContext'
 import APIs from './pages/APIs'
 
+import { 
+  UNSAFE_NavigationContext,
+  UNSAFE_RouteContext,
+  UNSAFE_useRouteId,
+  UNSAFE_useScrollRestoration
+} from 'react-router-dom'
+
+// Configure future flags
+const routerOptions = {
+  future: {
+    v7_startTransition: true,
+    v7_relativeSplatPath: true
+  }
+}
+
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
   
@@ -78,7 +93,7 @@ function AppRoutes() {
 
 function App() {
   return (
-    <Router>
+    <Router {...routerOptions}>
       <AuthProvider>
         <AppRoutes />
         <Toaster position="top-right" />

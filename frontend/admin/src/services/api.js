@@ -63,6 +63,12 @@ api.interceptors.request.use(
   }
 )
 
+// Add this at the top of your api.js
+const getAuthHeader = () => {
+  const token = localStorage.getItem('token')
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
 // Auth APIs
 export const authAPI = {
   register: async (userData) => {
@@ -109,14 +115,18 @@ export const authAPI = {
   },
 
   checkAuth: async () => {
-    try {
-      const token = localStorage.getItem('token')
-      if (!token) {
-        throw new Error('No token found')
-      }
+    const token = localStorage.getItem('token')
+    if (!token) {
+      throw new Error('No token found')
+    }
 
-      const response = await api.get('/api/auth/check-token')
-      return response.data
+    try {
+      const response = await api.get('/api/auth/check-token', {
+        headers: {
+          ...getAuthHeader()
+        }
+      })
+      return response
     } catch (error) {
       console.error('Auth check failed:', error)
       throw error
@@ -308,21 +318,33 @@ api.interceptors.response.use(
 
 // Store APIs
 export const storeAPI = {
-  // Get all stores for the authenticated owner
   getOwnerStores: async () => {
     try {
-      const response = await api.get('/api/stores')  // Changed from /api/stores/owner/stores
-      return {
-        success: true,
-        data: response.data?.data || []
+      const response = await api.get('/api/stores/owner/stores', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      
+      if (response.data?.success) {
+        return {
+          success: true,
+          data: response.data.data || []
+        };
+      } else {
+        return {
+          success: false,
+          data: [],
+          error: response.data?.message || 'Failed to get owner stores'
+        };
       }
     } catch (error) {
-      console.error('Get owner stores error:', error)
+      console.error('Get owner stores error:', error);
       return {
         success: false,
         data: [],
-        error: error.response?.data?.message || 'Failed to retrieve stores'
-      }
+        error: error.response?.data?.message || 'Failed to get owner stores'
+      };
     }
   },
 
@@ -331,13 +353,13 @@ export const storeAPI = {
     try {
       const response = await api.post('/api/stores', {
         name: storeData.name,
-        type: storeData.category ? [storeData.category] : [],
+        categories: storeData.category ? [storeData.category] : [],
         description: storeData.description,
         address: storeData.address,
         location: storeData.location,
         phone: storeData.phone,
         email: storeData.email,
-        tags: storeData.tags
+        tags: storeData.tags ? storeData.tags.split(',').map(tag => tag.trim()) : []
       })
       return {
         success: true,
@@ -476,9 +498,87 @@ export const storeAPI = {
 }
 
 export const accountAPI = {
+  // Get account details
+  getAccount: async () => {
+    try {
+      const response = await api.get('/api/accounts/me')
+      return response.data
+    } catch (error) {
+      console.error('Get account error:', error)
+      throw error
+    }
+  },
+
+  // Update account
+  updateAccount: async (settings) => {
+    try {
+      const response = await api.put('/api/accounts/me', settings)
+      return response.data
+    } catch (error) {
+      console.error('Update account error:', error)
+      throw error
+    }
+  },
+
+  // Delete account
+  deleteAccount: async () => {
+    try {
+      const response = await api.delete('/api/accounts/me')
+      return response.data
+    } catch (error) {
+      console.error('Delete account error:', error)
+      throw error
+    }
+  },
+
+  // Get account settings
+  getSettings: async () => {
+    try {
+      const response = await api.get('/api/account/settings')
+      return response.data
+    } catch (error) {
+      console.error('Get settings error:', error)
+      throw error
+    }
+  },
+
+  // Update language settings
+  updateLanguageSettings: async (settings) => {
+    try {
+      const response = await api.put('/api/account/settings/language', settings)
+      return response.data
+    } catch (error) {
+      console.error('Update language settings error:', error)
+      throw error
+    }
+  },
+
+  // Update appearance settings
+  updateAppearanceSettings: async (settings) => {
+    try {
+      const response = await api.put('/api/account/settings/appearance', settings)
+      return response.data
+    } catch (error) {
+      console.error('Update appearance settings error:', error)
+      throw error
+    }
+  },
+
+  // Update notification settings
+  updateNotificationSettings: async (settings) => {
+    try {
+      const response = await api.put('/api/account/settings/notifications', settings)
+      return response.data
+    } catch (error) {
+      console.error('Update notification settings error:', error)
+      throw error
+    }
+  },
+
+  // Get profile
   getProfile: async () => {
     try {
-      const response = await api.get('/api/account-settings/me')
+      const response = await api.get('/api/accounts/me')
       return response.data
     } catch (error) {
       console.error('Get profile error:', error)
@@ -486,9 +586,10 @@ export const accountAPI = {
     }
   },
 
+  // Update profile
   updateProfile: async (profileData) => {
     try {
-      const response = await api.put('/api/account-settings/update', profileData)
+      const response = await api.put('/api/accounts/me', profileData)
       return response.data
     } catch (error) {
       console.error('Update profile error:', error)
@@ -496,11 +597,12 @@ export const accountAPI = {
     }
   },
 
+  // Upload avatar 
   uploadAvatar: async (file) => {
     try {
       const formData = new FormData()
       formData.append('avatar', file)
-      const response = await api.post('/api/account-settings/avatar', formData, {
+      const response = await api.post('/api/accounts/me/avatar', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -510,7 +612,35 @@ export const accountAPI = {
       console.error('Upload avatar error:', error)
       throw error
     }
+  },
+
+  // Update settings
+  updateSettings: async (settings) => {
+    try {
+      const response = await api.put('/api/account/settings', settings)
+      return response.data
+    } catch (error) {
+      console.error('Update settings error:', error)
+      throw error
+    }
   }
 }
+
+// Add this interceptor to automatically add the token to all requests
+api.interceptors.request.use(
+  (config) => {
+    const headers = getAuthHeader()
+    if (Object.keys(headers).length > 0) {
+      config.headers = {
+        ...config.headers,
+        ...headers
+      }
+    }
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
+  }
+)
 
 export default api 
