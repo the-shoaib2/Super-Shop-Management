@@ -1,7 +1,9 @@
 package com.server.model.accounts;
 
 import lombok.Data;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.index.Indexed;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +11,12 @@ import java.util.Map;
 @Data
 @Document(collection = "accountSettings")
 public class AccountSettings {
+    @Id
+    private String id;
+    
+    @Indexed(unique = true)
     private String userId;
+    
     private GeneralSettings general;
     private ProfileSettings profile;
     private SecuritySettings security;

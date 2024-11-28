@@ -47,7 +47,7 @@ public class AuthController {
             
             // Generate tokens
             String token = tokenUtil.generateToken(savedOwner);
-            String refreshToken = tokenUtil.generateRefreshToken(savedOwner.getEmail());
+            String refreshToken = tokenUtil.generateRefreshToken(savedOwner);
             
             savedOwner.setRefreshToken(refreshToken);
             authService.updateOwner(savedOwner);
@@ -55,15 +55,15 @@ public class AuthController {
             // Add auth cookie
             addAuthCookie(response, token);
             
-            AuthResponse authResponse = new AuthResponse(
-                token,
-                refreshToken,
-                savedOwner.getEmail(),
-                savedOwner.getFullName(),
-                savedOwner.getCurrentStoreId(),
-                LocalDateTime.now(),
-                savedOwner.getCurrentStoreId() != null
-            );
+            AuthResponse authResponse = AuthResponse.builder()
+                .token(token)
+                .refreshToken(refreshToken)
+                .email(savedOwner.getEmail())
+                .fullName(savedOwner.getFullName())
+                .currentStoreId(savedOwner.getCurrentStoreId())
+                .loginTime(LocalDateTime.now())
+                .isStoreCreated(savedOwner.getCurrentStoreId() != null)
+                .build();
 
             return ResponseEntity.ok(ApiResponse.success("Registration successful", authResponse));
         } catch (Exception e) {
@@ -85,31 +85,33 @@ public class AuthController {
         }
 
         try {
-            Owner owner = (Owner) authService.login(request);
-            String token = tokenUtil.generateToken(owner);
-            String refreshToken = tokenUtil.generateRefreshToken(owner.getEmail());
+            Owner owner = authService.login(request);
+            
+            // Generate tokens with owner object
+            String accessToken = tokenUtil.generateAccessToken(owner);
+            String refreshToken = tokenUtil.generateRefreshToken(owner);
             
             owner.setRefreshToken(refreshToken);
             owner.setLastLogin(LocalDateTime.now());
             authService.updateOwner(owner);
             
-            addAuthCookie(response, token);
+            addAuthCookie(response, accessToken);
 
-            AuthResponse authResponse = new AuthResponse(
-                    token,
-                    refreshToken,
-                    owner.getEmail(),
-                    owner.getFullName(),
-                    owner.getCurrentStoreId(),
-                    LocalDateTime.now(),
-                    owner.getCurrentStoreId() != null
-            );
+            AuthResponse authResponse = AuthResponse.builder()
+                .token(accessToken)
+                .refreshToken(refreshToken)
+                .userId(owner.getId())
+                .email(owner.getEmail())
+                .fullName(owner.getFullName())
+                .currentStoreId(owner.getCurrentStoreId())
+                .loginTime(LocalDateTime.now())
+                .isStoreCreated(owner.getCurrentStoreId() != null)
+                .build();
 
-            return ResponseEntity.ok(authResponse);
+            return ResponseEntity.ok(ApiResponse.success("Login successful", authResponse));
         } catch (Exception e) {
-            ValidationErrorResponse errorResponse = new ValidationErrorResponse();
-            errorResponse.addError("auth", "Invalid email or password");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("Invalid email or password", null));
         }
     }
 

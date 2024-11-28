@@ -29,4 +29,6 @@ public interface StoreRepository extends StoreBaseRepository<Store, String> {
            "'categories': { $in: ?1 }, " +
            "'tags': { $in: ?2 } }")
     Page<Store> findBySearchCriteria(String query, List<String> categories, List<String> tags, Pageable pageable);
+    
+    List<Store> findByOwnerId(String ownerId);
 } 

@@ -13,9 +13,10 @@ import java.time.LocalDateTime;
 public class AuthResponse {
     private String token;
     private String refreshToken;
+    private String userId;
     private String email;
     private String fullName;
-    private String storeName;
+    private String currentStoreId;
     private LocalDateTime loginTime;
     private boolean isStoreCreated;
 } 

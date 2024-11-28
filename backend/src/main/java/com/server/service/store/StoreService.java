@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
 import com.server.model.accounts.Owner;
 import com.server.model.store.Store;
@@ -19,31 +20,64 @@ import com.server.util.IdGenerator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class StoreService {
     private static final Logger logger = LoggerFactory.getLogger(StoreService.class);
     
-
-    @Autowired
-    private StoreRepository storeRepository;
-    
-    @Autowired
-    private StoreOwnerRepository storeOwnerRepository;
+    private final StoreRepository storeRepository;
+    private final StoreOwnerRepository storeOwnerRepository;
+    private final MongoTemplate mongoTemplate;
 
     public List<Store> getStoresByOwnerEmail(String email) {
-        Owner owner = storeOwnerRepository.findByEmail(email)
-            .orElseThrow(() -> new ResourceNotFoundException("Store owner not found"));
+        try {
+            logger.info("Finding owner by email: {}", email);
             
-        // Get store IDs from owner's stores
-        List<Store> stores = owner.getStores();
-        if (stores == null) {
-            return new ArrayList<>();
+            Owner owner = storeOwnerRepository.findByEmail(email)
+                .orElseThrow(() -> {
+                    logger.error("Store owner not found for email: {}", email);
+                    return new ResourceNotFoundException("Store owner not found");
+                });
+            
+            // Get stores from owner
+            List<Store> stores = owner.getStores();
+            if (stores == null) {
+                logger.info("No stores list found for owner: {}, creating new list", email);
+                return new ArrayList<>();
+            }
+
+            // Resolve DBRefs manually if needed
+            List<Store> resolvedStores = stores.stream()
+                .map(store -> {
+                    try {
+                        if (store.getId() != null) {
+                            return mongoTemplate.findById(store.getId(), Store.class);
+                        }
+                        return null;
+                    } catch (Exception e) {
+                        logger.error("Error resolving store reference: {}", e.getMessage());
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+            logger.info("Successfully retrieved {} stores for owner: {}", resolvedStores.size(), email);
+            return resolvedStores;
+            
+        } catch (ResourceNotFoundException e) {
+            logger.error("Owner not found error: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error getting stores for owner email {}: {}", email, e.getMessage(), e);
+            throw new RuntimeException("Failed to get owner stores: " + e.getMessage(), e);
         }
-        
-        // MongoDB will automatically dereference the DBRef
-        return stores;
     }
 
     @Transactional

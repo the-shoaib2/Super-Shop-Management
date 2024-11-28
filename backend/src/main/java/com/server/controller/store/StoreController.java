@@ -19,9 +19,11 @@ import com.server.exception.auth.UnauthorizedException;
 import com.server.exception.common.ResourceNotFoundException;
 import com.server.service.store.StoreService;
 import com.server.service.analytics.AnalyticsService;
+import com.server.security.UserPrincipal;
 
 import java.util.Map;
 import java.util.List;
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/api/stores")
@@ -110,13 +112,43 @@ public class StoreController {
     public ResponseEntity<ApiResponse<List<Store>>> getOwnerStores() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String email = authentication.getName();
+            if (authentication == null || !authentication.isAuthenticated()) {
+                logger.error("User not authenticated");
+                throw new UnauthorizedException("User not authenticated");
+            }
+
+            Object principal = authentication.getPrincipal();
+            if (!(principal instanceof UserPrincipal)) {
+                logger.error("Invalid principal type: {}", principal.getClass());
+                throw new UnauthorizedException("Invalid authentication");
+            }
+
+            UserPrincipal userPrincipal = (UserPrincipal) principal;
+            String email = userPrincipal.getEmail();
+            
+            logger.info("Fetching stores for user email: {}", email);
+            
             List<Store> stores = storeService.getStoresByOwnerEmail(email);
-            return ResponseEntity.ok(ApiResponse.success("Owner stores retrieved successfully", stores));
+            
+            if (stores.isEmpty()) {
+                logger.info("No stores found for user: {}", email);
+                return ResponseEntity.ok(ApiResponse.success("No stores found", new ArrayList<>()));
+            }
+            
+            logger.info("Found {} stores for user", stores.size());
+            return ResponseEntity.ok(ApiResponse.success("Stores retrieved successfully", stores));
+            
+        } catch (UnauthorizedException e) {
+            logger.error("Authentication error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.error(e.getMessage(), null));
+        } catch (ResourceNotFoundException e) {
+            logger.error("Resource not found: {}", e.getMessage());
+            return ResponseEntity.ok(ApiResponse.success("No stores found", new ArrayList<>()));
         } catch (Exception e) {
             logger.error("Error retrieving owner stores: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("Failed to retrieve owner stores", null));
+                .body(ApiResponse.error("Failed to retrieve owner stores: " + e.getMessage(), null));
         }
     }
 

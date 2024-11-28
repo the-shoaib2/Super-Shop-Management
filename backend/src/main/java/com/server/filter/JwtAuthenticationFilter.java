@@ -9,17 +9,20 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.lang.NonNull;
 
 import com.server.util.TokenUtil;
+import com.server.security.UserPrincipal;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
     private final TokenUtil tokenUtil;
 
     @Override
@@ -37,11 +40,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             String token = authHeader.substring(7);
-            String userId = tokenUtil.validateTokenAndGetUserId(token);
+            Claims claims = tokenUtil.getClaimsFromToken(token);
             
-            if (userId != null) {
+            if (claims != null) {
+                String userId = claims.get("userId", String.class);
+                String email = claims.getSubject();
+                String fullName = claims.get("fullName", String.class);
+                
+                UserPrincipal principal = new UserPrincipal(userId, email, fullName);
+                
                 UsernamePasswordAuthenticationToken authToken = 
-                    new UsernamePasswordAuthenticationToken(userId, null, new ArrayList<>());
+                    new UsernamePasswordAuthenticationToken(principal, null, new ArrayList<>());
+                    
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         } catch (Exception e) {

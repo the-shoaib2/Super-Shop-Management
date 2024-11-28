@@ -40,7 +40,7 @@ public class Owner {
     
     // Store References using DBRef for proper relationships
     @DBRef(lazy = true)
-    private List<Store> stores;
+    private List<Store> stores = new ArrayList<>();
     
     // Current active store
     private String currentStoreId;
@@ -126,5 +126,21 @@ public class Owner {
             }
         }
         updatedAt = now;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public List<Store> getStores() {
+        return stores != null ? stores : new ArrayList<>();
+    }
+
+    public void setStores(List<Store> stores) {
+        this.stores = stores;
     }
 } 
