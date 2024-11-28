@@ -1,7 +1,7 @@
 import { Dialog } from '@headlessui/react'
 import { useState, useEffect } from 'react'
 import { toast } from 'react-hot-toast'
-import { storeService } from '@/services/storeService'
+import { storeAPI } from '@/services/api'
 
 export const StoreSettingsDialog = ({ isOpen, onClose, store, onUpdate }) => {
   const [activeTab, setActiveTab] = useState('general')
@@ -25,7 +25,7 @@ export const StoreSettingsDialog = ({ isOpen, onClose, store, onUpdate }) => {
   const loadStoreSettings = async (storeId) => {
     try {
       setLoading(true)
-      const response = await storeService.getStoreSettings(storeId)
+      const response = await storeAPI.getStoreSettings(storeId)
       if (response.success) {
         setFormData({
           name: response.data.name || '',
@@ -51,7 +51,7 @@ export const StoreSettingsDialog = ({ isOpen, onClose, store, onUpdate }) => {
     e.preventDefault()
     try {
       setLoading(true)
-      const response = await storeService.updateStore(store.id, formData)
+      const response = await storeAPI.updateStore(store.id, formData)
       
       if (response.success) {
         toast.success('Store settings updated successfully')
@@ -75,7 +75,7 @@ export const StoreSettingsDialog = ({ isOpen, onClose, store, onUpdate }) => {
 
     try {
       setLoading(true)
-      const response = await storeService.deleteStore(store.id)
+      const response = await storeAPI.deleteStore(store.id)
       
       if (response.success) {
         toast.success('Store deleted successfully')

@@ -46,6 +46,7 @@ public class Owner {
     private String currentStoreId;
     
     // Account Settings
+    @DBRef
     private AccountSettings accountSettings;
     
     // Auth fields

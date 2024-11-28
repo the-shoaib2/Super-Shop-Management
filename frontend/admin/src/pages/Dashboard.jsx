@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { dashboardAPI, storeAPI } from "../services/api";
+import { dashboardAPI, storeAPI } from "@/services";
 import { toast } from "react-hot-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import CreateStoreDialog from "@/components/dialogs/CreateStoreDialog";
@@ -12,7 +12,6 @@ import {
 } from 'recharts'
 import { StoreCardDialog } from '../components/dialogs/StoreCardDialog'
 import { StoreSettingsDialog } from '../components/dialogs/StoreSettingsDialog'
-import { storeService } from '@/services/storeService'
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#FF4560', '#775DD0']
 
@@ -93,8 +92,13 @@ export default function Dashboard() {
       }
 
       const response = await dashboardAPI.getStats(storeId);
-      if (response?.data?.success) {
-        setStats(response.data.data);
+      if (response?.success) {
+        setStats(response.data?.data || {
+          totalSales: 0,
+          totalOrders: 0,
+          totalProducts: 0,
+          totalCustomers: 0
+        });
       } else {
         console.warn('No stats data received:', response);
         setStats({
@@ -143,46 +147,37 @@ export default function Dashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
       const [statsResponse, salesResponse] = await Promise.all([
         dashboardAPI.getStats(currentStore.id),
         dashboardAPI.getSalesReport(
-          new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-          new Date().toISOString()
+          new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+          new Date()
         )
-      ])
+      ]);
 
-      if (statsResponse?.data?.success) {
-        setStats(statsResponse.data.data)
+      if (statsResponse?.success) {
+        setStats(statsResponse.data?.data || {
+          totalSales: 0,
+          totalOrders: 0,
+          totalProducts: 0,
+          totalCustomers: 0
+        });
       }
 
-      if (salesResponse?.data) {
-        setSalesData(salesResponse.data)
-        
-        // Process order stats
-        const orderStatusData = [
-          { name: 'Pending', value: salesResponse.data.pendingOrders || 0 },
-          { name: 'Processing', value: salesResponse.data.processingOrders || 0 },
-          { name: 'Completed', value: salesResponse.data.completedOrders || 0 },
-          { name: 'Cancelled', value: salesResponse.data.cancelledOrders || 0 }
-        ]
-        setOrderStats(orderStatusData)
-
-        // Process product stats
-        const productData = salesResponse.data.topProducts || []
-        setProductStats(productData)
-
-        // Process category stats
-        const categoryData = salesResponse.data.categoryStats || []
-        setCategoryStats(categoryData)
+      if (salesResponse?.success) {
+        setSalesData(salesResponse.data?.salesData || []);
+        setOrderStats(salesResponse.data?.orderStats || []);
+        setProductStats(salesResponse.data?.productStats || []);
+        setCategoryStats(salesResponse.data?.categoryStats || []);
       }
     } catch (error) {
-      console.error('Error fetching dashboard data:', error)
-      toast.error('Failed to fetch dashboard data')
+      console.error('Error fetching dashboard data:', error);
+      toast.error('Failed to fetch dashboard data');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleCopyStoreId = () => {
     if (currentStore?.storeId) {
@@ -194,7 +189,7 @@ export default function Dashboard() {
 
   const handleStoreSwitch = async (storeId) => {
     try {
-      const response = await storeService.switchStore(storeId)
+      const response = await storeAPI.switchStore(storeId)
       if (response.success) {
         setCurrentStore(response.data)
         await fetchDashboardStats(response.data.id)

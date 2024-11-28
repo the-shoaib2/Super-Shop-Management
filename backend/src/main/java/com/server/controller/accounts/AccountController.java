@@ -4,11 +4,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import com.server.model.accounts.Owner;
+import com.server.dto.accounts.AccountDTO;
 import com.server.service.accounts.AccountService;
 import com.server.util.ApiResponse;
+
 import lombok.RequiredArgsConstructor;
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/accounts")
@@ -16,31 +16,23 @@ import jakarta.validation.Valid;
 public class AccountController {
     
     private final AccountService accountService;
-
+    
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<Owner>> getAccount(@AuthenticationPrincipal String userId) {
+    public ResponseEntity<ApiResponse<AccountDTO>> getProfile(
+            @AuthenticationPrincipal String userId) {
         return ResponseEntity.ok(ApiResponse.success(
-            "Account retrieved successfully",
-            accountService.getAccount(userId)
+            "Profile retrieved successfully",
+            accountService.getProfile(userId)
         ));
     }
-
+    
     @PutMapping("/me")
-    public ResponseEntity<ApiResponse<Owner>> updateAccount(
+    public ResponseEntity<ApiResponse<AccountDTO>> updateProfile(
             @AuthenticationPrincipal String userId,
-            @Valid @RequestBody Owner.AccountSettings settings) {
+            @RequestBody AccountDTO accountDTO) {
         return ResponseEntity.ok(ApiResponse.success(
-            "Account updated successfully",
-            accountService.updateAccount(userId, settings)
-        ));
-    }
-
-    @DeleteMapping("/me")
-    public ResponseEntity<ApiResponse<Void>> deleteAccount(@AuthenticationPrincipal String userId) {
-        accountService.deleteAccount(userId);
-        return ResponseEntity.ok(ApiResponse.success(
-            "Account deleted successfully",
-            null
+            "Profile updated successfully",
+            accountService.updateProfile(userId, accountDTO)
         ));
     }
 } 

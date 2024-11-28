@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { authAPI } from '@/services/api'
+import { authAPI, setAuthToken } from '@/services/api'
 import { toast } from 'react-hot-toast'
 
 const AuthContext = createContext()
@@ -67,7 +67,7 @@ export function AuthProvider({ children }) {
       
       // Store token if present
       if (data.token) {
-        localStorage.setItem('token', data.token)
+        setAuthToken(data.token)
       }
       
       // Create user data object

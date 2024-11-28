@@ -1,10 +1,16 @@
 import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle,
+  DialogDescription 
+} from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { toast } from 'react-hot-toast'
 import { useAuth } from '@/contexts/AuthContext'
 import { cn } from "@/lib/utils"
-import api from '@/services/api'
+import { storeAPI } from '@/services/api'
 
 const STORE_CATEGORIES = [
   'Retail',
@@ -27,7 +33,7 @@ const INITIAL_FORM_STATE = {
   email: ''
 }
 
-export default function CreateStoreDialog({ open, onClose }) {
+export default function CreateStoreDialog({ open, onClose, onStoreCreated }) {
   const { user } = useAuth()
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState(INITIAL_FORM_STATE)
@@ -55,22 +61,17 @@ export default function CreateStoreDialog({ open, onClose }) {
         email: user?.email // Use authenticated user's email
       }
 
-      const response = await api.post('/api/stores/owner/stores', storeData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      })
+      const response = await storeAPI.createStore(storeData)
 
-      if (response?.data?.success) {
+      if (response?.success) {
         toast.success('Store created successfully!')
         onClose()
         // Refresh user's stores list if needed
         if (typeof onStoreCreated === 'function') {
-          onStoreCreated(response.data.data)
+          onStoreCreated(response.data)
         }
       } else {
-        throw new Error(response?.data?.message || 'Failed to create store')
+        throw new Error(response?.message || 'Failed to create store')
       }
     } catch (error) {
       console.error('Store creation error:', error)
@@ -98,32 +99,25 @@ export default function CreateStoreDialog({ open, onClose }) {
           "data-[state=closed]:scale-95 data-[state=closed]:opacity-0",
           "data-[state=open]:scale-100 data-[state=open]:opacity-100"
         )}
-        aria-describedby="store-dialog-description"
       >
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-center">Create Store</DialogTitle>
-          <DialogDescription id="store-dialog-description">
+          <DialogTitle>Create Store</DialogTitle>
+          <DialogDescription>
             Fill in the details below to create a new store
           </DialogDescription>
         </DialogHeader>
         
-        <form 
-          onSubmit={handleSubmit} 
-          className={cn(
-            "space-y-4 py-2",
-            "transition-all duration-300 ease-in-out",
-            "data-[state=open]:translate-y-0 data-[state=closed]:translate-y-4"
-          )}
-        >
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Store Name *</label>
               <input
                 type="text"
                 required
+                name="name"
                 className="w-full p-2 rounded-md border focus:ring-2 focus:ring-primary"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={handleInputChange}
                 placeholder="Enter store name"
               />
             </div>
@@ -132,9 +126,10 @@ export default function CreateStoreDialog({ open, onClose }) {
               <label className="block text-sm font-medium mb-1">Category *</label>
               <select
                 required
+                name="category"
                 className="w-full p-2 rounded-md border focus:ring-2 focus:ring-primary"
                 value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                onChange={handleInputChange}
               >
                 <option value="">Select a category</option>
                 {STORE_CATEGORIES.map((category) => (
@@ -149,10 +144,11 @@ export default function CreateStoreDialog({ open, onClose }) {
           <div>
             <label className="block text-sm font-medium mb-1">Description</label>
             <textarea
+              name="description"
               className="w-full p-2 rounded-md border focus:ring-2 focus:ring-primary min-h-[80px]"
               rows="3"
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={handleInputChange}
               placeholder="Describe your store..."
             />
           </div>
@@ -163,9 +159,10 @@ export default function CreateStoreDialog({ open, onClose }) {
               <input
                 type="text"
                 required
+                name="address"
                 className="w-full p-2 rounded-md border focus:ring-2 focus:ring-primary"
                 value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                onChange={handleInputChange}
                 placeholder="Enter store address"
               />
             </div>
@@ -175,10 +172,11 @@ export default function CreateStoreDialog({ open, onClose }) {
               <input
                 type="text"
                 required
+                name="location"
                 className="w-full p-2 rounded-md border focus:ring-2 focus:ring-primary"
                 placeholder="City, Country"
                 value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                onChange={handleInputChange}
               />
             </div>
           </div>
@@ -189,9 +187,10 @@ export default function CreateStoreDialog({ open, onClose }) {
               <input
                 type="tel"
                 required
+                name="phone"
                 className="w-full p-2 rounded-md border focus:ring-2 focus:ring-primary"
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onChange={handleInputChange}
                 placeholder="Enter phone number"
               />
             </div>
@@ -200,10 +199,11 @@ export default function CreateStoreDialog({ open, onClose }) {
               <label className="block text-sm font-medium mb-1">Tags</label>
               <input
                 type="text"
+                name="tags"
                 className="w-full p-2 rounded-md border focus:ring-2 focus:ring-primary"
                 placeholder="organic, vegan, local"
                 value={formData.tags}
-                onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                onChange={handleInputChange}
               />
               <p className="text-xs text-muted-foreground mt-0.5">
                 Separate with commas
@@ -212,8 +212,12 @@ export default function CreateStoreDialog({ open, onClose }) {
           </div>
 
           <div className="pt-2">
-            <Button type="submit" className="w-full py-4 text-base font-semibold">
-              Create Store
+            <Button 
+              type="submit" 
+              className="w-full py-4 text-base font-semibold"
+              disabled={loading}
+            >
+              {loading ? 'Creating...' : 'Create Store'}
             </Button>
           </div>
         </form>
