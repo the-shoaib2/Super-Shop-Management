@@ -11,7 +11,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import com.server.dto.auth.AuthRequest;
 import com.server.dto.auth.AuthResponse;
 import com.server.dto.auth.LoginRequest;
-import com.server.dto.common.ValidationErrorResponse;
 import com.server.model.accounts.Owner;
 import com.server.service.auth.AuthService;
 import com.server.util.ApiResponse;
