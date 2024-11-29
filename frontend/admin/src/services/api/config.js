@@ -13,6 +13,15 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    // Log detailed error information
+    console.error('API Error:', {
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message,
+      url: error.config?.url,
+      method: error.config?.method
+    });
+
     const originalRequest = error.config;
     
     // Handle 403 errors
@@ -47,20 +56,40 @@ api.interceptors.response.use(
         return Promise.reject(refreshError);
       }
     }
-    return Promise.reject(error);
+
+    // Transform error response for better handling
+    const errorResponse = {
+      success: false,
+      message: error.response?.data?.message || error.message,
+      data: error.response?.data?.data,
+      status: error.response?.status,
+      validationErrors: error.response?.data?.data
+    };
+
+    return Promise.reject(errorResponse);
   }
 );
 
 // Add request interceptor
 api.interceptors.request.use(
   (config) => {
+    // Log outgoing requests
+    console.debug('API Request:', {
+      url: config.url,
+      method: config.method,
+      data: config.data
+    });
+
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    console.error('Request Error:', error);
+    return Promise.reject(error);
+  }
 );
 
 export default api; 

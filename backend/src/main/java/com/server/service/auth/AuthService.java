@@ -5,6 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.server.dto.auth.AuthRequest;
+import com.server.dto.auth.LoginRequest;
 import com.server.exception.auth.AuthenticationException;
 import com.server.exception.auth.UnauthorizedException;
 import com.server.exception.auth.UserAlreadyExistsException;
@@ -16,6 +17,7 @@ import com.server.util.IdGenerator;
 import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
@@ -44,8 +46,21 @@ public class AuthService {
             storeOwner.setUpdatedAt(LocalDateTime.now());
             storeOwner.setActive(true);
             
+            // Ensure phone number is set
+            logger.debug("Setting phone number: {}", storeOwner.getPhone());
+            
+            // Initialize empty lists if null
+            if (storeOwner.getWebsites() == null) {
+                storeOwner.setWebsites(new ArrayList<>());
+            }
+            if (storeOwner.getAvaterUrls() == null) {
+                storeOwner.setAvaterUrls(new ArrayList<>());
+            }
+            
             // Save and return
-            return storeOwnerRepository.save(storeOwner);
+            Owner savedOwner = storeOwnerRepository.save(storeOwner);
+            logger.debug("Saved owner with phone: {}", savedOwner.getPhone());
+            return savedOwner;
         } catch (UserAlreadyExistsException e) {
             throw e;
         } catch (Exception e) {
@@ -54,44 +69,33 @@ public class AuthService {
         }
     }
 
-    public Owner login(AuthRequest request) {
+    public Owner login(LoginRequest request) {
         try {
-            logger.info("Attempting login for email: {}", request.getEmail());
-            
             // Find owner by email
             Owner owner = storeOwnerRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> {
-                    logger.error("No user found with email: {}", request.getEmail());
-                    return new UnauthorizedException("Invalid email or password");
-                });
+                .orElseThrow(() -> new UnauthorizedException("Invalid email or password"));
 
             // Verify password
             if (!passwordEncoder.matches(request.getPassword(), owner.getPassword())) {
-                logger.error("Invalid password for email: {}", request.getEmail());
                 throw new UnauthorizedException("Invalid email or password");
             }
 
             // Check if account is active
             if (!owner.isActive()) {
-                logger.error("Account is inactive for email: {}", request.getEmail());
                 throw new UnauthorizedException("Account is inactive");
             }
 
-            // Update last login and timestamps
+            // Update last login
             owner.setLastLogin(LocalDateTime.now());
             owner.setUpdatedAt(LocalDateTime.now());
             
-            // Save and return updated owner
-            Owner updatedOwner = storeOwnerRepository.save(owner);
-            logger.info("Login successful for email: {}", request.getEmail());
-            
-            return updatedOwner;
+            return storeOwnerRepository.save(owner);
             
         } catch (UnauthorizedException e) {
-            logger.error("Login failed - Unauthorized: {}", e.getMessage());
+            logger.error("Login failed for email {}: {}", request.getEmail(), e.getMessage());
             throw e;
         } catch (Exception e) {
-            logger.error("Login failed - Unexpected error: ", e);
+            logger.error("Unexpected error during login for email {}", request.getEmail(), e);
             throw new AuthenticationException("An unexpected error occurred during login");
         }
     }

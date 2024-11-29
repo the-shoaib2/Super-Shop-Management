@@ -10,22 +10,32 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.server.dto.auth.AuthRequest;
 import com.server.dto.auth.AuthResponse;
+import com.server.dto.auth.LoginRequest;
 import com.server.dto.common.ValidationErrorResponse;
 import com.server.model.accounts.Owner;
 import com.server.service.auth.AuthService;
 import com.server.util.ApiResponse;
 import com.server.util.TokenUtil;
+import com.server.exception.UserAlreadyExistsException;
+import com.server.exception.auth.UnauthorizedException;
+import com.server.exception.auth.AuthenticationException;
 
 import jakarta.validation.Valid;
 import org.springframework.validation.BindingResult;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
     private static final int COOKIE_MAX_AGE = 86400; // 24 hours
 
     private final TokenUtil tokenUtil;
@@ -34,25 +44,44 @@ public class AuthController {
 
     // Register a new store owner
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<AuthResponse>> register(
-            @Valid @RequestBody Owner storeOwner,
+    public ResponseEntity<ApiResponse<?>> register(
+            @Valid @RequestBody AuthRequest authRequest,
             BindingResult bindingResult,
             HttpServletResponse response) {
         
-        // Validate input
+        // Log the incoming request
+        logger.debug("Registration request received: {}", authRequest);
+        
+        // Validate input and return detailed error messages
         if (bindingResult.hasErrors()) {
-            ValidationErrorResponse errorResponse = new ValidationErrorResponse();
-            bindingResult.getFieldErrors()
-                    .forEach(error -> errorResponse.addError(error.getField(), error.getDefaultMessage()));
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getFieldErrors().forEach(error -> {
+                String field = error.getField();
+                String message = error.getDefaultMessage();
+                errors.put(field, message);
+                logger.error("Validation error for field {}: {}", field, message);
+            });
+            
             return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("Validation failed", null));
+                    .body(ApiResponse.error("Validation failed", errors));
         }
 
         try {
+            // Create new Owner from AuthRequest
+            Owner storeOwner = new Owner();
+            storeOwner.setEmail(authRequest.getEmail());
+            storeOwner.setPassword(authRequest.getPassword());
+            storeOwner.setFullName(authRequest.getFullName());
+            storeOwner.setPhone(authRequest.getPhoneNumber());
+            storeOwner.setAddress(authRequest.getAddress());
+            storeOwner.setDescription(authRequest.getDescription());
+            
             // Set default values
             storeOwner.setActive(true);
             storeOwner.setLastLogin(LocalDateTime.now());
             storeOwner.setAvaterUrls(new ArrayList<>());
+            storeOwner.setWebsites(new ArrayList<>());
+            storeOwner.setStores(new ArrayList<>());
             
             Owner savedOwner = authService.register(storeOwner);
             
@@ -79,7 +108,12 @@ public class AuthController {
                 .build();
 
             return ResponseEntity.ok(ApiResponse.success("Registration successful", authResponse));
+        } catch (UserAlreadyExistsException e) {
+            logger.error("Registration failed - Email already exists: {}", authRequest.getEmail());
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(ApiResponse.error("Email already registered", null));
         } catch (Exception e) {
+            logger.error("Registration failed with error: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Registration failed: " + e.getMessage(), null));
         }
@@ -87,29 +121,41 @@ public class AuthController {
 
     // Login a store owner
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody AuthRequest request,
+    public ResponseEntity<ApiResponse<?>> login(
+            @Valid @RequestBody LoginRequest request,
             BindingResult bindingResult,
             HttpServletResponse response) {
-        if (bindingResult.hasErrors()) {
-            ValidationErrorResponse errorResponse = new ValidationErrorResponse();
-            bindingResult.getFieldErrors()
-                    .forEach(error -> errorResponse.addError(error.getField(), error.getDefaultMessage()));
-            return ResponseEntity.badRequest().body(errorResponse);
-        }
-
+        
         try {
+            // Log the incoming request (mask password)
+            logger.debug("Login request received for email: {}", request.getEmail());
+            
+            // Validate input
+            if (bindingResult.hasErrors()) {
+                Map<String, String> errors = new HashMap<>();
+                bindingResult.getFieldErrors().forEach(error -> {
+                    errors.put(error.getField(), error.getDefaultMessage());
+                });
+                return ResponseEntity.badRequest()
+                        .body(ApiResponse.error("Validation failed", errors));
+            }
+
+            // Attempt login
             Owner owner = authService.login(request);
             
-            // Generate tokens with owner object
-            String accessToken = tokenUtil.generateAccessToken(owner);
+            // Generate tokens
+            String accessToken = tokenUtil.generateToken(owner);
             String refreshToken = tokenUtil.generateRefreshToken(owner);
             
+            // Update owner with refresh token
             owner.setRefreshToken(refreshToken);
             owner.setLastLogin(LocalDateTime.now());
             authService.updateOwner(owner);
             
+            // Add auth cookie
             addAuthCookie(response, accessToken);
 
+            // Build response
             AuthResponse authResponse = AuthResponse.builder()
                 .token(accessToken)
                 .refreshToken(refreshToken)
@@ -122,9 +168,21 @@ public class AuthController {
                 .build();
 
             return ResponseEntity.ok(ApiResponse.success("Login successful", authResponse));
-        } catch (Exception e) {
+            
+        } catch (UnauthorizedException e) {
+            logger.error("Login failed - Unauthorized: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiResponse.error("Invalid email or password", null));
+                    .body(ApiResponse.error(e.getMessage(), null));
+                    
+        } catch (AuthenticationException e) {
+            logger.error("Login failed - Authentication error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error(e.getMessage(), null));
+                    
+        } catch (Exception e) {
+            logger.error("Login failed with unexpected error", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("An unexpected error occurred", null));
         }
     }
 
