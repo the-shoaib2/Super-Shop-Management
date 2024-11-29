@@ -58,8 +58,10 @@ public class AccountController {
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody AccountDTO accountDTO) {
         try {
+            log.debug("Updating profile for user: {} with data: {}", userDetails.getUsername(), accountDTO);
+            
             AccountDTO updated = accountService.updateProfile(userDetails.getUsername(), accountDTO);
-            return ResponseEntity.ok(ApiResponse.success(updated));
+            return ResponseEntity.ok(ApiResponse.success("Profile updated successfully", updated));
         } catch (Exception e) {
             log.error("Error updating profile for user: {}", userDetails.getUsername(), e);
             return ResponseEntity.internalServerError()

@@ -8,8 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-import com.server.dto.accounts.auth.AuthRequest;
-import com.server.dto.accounts.auth.AuthResponse;
+import com.server.dto.auth.AuthRequest;
+import com.server.dto.auth.AuthResponse;
 import com.server.dto.common.ValidationErrorResponse;
 import com.server.model.accounts.Owner;
 import com.server.service.auth.AuthService;

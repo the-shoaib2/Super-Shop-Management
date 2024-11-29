@@ -63,9 +63,9 @@ public class AccountService {
             .id(owner.getId())
             .email(owner.getEmail())
             .fullName(owner.getFullName())
-            .phone(owner.getPhone())
-            .address(owner.getAddress())
-            .description(owner.getDescription())
+            .phone(owner.getPhone() != null ? owner.getPhone() : "")
+            .address(owner.getAddress() != null ? owner.getAddress() : "")
+            .description(owner.getDescription() != null ? owner.getDescription() : "")
             .websiteList(owner.getWebsites())
             .image(owner.getAvatarUrl())
             .ownerId(owner.getOwnerId())
@@ -97,15 +97,27 @@ public class AccountService {
 
     @Transactional
     public AccountDTO updateProfile(String userId, AccountDTO accountDTO) {
-        Owner owner = storeOwnerRepository.findById(userId)
-            .orElse(null);
-            
+        Owner owner = storeOwnerRepository.findByEmail(userId)
+            .orElseGet(() -> storeOwnerRepository.findByOwnerId(userId)
+                .orElse(null));
+                
         if (owner != null) {
-            owner.setFullName(accountDTO.getFullName());
-            owner.setPhone(accountDTO.getPhone());
-            owner.setOwnerId(accountDTO.getOwnerId());
-            owner.setAddress(accountDTO.getAddress());
-            owner.setDescription(accountDTO.getDescription());
+            if (accountDTO.getFullName() != null) {
+                owner.setFullName(accountDTO.getFullName());
+            }
+            if (accountDTO.getPhone() != null) {
+                owner.setPhone(accountDTO.getPhone());
+            }
+            if (accountDTO.getAddress() != null) {
+                owner.setAddress(accountDTO.getAddress());
+            }
+            if (accountDTO.getDescription() != null) {
+                owner.setDescription(accountDTO.getDescription());
+            }
+            if (accountDTO.getWebsiteList() != null) {
+                owner.setWebsites(accountDTO.getWebsiteList());
+            }
+            
             Owner savedOwner = storeOwnerRepository.save(owner);
             return mapToOwnerDTO(savedOwner);
         }
@@ -113,10 +125,22 @@ public class AccountService {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         
-        user.setName(accountDTO.getFullName());
-        user.setPhone(accountDTO.getPhone());
-        user.setAddress(accountDTO.getAddress());
-        user.setDescription(accountDTO.getDescription());
+        if (accountDTO.getFullName() != null) {
+            user.setName(accountDTO.getFullName());
+        }
+        if (accountDTO.getPhone() != null) {
+            user.setPhone(accountDTO.getPhone());
+        }
+        if (accountDTO.getAddress() != null) {
+            user.setAddress(accountDTO.getAddress());
+        }
+        if (accountDTO.getDescription() != null) {
+            user.setDescription(accountDTO.getDescription());
+        }
+        if (accountDTO.getWebsiteList() != null) {
+            user.setWebsites(accountDTO.getWebsiteList());
+        }
+        
         User savedUser = userRepository.save(user);
         return mapToUserDTO(savedUser);
     }

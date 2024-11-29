@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.server.dto.accounts.auth.AuthRequest;
+import com.server.dto.auth.AuthRequest;
 import com.server.exception.auth.AuthenticationException;
 import com.server.exception.auth.UnauthorizedException;
 import com.server.exception.auth.UserAlreadyExistsException;
