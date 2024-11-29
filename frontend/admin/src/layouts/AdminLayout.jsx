@@ -1,3 +1,4 @@
+import React from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { Button } from "@/components/ui/button"
 import { useAuth } from '@/contexts/AuthContext'

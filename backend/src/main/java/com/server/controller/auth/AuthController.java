@@ -36,7 +36,18 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<AuthResponse>> register(
             @Valid @RequestBody Owner storeOwner,
+            BindingResult bindingResult,
             HttpServletResponse response) {
+        
+        // Validate input
+        if (bindingResult.hasErrors()) {
+            ValidationErrorResponse errorResponse = new ValidationErrorResponse();
+            bindingResult.getFieldErrors()
+                    .forEach(error -> errorResponse.addError(error.getField(), error.getDefaultMessage()));
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("Validation failed", null));
+        }
+
         try {
             // Set default values
             storeOwner.setActive(true);
@@ -58,6 +69,8 @@ public class AuthController {
             AuthResponse authResponse = AuthResponse.builder()
                 .token(token)
                 .refreshToken(refreshToken)
+                .userId(savedOwner.getId())
+                .ownerId(savedOwner.getOwnerId())
                 .email(savedOwner.getEmail())
                 .fullName(savedOwner.getFullName())
                 .currentStoreId(savedOwner.getCurrentStoreId())

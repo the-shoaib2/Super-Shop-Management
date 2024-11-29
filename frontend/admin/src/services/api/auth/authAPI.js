@@ -14,12 +14,15 @@ export const authAPI = {
     }
   },
 
-  signup: async (userData) => {
+  register: async (userData) => {
     try {
-      const response = await api.post('/api/auth/signup', userData);
+      const response = await api.post('/api/auth/register', userData);
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+      }
       return response.data;
     } catch (error) {
-      console.error('Signup Error:', error);
+      console.error('Registration Error:', error);
       throw error;
     }
   },
@@ -41,7 +44,9 @@ export const authAPI = {
       console.error('Auth check failed:', error);
       throw error;
     }
-  }
+  },
+
+
 };
 
 export default authAPI; 
