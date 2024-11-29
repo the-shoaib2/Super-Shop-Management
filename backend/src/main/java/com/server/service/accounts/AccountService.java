@@ -178,6 +178,11 @@ public class AccountService {
         return currentSettings;
     }
 
+    public AccountDTO updateProfile(String userId, AccountDTO accountDTO) {
+        // Add your profile update logic here
+        return accountDTO;
+    }
+
     private Owner getStoreOwner(String userId) {
         return storeOwnerRepository.findById(userId)
             .orElseThrow(() -> new ResourceNotFoundException("Store owner not found"));
