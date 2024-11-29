@@ -49,12 +49,21 @@ public class Owner {
     @DBRef
     private AccountSettings accountSettings;
     
+
+    private String phone;
+
+    private String address;
+
+    private String description;
+
+    private List<String> websites;
+
     // Auth fields
     private String refreshToken;
     private LocalDateTime lastLogin;
     
     // Profile fields
-    private List<String> images;
+    private List<String> avaterUrls;
     private boolean isActive;
     private boolean isVerified;
     private String verificationToken;
@@ -63,6 +72,7 @@ public class Owner {
     // Audit fields
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    
     
     @Data
     public static class AccountSettings {
@@ -143,5 +153,29 @@ public class Owner {
 
     public void setStores(List<Store> stores) {
         this.stores = stores;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public List<String> getWebsites() {
+        return websites;
+    }
+    
+    public String getAvatarUrl() {
+        return avaterUrls != null && !avaterUrls.isEmpty() ? avaterUrls.get(0) : null;
     }
 } 

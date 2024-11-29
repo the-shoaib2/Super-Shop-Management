@@ -43,7 +43,7 @@ public class AccountController {
                     .build();
             }
             
-            return ResponseEntity.ok(ApiResponse.success(profile));
+            return ResponseEntity.ok(ApiResponse.success("Profile retrieved successfully", profile));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.notFound()
                 .build();

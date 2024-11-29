@@ -52,7 +52,7 @@ public class AuthController {
             // Set default values
             storeOwner.setActive(true);
             storeOwner.setLastLogin(LocalDateTime.now());
-            storeOwner.setImages(new ArrayList<>());
+            storeOwner.setAvaterUrls(new ArrayList<>());
             
             Owner savedOwner = authService.register(storeOwner);
             

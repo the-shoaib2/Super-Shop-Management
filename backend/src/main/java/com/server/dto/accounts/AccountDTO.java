@@ -1,5 +1,6 @@
 package com.server.dto.accounts;
 
+import java.util.List;
 import lombok.Data;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -15,15 +16,9 @@ public class AccountDTO {
     private String fullName;
     private String phone;
     private String address;
-    private String bio;
-    private String avatar;
-    private String website;
-    private String linkedin;
-    private String twitter;
-    private boolean emailVerified;
-    private boolean emailVisible;
-    private boolean phoneVisible;
-    private String accountType;
+    private String description;
+    private String image;
     private String ownerId;
+    private List<String> websiteList;
     private AccountPreferencesDTO preferences;
 } 

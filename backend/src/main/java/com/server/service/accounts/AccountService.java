@@ -63,9 +63,12 @@ public class AccountService {
             .id(owner.getId())
             .email(owner.getEmail())
             .fullName(owner.getFullName())
+            .phone(owner.getPhone())
+            .address(owner.getAddress())
+            .description(owner.getDescription())
+            .websiteList(owner.getWebsites())
+            .image(owner.getAvatarUrl())
             .ownerId(owner.getOwnerId())
-            // .phone(owner.getPhone())
-            // .avatar(owner.getAvatarUrl())
             .preferences(mapToPreferencesDTO(preferences))
             .build();
     }
@@ -84,7 +87,10 @@ public class AccountService {
             .email(user.getEmail())
             .fullName(user.getName())
             .phone(user.getPhone())
-            .avatar(user.getAvatarUrl())
+            .websiteList(user.getWebsites())
+            .address(user.getAddress())
+            .description(user.getDescription())
+            .image(user.getAvatarUrl())
             .preferences(mapToPreferencesDTO(preferences))
             .build();
     }
@@ -96,6 +102,10 @@ public class AccountService {
             
         if (owner != null) {
             owner.setFullName(accountDTO.getFullName());
+            owner.setPhone(accountDTO.getPhone());
+            owner.setOwnerId(accountDTO.getOwnerId());
+            owner.setAddress(accountDTO.getAddress());
+            owner.setDescription(accountDTO.getDescription());
             Owner savedOwner = storeOwnerRepository.save(owner);
             return mapToOwnerDTO(savedOwner);
         }
@@ -105,6 +115,8 @@ public class AccountService {
         
         user.setName(accountDTO.getFullName());
         user.setPhone(accountDTO.getPhone());
+        user.setAddress(accountDTO.getAddress());
+        user.setDescription(accountDTO.getDescription());
         User savedUser = userRepository.save(user);
         return mapToUserDTO(savedUser);
     }

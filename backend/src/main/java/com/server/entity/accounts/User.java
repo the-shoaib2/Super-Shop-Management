@@ -4,6 +4,7 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.index.Indexed;
+import java.util.List;
 
 @Document(collection = "users")
 @Data
@@ -21,6 +22,12 @@ public class User {
     private String password;
     
     private String avatarUrl;
+    
+    private List<String> websites;
+
+    private String address;
+
+    private String description;
     
     // Getters and Setters
     public String getId() {
@@ -69,5 +76,29 @@ public class User {
 
     public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
+    }
+
+    public List<String> getWebsites() {
+        return websites;
+    }
+
+    public void setWebsites(List<String> websites) {
+        this.websites = websites;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 } 
