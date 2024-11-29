@@ -1,190 +1,188 @@
 package com.server.service.accounts;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.server.exception.common.ResourceNotFoundException;
+import com.server.dto.accounts.AccountDTO;
+import com.server.dto.accounts.AccountPreferencesDTO;
+import com.server.dto.accounts.ChangePasswordRequest;
+import com.server.entity.accounts.AccountPreferences;
+import com.server.entity.accounts.User;
 import com.server.model.accounts.Owner;
+import com.server.exception.InvalidPasswordException;
+import com.server.exception.ResourceNotFoundException;
+import com.server.repository.accounts.AccountPreferencesRepository;
+import com.server.repository.accounts.UserRepository;
 import com.server.repository.accounts.StoreOwnerRepository;
+import com.server.service.storage.FileStorageService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.factory.annotation.Qualifier;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AccountService {
-    
+    private final UserRepository userRepository;
     private final StoreOwnerRepository storeOwnerRepository;
+    private final PasswordEncoder passwordEncoder;
+    @Qualifier("fileStorageService")
+    private final FileStorageService fileStorageService;
+    private final AccountPreferencesRepository preferencesRepository;
 
-    public Owner getAccount(String userId) {
-        return getStoreOwner(userId);
-    }
-
-    @Transactional
-    public Owner updateAccount(String userId, Owner.AccountSettings settings) {
-        Owner owner = getStoreOwner(userId);
-        owner.setAccountSettings(settings);
-        return storeOwnerRepository.save(owner);
-    }
-
-    @Transactional
-    public void deleteAccount(String userId) {
-        Owner owner = getStoreOwner(userId);
-        owner.setActive(false);
-        storeOwnerRepository.save(owner);
-    }
-
-    @Transactional
-    public Owner.AccountSettings updateGeneralSettings(String userId, Owner.AccountSettings settings) {
-        Owner owner = getStoreOwner(userId);
-        Owner.AccountSettings currentSettings = owner.getAccountSettings();
-        if (currentSettings == null) {
-            currentSettings = new Owner.AccountSettings();
+    public AccountDTO getProfile(String userIdentifier) {
+        Owner owner = storeOwnerRepository.findByEmail(userIdentifier)
+            .orElseGet(() -> storeOwnerRepository.findByOwnerId(userIdentifier)
+                .orElse(null));
+                
+        if (owner != null) {
+            log.debug("Found store owner: {}", owner.getEmail());
+            return mapToOwnerDTO(owner);
         }
         
-        // Update general settings
-        currentSettings.setTimezone(settings.getTimezone());
-        currentSettings.setDateFormat(settings.getDateFormat());
-        currentSettings.setCurrency(settings.getCurrency());
+        User user = userRepository.findByEmail(userIdentifier)
+            .orElseGet(() -> userRepository.findById(userIdentifier)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found")));
         
-        owner.setAccountSettings(currentSettings);
-        storeOwnerRepository.save(owner);
-        return currentSettings;
+        log.debug("Found user: {}", user.getEmail());
+        return mapToUserDTO(user);
+    }
+
+    private AccountDTO mapToOwnerDTO(Owner owner) {
+        if (owner == null) {
+            throw new ResourceNotFoundException("Owner not found");
+        }
+
+        AccountPreferences preferences = preferencesRepository
+            .findByUserId(owner.getId())
+            .orElse(new AccountPreferences());
+
+        return AccountDTO.builder()
+            .id(owner.getId())
+            .email(owner.getEmail())
+            .fullName(owner.getFullName())
+            .ownerId(owner.getOwnerId())
+            // .phone(owner.getPhone())
+            // .avatar(owner.getAvatarUrl())
+            .preferences(mapToPreferencesDTO(preferences))
+            .build();
+    }
+
+    private AccountDTO mapToUserDTO(User user) {
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        AccountPreferences preferences = preferencesRepository
+            .findByUserId(user.getId())
+            .orElse(new AccountPreferences());
+
+        return AccountDTO.builder()
+            .id(user.getId())
+            .email(user.getEmail())
+            .fullName(user.getName())
+            .phone(user.getPhone())
+            .avatar(user.getAvatarUrl())
+            .preferences(mapToPreferencesDTO(preferences))
+            .build();
     }
 
     @Transactional
-    public Owner.AccountSettings updateSecuritySettings(String userId, Owner.AccountSettings settings) {
-        Owner owner = getStoreOwner(userId);
-        Owner.AccountSettings currentSettings = owner.getAccountSettings();
-        if (currentSettings == null) {
-            currentSettings = new Owner.AccountSettings();
-        }
-        
-        // Update security settings
-        currentSettings.setTwoFactorEnabled(settings.isTwoFactorEnabled());
-        currentSettings.setTwoFactorMethod(settings.getTwoFactorMethod());
-        currentSettings.setTrustedDevices(settings.getTrustedDevices());
-        
-        owner.setAccountSettings(currentSettings);
-        storeOwnerRepository.save(owner);
-        return currentSettings;
-    }
-
-    @Transactional
-    public Owner.AccountSettings updateNotificationSettings(String userId, Owner.AccountSettings settings) {
-        Owner owner = getStoreOwner(userId);
-        Owner.AccountSettings currentSettings = owner.getAccountSettings();
-        if (currentSettings == null) {
-            currentSettings = new Owner.AccountSettings();
-        }
-        
-        // Update notification settings
-        currentSettings.setEmailNotifications(settings.isEmailNotifications());
-        currentSettings.setPushNotifications(settings.isPushNotifications());
-        currentSettings.setOrderNotifications(settings.isOrderNotifications());
-        currentSettings.setMarketingNotifications(settings.isMarketingNotifications());
-        
-        owner.setAccountSettings(currentSettings);
-        storeOwnerRepository.save(owner);
-        return currentSettings;
-    }
-
-    @Transactional
-    public Owner.AccountSettings updateAppearanceSettings(String userId, Owner.AccountSettings settings) {
-        Owner owner = getStoreOwner(userId);
-        Owner.AccountSettings currentSettings = owner.getAccountSettings();
-        if (currentSettings == null) {
-            currentSettings = new Owner.AccountSettings();
-        }
-        
-        // Update appearance settings
-        currentSettings.setTheme(settings.getTheme());
-        currentSettings.setLayout(settings.getLayout());
-        currentSettings.setCompactMode(settings.isCompactMode());
-        
-        owner.setAccountSettings(currentSettings);
-        storeOwnerRepository.save(owner);
-        return currentSettings;
-    }
-
-    @Transactional
-    public Owner.AccountSettings updateLanguageSettings(String userId, Owner.AccountSettings settings) {
-        Owner owner = getStoreOwner(userId);
-        Owner.AccountSettings currentSettings = owner.getAccountSettings();
-        if (currentSettings == null) {
-            currentSettings = new Owner.AccountSettings();
-        }
-        
-        // Update language settings
-        currentSettings.setLanguage(settings.getLanguage());
-        currentSettings.setRegion(settings.getRegion());
-        currentSettings.setNumberFormat(settings.getNumberFormat());
-        
-        owner.setAccountSettings(currentSettings);
-        storeOwnerRepository.save(owner);
-        return currentSettings;
-    }
-
-    @Transactional
-    public Owner.AccountSettings updatePrivacySettings(String userId, Owner.AccountSettings settings) {
-        Owner owner = getStoreOwner(userId);
-        Owner.AccountSettings currentSettings = owner.getAccountSettings();
-        if (currentSettings == null) {
-            currentSettings = new Owner.AccountSettings();
-        }
-        
-        // Update privacy settings
-        currentSettings.setProfileVisible(settings.isProfileVisible());
-        currentSettings.setActivityVisible(settings.isActivityVisible());
-        currentSettings.setStoreVisible(settings.isStoreVisible());
-        
-        owner.setAccountSettings(currentSettings);
-        storeOwnerRepository.save(owner);
-        return currentSettings;
-    }
-
-    @Transactional
-    public Owner.AccountSettings updateBillingSettings(String userId, Owner.AccountSettings settings) {
-        Owner owner = getStoreOwner(userId);
-        Owner.AccountSettings currentSettings = owner.getAccountSettings();
-        if (currentSettings == null) {
-            currentSettings = new Owner.AccountSettings();
-        }
-        
-        // Update billing settings
-        currentSettings.setBillingEmail(settings.getBillingEmail());
-        currentSettings.setBillingAddress(settings.getBillingAddress());
-        currentSettings.setTaxId(settings.getTaxId());
-        currentSettings.setPaymentMethods(settings.getPaymentMethods());
-        
-        owner.setAccountSettings(currentSettings);
-        storeOwnerRepository.save(owner);
-        return currentSettings;
-    }
-
-    @Transactional
-    public Owner.AccountSettings updateIntegrationSettings(String userId, Owner.AccountSettings settings) {
-        Owner owner = getStoreOwner(userId);
-        Owner.AccountSettings currentSettings = owner.getAccountSettings();
-        if (currentSettings == null) {
-            currentSettings = new Owner.AccountSettings();
-        }
-        
-        // Update integration settings
-        currentSettings.setApiKeys(settings.getApiKeys());
-        currentSettings.setConnectedServices(settings.getConnectedServices());
-        
-        owner.setAccountSettings(currentSettings);
-        storeOwnerRepository.save(owner);
-        return currentSettings;
-    }
-
     public AccountDTO updateProfile(String userId, AccountDTO accountDTO) {
-        // Add your profile update logic here
-        return accountDTO;
+        Owner owner = storeOwnerRepository.findById(userId)
+            .orElse(null);
+            
+        if (owner != null) {
+            owner.setFullName(accountDTO.getFullName());
+            Owner savedOwner = storeOwnerRepository.save(owner);
+            return mapToOwnerDTO(savedOwner);
+        }
+        
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        
+        user.setName(accountDTO.getFullName());
+        user.setPhone(accountDTO.getPhone());
+        User savedUser = userRepository.save(user);
+        return mapToUserDTO(savedUser);
     }
 
-    private Owner getStoreOwner(String userId) {
-        return storeOwnerRepository.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("Store owner not found"));
+    @Transactional
+    public void changePassword(String userId, ChangePasswordRequest request) {
+        Owner owner = storeOwnerRepository.findById(userId)
+            .orElse(null);
+            
+        if (owner != null) {
+            if (!passwordEncoder.matches(request.getCurrentPassword(), owner.getPassword())) {
+                throw new InvalidPasswordException("Current password is incorrect");
+            }
+            owner.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            storeOwnerRepository.save(owner);
+            return;
+        }
+        
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new InvalidPasswordException("Current password is incorrect");
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public AccountPreferencesDTO updatePreferences(String userId, AccountPreferencesDTO preferencesDTO) {
+        AccountPreferences preferences = preferencesRepository
+            .findByUserId(userId)
+            .orElse(new AccountPreferences());
+        
+        preferences.setUserId(userId);
+        preferences.setTheme(preferencesDTO.getTheme());
+        preferences.setFontSize(preferencesDTO.getFontSize());
+        preferences.setReducedMotion(preferencesDTO.isReducedMotion());
+        preferences.setLanguage(preferencesDTO.getLanguage());
+        preferences.setTimeZone(preferencesDTO.getTimeZone());
+        preferences.setDateFormat(preferencesDTO.getDateFormat());
+        preferences.setEmailNotifications(preferencesDTO.isEmailNotifications());
+        preferences.setPushNotifications(preferencesDTO.isPushNotifications());
+        preferences.setMarketingEmails(preferencesDTO.isMarketingEmails());
+        preferences.setProfileVisibility(preferencesDTO.getProfileVisibility());
+        preferences.setActivityStatus(preferencesDTO.isActivityStatus());
+        preferences.setDataSharing(preferencesDTO.isDataSharing());
+
+        AccountPreferences saved = preferencesRepository.save(preferences);
+        return mapToPreferencesDTO(saved);
+    }
+
+    @Transactional
+    public String updateAvatar(String userId, MultipartFile file) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        String avatarUrl = fileStorageService.storeFile(file);
+        user.setAvatarUrl(avatarUrl);
+        userRepository.save(user);
+
+        return avatarUrl;
+    }
+
+    private AccountPreferencesDTO mapToPreferencesDTO(AccountPreferences preferences) {
+        AccountPreferencesDTO dto = new AccountPreferencesDTO();
+        dto.setTheme(preferences.getTheme());
+        dto.setFontSize(preferences.getFontSize());
+        dto.setReducedMotion(preferences.isReducedMotion());
+        dto.setLanguage(preferences.getLanguage());
+        dto.setTimeZone(preferences.getTimeZone());
+        dto.setDateFormat(preferences.getDateFormat());
+        dto.setEmailNotifications(preferences.isEmailNotifications());
+        dto.setPushNotifications(preferences.isPushNotifications());
+        dto.setMarketingEmails(preferences.isMarketingEmails());
+        dto.setProfileVisibility(preferences.getProfileVisibility());
+        dto.setActivityStatus(preferences.isActivityStatus());
+        dto.setDataSharing(preferences.isDataSharing());
+        return dto;
     }
 } 

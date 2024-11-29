@@ -22,6 +22,7 @@ export const accountAPI = {
 
   updateProfile: async (profileData) => {
     try {
+      console.log('Sending profile data:', profileData);
       const response = await api.put('/api/accounts/me', profileData);
       return {
         success: true,

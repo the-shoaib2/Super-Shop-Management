@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.server.dto.accounts.settings.AccountSettingsDTO;
-import com.server.exception.common.ResourceNotFoundException;
 import com.server.model.accounts.AccountSettings;
 import com.server.repository.accounts.AccountSettingsRepository;
 

@@ -11,9 +11,10 @@ import com.server.util.ApiResponse;
 
 import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @RestController
-@RequestMapping("/api/account/settings")
+@RequestMapping("/api/me/settings")
 @RequiredArgsConstructor
 @Validated
 public class AccountSettingsController {
@@ -22,40 +23,40 @@ public class AccountSettingsController {
     
     @GetMapping
     public ResponseEntity<ApiResponse<AccountSettingsDTO>> getSettings(
-            @AuthenticationPrincipal String userId) {
+            @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(ApiResponse.success(
             "Settings retrieved successfully",
-            accountSettingsService.getSettings(userId)
+            accountSettingsService.getSettings(userDetails.getUsername())
         ));
     }
     
     @PutMapping("/language")
     public ResponseEntity<ApiResponse<AccountSettingsDTO.LanguageSettings>> updateLanguageSettings(
-            @AuthenticationPrincipal String userId,
+            @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody AccountSettingsDTO.LanguageSettings settings) {
         return ResponseEntity.ok(ApiResponse.success(
-            "Language settings updated",
-            accountSettingsService.updateLanguageSettings(userId, settings)
+            "Language settings updated successfully",
+            accountSettingsService.updateLanguageSettings(userDetails.getUsername(), settings)
         ));
     }
     
     @PutMapping("/appearance")
     public ResponseEntity<ApiResponse<AccountSettingsDTO.AppearanceSettings>> updateAppearanceSettings(
-            @AuthenticationPrincipal String userId,
+            @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody AccountSettingsDTO.AppearanceSettings settings) {
         return ResponseEntity.ok(ApiResponse.success(
-            "Appearance settings updated",
-            accountSettingsService.updateAppearanceSettings(userId, settings)
+            "Appearance settings updated successfully",
+            accountSettingsService.updateAppearanceSettings(userDetails.getUsername(), settings)
         ));
     }
     
     @PutMapping("/notifications")
     public ResponseEntity<ApiResponse<AccountSettingsDTO.NotificationSettings>> updateNotificationSettings(
-            @AuthenticationPrincipal String userId,
+            @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody AccountSettingsDTO.NotificationSettings settings) {
         return ResponseEntity.ok(ApiResponse.success(
-            "Notification settings updated",
-            accountSettingsService.updateNotificationSettings(userId, settings)
+            "Notification settings updated successfully",
+            accountSettingsService.updateNotificationSettings(userDetails.getUsername(), settings)
         ));
     }
 } 

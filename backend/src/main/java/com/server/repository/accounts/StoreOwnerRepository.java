@@ -10,5 +10,6 @@ import com.server.model.accounts.Owner;
 public interface StoreOwnerRepository extends MongoRepository<Owner, String> {
     Optional<Owner> findByEmail(String email);
     Optional<Owner> findByEmailOrId(String email, String id);
+    Optional<Owner> findByOwnerId(String ownerId);
     boolean existsByEmail(String email);
 }   
