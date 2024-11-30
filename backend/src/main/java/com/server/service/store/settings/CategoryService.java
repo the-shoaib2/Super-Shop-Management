@@ -105,15 +105,24 @@ public class CategoryService extends StoreAwareService {
     }
 
     public Category updateCategory(String categoryId, Category category) {
+        logger.debug("Updating category {} for store {}", categoryId, currentStoreId);
+        
         Category existingCategory = categoryRepository.findById(categoryId)
-            .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + categoryId));
+            .orElseThrow(() -> {
+                logger.error("Category not found with ID: {}", categoryId);
+                return new ResourceNotFoundException("Category not found with id: " + categoryId);
+            });
+        
         validateStore(existingCategory.getStoreId());
         
-        category.setId(categoryId);
-        category.setStoreId(currentStoreId);
-        category.setUpdatedAt(LocalDateTime.now());
+        // Preserve existing fields and update only what's provided
+        existingCategory.setName(category.getName());
+        existingCategory.setDescription(category.getDescription());
+        existingCategory.setStatus(category.getStatus());
+        existingCategory.setType(category.getType());
+        existingCategory.setUpdatedAt(LocalDateTime.now());
         
-        Category updatedCategory = categoryRepository.save(category);
+        Category updatedCategory = categoryRepository.save(existingCategory);
         logger.debug("Updated category: {} for store: {}", categoryId, currentStoreId);
         
         return updatedCategory;

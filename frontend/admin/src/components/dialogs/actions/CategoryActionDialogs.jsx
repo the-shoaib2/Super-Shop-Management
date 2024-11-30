@@ -58,9 +58,11 @@ export function CategoryActionDialog({ isOpen, onClose, category, onSuccess }) {
       const payload = {
         ...formData,
         name: formData.name.trim(),
-        description: formData.description.trim(),
+        description: formData.description?.trim() || '',
         storeId: currentStore.id
       }
+
+      console.log('Saving category with payload:', payload)
 
       const response = category 
         ? await storeAPI.updateStoreCategory(currentStore.id, category.id, payload)
@@ -73,11 +75,11 @@ export function CategoryActionDialog({ isOpen, onClose, category, onSuccess }) {
         }
         onClose()
       } else {
-        throw new Error(response.message || 'Failed to save category')
+        throw new Error(response.message || `Failed to ${category ? 'update' : 'create'} category`)
       }
     } catch (error) {
       console.error('Failed to save category:', error)
-      toast.error(error.message || 'Failed to save category')
+      toast.error(error.message || `Failed to ${category ? 'update' : 'create'} category`)
     } finally {
       setLoading(false)
     }
