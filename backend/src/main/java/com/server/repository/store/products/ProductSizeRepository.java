@@ -1,12 +1,9 @@
 package com.server.repository.store.products;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import com.server.model.store.products.ProductSize;
-import com.server.repository.store.base.StoreBaseRepository;
 import java.util.List;
 
-@Repository
-public interface ProductSizeRepository extends StoreBaseRepository<ProductSize, String> {
-    List<ProductSize> findByProductId(String productId);
+public interface ProductSizeRepository extends MongoRepository<ProductSize, String> {
     List<ProductSize> findByStoreId(String storeId);
 } 

@@ -87,25 +87,29 @@ export default function SizesList() {
 
       const sizeData = {
         name: newSize.name.trim(),
-        value: newSize.value.trim(),
-        productType: newSize.productType,
-        customLabel: newSize.customLabel,
-        customValue: newSize.customValue,
-        dimensions: newSize.dimensions
+        value: newSize.value.trim()
       }
 
-      const response = await storeAPI.addStoreSize(currentStore.id, sizeData)
+      let response;
+      
+      if (selectedSize) {
+        // Update existing size
+        response = await storeAPI.updateStoreSize(currentStore.id, selectedSize.id, sizeData)
+      } else {
+        // Create new size
+        response = await storeAPI.addStoreSize(currentStore.id, sizeData)
+      }
 
       if (response.success) {
         toast.success(`Size ${selectedSize ? 'updated' : 'added'} successfully`)
         setShowAddDialog(false)
         fetchSizes()
       } else {
-        throw new Error(response.message || 'Failed to add size')
+        throw new Error(response.message || `Failed to ${selectedSize ? 'update' : 'add'} size`)
       }
     } catch (error) {
-      console.error('Failed to add size:', error)
-      toast.error(error.message || 'Failed to add size')
+      console.error(`Failed to ${selectedSize ? 'update' : 'add'} size:`, error)
+      toast.error(error.message || `Failed to ${selectedSize ? 'update' : 'add'} size`)
     }
   }
 

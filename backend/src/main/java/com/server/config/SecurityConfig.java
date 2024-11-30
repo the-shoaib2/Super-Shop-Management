@@ -62,6 +62,14 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/store/public/**").permitAll()
                 .requestMatchers("/error").permitAll()
                 
+                // Store settings endpoints - require authentication
+                .requestMatchers("/api/stores/{storeId}/colors/**").authenticated()
+                .requestMatchers("/api/stores/{storeId}/sizes/**").authenticated()
+                .requestMatchers("/api/stores/{storeId}/categories/**").authenticated()
+                .requestMatchers("/api/stores/{storeId}/billboards/**").authenticated()
+                .requestMatchers("/api/stores/{storeId}/prices/**").authenticated()
+                .requestMatchers("/api/stores/{storeId}/products/**").authenticated()
+                
                 // Static resources
                 .requestMatchers("/favicon.ico").permitAll()
                 .requestMatchers("/static/**").permitAll()
@@ -90,7 +98,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList(
             adminFrontendUrl,
             storeFrontendUrl,
-            "http://localhost:5173", // Add your frontend dev server port
+            "http://localhost:5173",
             "http://localhost:3000"
         ));
         configuration.setAllowedMethods(Arrays.asList(

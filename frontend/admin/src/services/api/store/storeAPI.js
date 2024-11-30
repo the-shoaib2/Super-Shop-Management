@@ -133,13 +133,68 @@ export const storeAPI = {
     }
   },
 
-  addStoreSize: async (sizeData) => {
+  addStoreSize: async (storeId, sizeData) => {
     try {
-      const response = await api.post(`/api/stores/${sizeData.storeId}/sizes`, sizeData);
-      return response.data;
+      if (!storeId) {
+        return {
+          success: false,
+          message: 'Store ID is required'
+        }
+      }
+
+      const response = await api.post(`/api/stores/${storeId}/sizes`, sizeData)
+      return {
+        success: true,
+        data: response.data?.data
+      }
     } catch (error) {
-      console.error('Add size error:', error);
-      throw error;
+      console.error('Add size error:', error)
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to add size',
+        error
+      }
+    }
+  },
+
+  updateStoreSize: async (storeId, sizeId, sizeData) => {
+    try {
+      if (!storeId || !sizeId) {
+        return {
+          success: false,
+          message: 'Store ID and Size ID are required'
+        }
+      }
+
+      const response = await api.put(`/api/stores/${storeId}/sizes/${sizeId}`, sizeData)
+      return {
+        success: true,
+        data: response.data?.data
+      }
+    } catch (error) {
+      console.error('Update size error:', error)
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to update size',
+        error
+      }
+    }
+  },
+
+  deleteStoreSize: async (storeId, sizeId) => {
+    try {
+      const response = await api.delete(`/api/stores/${storeId}/sizes/${sizeId}`);
+      return {
+        success: true,
+        data: response.data?.data
+      };
+    } catch (error) {
+      console.error('Delete size error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to delete size',
+        error
+      };
     }
   },
 
