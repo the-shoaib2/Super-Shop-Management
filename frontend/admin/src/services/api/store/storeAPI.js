@@ -58,13 +58,27 @@ export const storeAPI = {
     }
   },
 
-  addStoreColor: async (colorData) => {
+  addStoreColor: async (storeId, colorData) => {
     try {
-      const response = await api.post(`/api/stores/${colorData.storeId}/colors`, colorData);
-      return response.data;
+      if (!storeId) {
+        return {
+          success: false,
+          message: 'Store ID is required'
+        }
+      }
+
+      const response = await api.post(`/api/stores/${storeId}/colors`, colorData)
+      return {
+        success: true,
+        data: response.data?.data
+      }
     } catch (error) {
-      console.error('Add color error:', error);
-      throw error;
+      console.error('Add color error:', error)
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to add color',
+        error
+      }
     }
   },
 

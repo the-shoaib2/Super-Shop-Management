@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
-import { FiPlus, FiEdit2, FiTrash2, FiCheck, FiX, FiDroplet, FiHash } from 'react-icons/fi'
+import { FiPlus, FiEdit2, FiTrash2, FiCheck, FiX, FiDroplet, FiHash, FiGrid, FiList, FiSquare } from 'react-icons/fi'
 import { toast } from 'react-hot-toast'
 import { useAuth } from '@/contexts/AuthContext'
 import { cn } from "@/lib/utils"
@@ -33,6 +33,7 @@ export default function ColorsList() {
     hex: '#000000',
     value: '#000000'
   })
+  const [viewMode, setViewMode] = useState('grid') // 'grid', 'list', or 'details'
 
   useEffect(() => {
     if (currentStore?.id) {
@@ -77,6 +78,11 @@ export default function ColorsList() {
           <DialogTitle className="text-xl font-semibold text-center">
             {selectedColor ? 'Edit Color' : 'Add New Color'}
           </DialogTitle>
+          <DialogDescription>
+            {selectedColor 
+              ? 'Edit the color details below.' 
+              : 'Add a new color by selecting a color and entering a name.'}
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-6 py-4">
@@ -209,8 +215,7 @@ export default function ColorsList() {
 
       const colorData = {
         name: newColor.name.trim(),
-        value: newColor.hex,
-        storeId: currentStore.id
+        value: newColor.hex
       }
 
       const response = await storeAPI.addStoreColor(currentStore.id, colorData)
@@ -251,71 +256,236 @@ export default function ColorsList() {
     return luma > 128
   }
 
-  return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Colors</h2>
-        <Button 
-          onClick={() => {
-            setSelectedColor(null)
-            setNewColor({ name: '', hex: '#000000', value: '#000000' })
-            setShowAddDialog(true)
-          }}
+  const renderViewModeButtons = () => (
+    <div className="inline-flex items-center overflow-hidden rounded-md border bg-white">
+      <div className="flex divide-x">
+        <button
+          className={cn(
+            "inline-flex items-center px-4 py-2 text-sm gap-2 transition-colors",
+            viewMode === 'grid' 
+              ? "bg-primary text-primary-foreground" 
+              : "hover:bg-muted"
+          )}
+          onClick={() => setViewMode('grid')}
         >
-          <FiPlus className="mr-2 h-4 w-4" />
-          Add Color
-        </Button>
-      </div>
+          <FiGrid className="h-4 w-4" />
+          <span className="hidden sm:inline">Grid</span>
+        </button>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {colors.map((color) => (
-          <div
-            key={color.id}
-            className="bg-white p-4 rounded-lg border hover:shadow-md transition-shadow"
-          >
-            <div className="flex items-center space-x-3">
+        <button
+          className={cn(
+            "inline-flex items-center px-4 py-2 text-sm gap-2 transition-colors",
+            viewMode === 'list' 
+              ? "bg-primary text-primary-foreground" 
+              : "hover:bg-muted"
+          )}
+          onClick={() => setViewMode('list')}
+        >
+          <FiList className="h-4 w-4" />
+          <span className="hidden sm:inline">List</span>
+        </button>
+
+        <button
+          className={cn(
+            "inline-flex items-center px-4 py-2 text-sm gap-2 transition-colors",
+            viewMode === 'details' 
+              ? "bg-primary text-primary-foreground" 
+              : "hover:bg-muted"
+          )}
+          onClick={() => setViewMode('details')}
+        >
+          <FiSquare className="h-4 w-4" />
+          <span className="hidden sm:inline">Details</span>
+        </button>
+      </div>
+    </div>
+  )
+
+  const renderGridView = () => (
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      {colors.map((color) => (
+        <div
+          key={color.id}
+          className="bg-white p-4 rounded-lg border hover:shadow-md transition-shadow"
+        >
+          <div className="flex flex-col items-center space-y-3">
+            <div
+              className="w-16 h-16 rounded-full border-4 shadow-inner"
+              style={{ 
+                backgroundColor: color.value,
+                borderColor: color.value === '#FFFFFF' ? '#e2e8f0' : color.value 
+              }}
+            />
+            <div className="text-center">
+              <h3 className="font-medium">{color.name}</h3>
+              <p className="text-sm text-gray-500">{color.value}</p>
+            </div>
+            <div className="flex space-x-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleEditColor(color)}
+              >
+                <FiEdit2 className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleDeleteColor(color.id)}
+              >
+                <FiTrash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+
+  const renderListView = () => (
+    <div className="space-y-2">
+      {colors.map((color) => (
+        <div
+          key={color.id}
+          className="bg-white p-3 rounded-lg border hover:shadow-md transition-shadow"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
               <div
-                className="w-12 h-12 rounded-full border shadow-inner"
-                style={{ backgroundColor: color.value }}
+                className="w-10 h-10 rounded-full border-2"
+                style={{ 
+                  backgroundColor: color.value,
+                  borderColor: color.value === '#FFFFFF' ? '#e2e8f0' : color.value 
+                }}
               />
-              <div className="flex-1">
+              <div>
                 <h3 className="font-medium">{color.name}</h3>
                 <p className="text-sm text-gray-500">{color.value}</p>
               </div>
-              <div className="flex space-x-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setSelectedColor(color)
-                    setNewColor({
-                      name: color.name,
-                      hex: color.value,
-                      value: color.value
-                    })
-                    setShowAddDialog(true)
-                  }}
-                >
-                  <FiEdit2 className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleDeleteColor(color.id)}
-                >
-                  <FiTrash2 className="h-4 w-4" />
-                </Button>
-              </div>
+            </div>
+            <div className="flex space-x-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleEditColor(color)}
+              >
+                <FiEdit2 className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleDeleteColor(color.id)}
+              >
+                <FiTrash2 className="h-4 w-4" />
+              </Button>
             </div>
           </div>
-        ))}
+        </div>
+      ))}
+    </div>
+  )
 
-        {colors.length === 0 && !loading && (
-          <div className="col-span-full text-center py-8 text-gray-500">
-            No colors found. Add some colors to get started.
+  const renderDetailsView = () => (
+    <div className="space-y-4">
+      {colors.map((color) => (
+        <div
+          key={color.id}
+          className="bg-white p-6 rounded-lg border hover:shadow-md transition-shadow"
+        >
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+            <div
+              className="w-24 h-24 rounded-lg border-4 shadow-inner"
+              style={{ 
+                backgroundColor: color.value,
+                borderColor: color.value === '#FFFFFF' ? '#e2e8f0' : color.value 
+              }}
+            />
+            <div className="flex-1 space-y-4">
+              <div>
+                <h3 className="text-lg font-medium">{color.name}</h3>
+                <p className="text-sm text-gray-500">{color.value}</p>
+              </div>
+              
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-500">Created:</span>
+                  <p>{new Date(color.createdAt).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <span className="text-gray-500">Last Updated:</span>
+                  <p>{new Date(color.updatedAt).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <span className="text-gray-500">Products:</span>
+                  <p>{color.productsCount || 0}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex sm:flex-col gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleEditColor(color)}
+                className="flex items-center gap-2"
+              >
+                <FiEdit2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Edit</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleDeleteColor(color.id)}
+                className="flex items-center gap-2 text-red-500 hover:text-red-600"
+              >
+                <FiTrash2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Delete</span>
+              </Button>
+            </div>
           </div>
-        )}
+        </div>
+      ))}
+    </div>
+  )
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h2 className="text-xl font-semibold">Colors</h2>
+        <div className="flex items-center gap-4 w-full sm:w-auto">
+          {renderViewModeButtons()}
+          <Button 
+            onClick={() => {
+              setSelectedColor(null)
+              setNewColor({ name: '', hex: '#000000', value: '#000000' })
+              setShowAddDialog(true)
+            }}
+            className="w-full sm:w-auto"
+          >
+            <FiPlus className="mr-2 h-4 w-4" />
+            Add Color
+          </Button>
+        </div>
       </div>
+
+      {/* Render appropriate view based on viewMode */}
+      {viewMode === 'grid' && renderGridView()}
+      {viewMode === 'list' && renderListView()}
+      {viewMode === 'details' && renderDetailsView()}
+
+      {colors.length === 0 && !loading && (
+        <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed">
+          <FiDroplet className="mx-auto h-12 w-12 text-gray-400" />
+          <h3 className="mt-2 text-sm font-medium text-gray-900">No colors</h3>
+          <p className="mt-1 text-sm text-gray-500">Get started by creating a new color.</p>
+          <div className="mt-6">
+            <Button onClick={() => setShowAddDialog(true)}>
+              <FiPlus className="mr-2 h-4 w-4" />
+              Add Color
+            </Button>
+          </div>
+        </div>
+      )}
 
       <ColorPickerDialog
         open={showAddDialog}

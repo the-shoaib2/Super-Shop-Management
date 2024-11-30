@@ -19,33 +19,31 @@ export default function StoreSwitcher() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (user?.email) {
-      fetchStores()
-    }
-  }, [user])
+    fetchStores()
+  }, [])
 
   const fetchStores = async () => {
     try {
       setLoading(true)
       const response = await storeAPI.getOwnerStores()
       
-      if (response?.success) {
+      if (response.success && response.data) {
         const validStores = response.data.filter(store => 
           store && store.id && store.name
         )
         
         setStores(validStores)
         
-        // Set current store if none is selected
         if (!currentStore && validStores.length > 0) {
-          handleStoreSwitch(validStores[0])
+          setCurrentStore(validStores[0])
         }
       } else {
-        throw new Error(response?.message || 'Failed to fetch stores')
+        console.error('Failed to fetch stores:', response.error)
+        toast.error(response.error || 'Failed to load stores')
       }
     } catch (error) {
       console.error('Failed to fetch stores:', error)
-      toast.error('Failed to load stores')
+      toast.error(error.response?.data?.message || 'Failed to load stores')
     } finally {
       setLoading(false)
     }
@@ -54,26 +52,16 @@ export default function StoreSwitcher() {
   const handleStoreSwitch = async (store) => {
     try {
       const response = await storeAPI.switchStore(store.id)
-      
-      if (response?.success) {
+      if (response.success) {
         setCurrentStore(store)
         setShowStoreDialog(false)
         toast.success(`Switched to ${store.name}`)
       } else {
-        throw new Error(response?.message || 'Failed to switch store')
+        throw new Error(response.message || 'Failed to switch store')
       }
     } catch (error) {
       console.error('Failed to switch store:', error)
-      toast.error('Failed to switch store')
-    }
-  }
-
-  const handleCreateStore = async (newStore) => {
-    try {
-      setShowCreateDialog(false)
-      await fetchStores() // Refresh stores list after creation
-    } catch (error) {
-      console.error('Error after store creation:', error)
+      toast.error(error.response?.data?.message || 'Failed to switch store')
     }
   }
 
@@ -92,7 +80,7 @@ export default function StoreSwitcher() {
             </span>
             {currentStore?.category && (
               <span className="text-xs text-muted-foreground">
-                {truncateText(currentStore.category, 25)}
+                {truncateText(currentStore.category, 15)}
               </span>
             )}
           </div>
@@ -121,7 +109,7 @@ export default function StoreSwitcher() {
                 onClick={() => handleStoreSwitch(store)}
               >
                 <div className="flex flex-col items-start">
-                  <span title={store.name}>{truncateText(store.name)}</span>
+                  <span title={store.name}>{truncateText(store.name, 20)}</span>
                   {store.category && (
                     <span className="text-xs text-muted-foreground" title={store.category}>
                       {truncateText(store.category, 25)}
@@ -141,8 +129,10 @@ export default function StoreSwitcher() {
 
       <CreateStoreDialog 
         open={showCreateDialog} 
-        onClose={() => setShowCreateDialog(false)}
-        onStoreCreated={handleCreateStore}
+        onClose={() => {
+          setShowCreateDialog(false)
+          fetchStores() // Refresh stores list after creation
+        }}
       />
     </>
   )

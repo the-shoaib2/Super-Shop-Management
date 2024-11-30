@@ -1,102 +1,66 @@
 package com.server.service.store.settings;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.server.service.store.base.StoreAwareService;
-import com.server.exception.common.ResourceNotFoundException;
-import com.server.model.store.products.ProductColor;
-import com.server.repository.store.products.ProductColorRepository;
-import com.server.repository.store.StoreRepository;
 import com.server.model.store.Store;
+import com.server.model.store.products.ProductColor;
+import com.server.repository.store.StoreRepository;
+import com.server.repository.store.products.ProductColorRepository;
+import com.server.service.store.base.AbstractStoreEntityService;
 
-import java.util.List;
 import java.time.LocalDateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.List;
 
 @Service
 @Transactional
-public class ColorService extends StoreAwareService {
-    private static final Logger logger = LoggerFactory.getLogger(ColorService.class);
-    
-    @Autowired
-    private ProductColorRepository colorRepository;
-    
-    @Autowired
-    private StoreRepository storeRepository;
-    
-    public List<ProductColor> getColors() {
-        logger.debug("Fetching colors for store: {}", currentStoreId);
-        return colorRepository.findByStoreId(currentStoreId);
+public class ColorService extends AbstractStoreEntityService<ProductColor, ProductColorRepository> {
+
+    public ColorService(ProductColorRepository repository, StoreRepository storeRepository) {
+        super(repository, storeRepository);
     }
-    
-    public ProductColor createColor(ProductColor color) {
-        logger.debug("Creating color for store {}: {}", currentStoreId, color);
-        
-        try {
-            // Validate input
-            if (color == null) {
-                throw new IllegalArgumentException("Color cannot be null");
-            }
-            if (color.getName() == null || color.getName().trim().isEmpty()) {
-                throw new IllegalArgumentException("Color name is required");
-            }
-            if (color.getValue() == null || color.getValue().trim().isEmpty()) {
-                throw new IllegalArgumentException("Color value is required");
-            }
-            
-            // Set store ID and metadata
-            color.setStoreId(currentStoreId);
-            color.setCreatedAt(LocalDateTime.now());
-            color.setUpdatedAt(LocalDateTime.now());
-            color.setActive(true);
-            
-            // Save and log
-            ProductColor savedColor = colorRepository.save(color);
-            logger.debug("Created color successfully: {}", savedColor);
-            return savedColor;
-            
-        } catch (Exception e) {
-            logger.error("Error creating color for store {}: {}", currentStoreId, e.getMessage());
-            throw e;
-        }
+
+    @Override
+    protected List<ProductColor> findByStoreId(String storeId) {
+        return repository.findByStoreId(storeId);
     }
-    
-    public void deleteColor(String colorId) {
-        logger.debug("Deleting color {} for store {}", colorId, currentStoreId);
-        
-        ProductColor color = colorRepository.findById(colorId)
-            .orElseThrow(() -> new ResourceNotFoundException("Color not found with id: " + colorId));
-            
-        validateStore(color.getStoreId());
-        colorRepository.delete(color);
-        
-        logger.debug("Deleted color {} successfully", colorId);
+
+    @Override
+    protected void setStoreId(ProductColor color, String storeId) {
+        color.setStoreId(storeId);
     }
-    
-    public ProductColor getColor(String id) {
-        logger.debug("Fetching color {} for store {}", id, currentStoreId);
-        
-        ProductColor color = colorRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Color not found with id: " + id));
-            
-        validateStore(color.getStoreId());
-        return color;
+
+    @Override
+    protected String getStoreId(ProductColor color) {
+        return color.getStoreId();
     }
-    
-    public ProductColor updateColor(ProductColor color) {
-        logger.debug("Updating color {} for store {}", color.getId(), currentStoreId);
-        
-        ProductColor existingColor = getColor(color.getId());
-        validateStore(existingColor.getStoreId());
-        
-        color.setStoreId(currentStoreId);
+
+    @Override
+    protected void setCreatedAt(ProductColor color) {
+        color.setCreatedAt(LocalDateTime.now());
+    }
+
+    @Override
+    protected void setUpdatedAt(ProductColor color) {
         color.setUpdatedAt(LocalDateTime.now());
-        
-        ProductColor updatedColor = colorRepository.save(color);
-        logger.debug("Updated color: {}", updatedColor);
-        return updatedColor;
+    }
+
+    @Override
+    protected void updateStoreEntity(Store store, ProductColor color) {
+        store.getColors().add(color);
+        storeRepository.save(store);
+    }
+
+    @Override
+    protected void removeFromStore(Store store, ProductColor color) {
+        store.getColors().removeIf(c -> c.getId().equals(color.getId()));
+        storeRepository.save(store);
+    }
+
+    @Override
+    public Page<ProductColor> findAllByStorePaginated(String storeId, Pageable pageable) {
+        return repository.findByStoreId(storeId, pageable);
     }
 } 
