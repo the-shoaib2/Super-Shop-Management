@@ -46,7 +46,7 @@ public class Owner {
     private String currentStoreId;
     
     // Account Settings
-    @DBRef
+    @DBRef(lazy = true)
     private AccountSettings accountSettings;
     
 
