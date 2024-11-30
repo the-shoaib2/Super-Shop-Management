@@ -1,3 +1,3 @@
-export { default as storeAPI } from './storeAPI';
-export { default as orderAPI } from './orderAPI';
-export { default as productAPI } from './productAPI'; 
+export { storeAPI } from './storeAPI';
+export { orderAPI } from './orderAPI';
+export { productAPI } from './productAPI'; 
