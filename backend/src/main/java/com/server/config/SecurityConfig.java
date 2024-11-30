@@ -16,6 +16,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.ComponentScan;
 
 import com.server.filter.JwtAuthenticationFilter;
 import com.server.util.TokenUtil;
@@ -23,6 +24,7 @@ import com.server.util.TokenUtil;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@ComponentScan(basePackages = "com.server.security")
 public class SecurityConfig {
 
     private final TokenUtil tokenUtil;
@@ -54,8 +56,11 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Health check endpoints - moved to top of the matchers
+                // Public endpoints
                 .requestMatchers(HttpMethod.GET, "/api/health", "/api/ping").permitAll()
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/v1/store/public/**").permitAll()
+                .requestMatchers("/error").permitAll()
                 
                 // Static resources
                 .requestMatchers("/favicon.ico").permitAll()
@@ -66,6 +71,10 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/v1/store/public/**").permitAll()
                 .requestMatchers("/error").permitAll()
+
+                // Account endpoints
+                .requestMatchers("/api/accounts/me").authenticated()
+                .requestMatchers("/api/accounts/**").authenticated()
                 
                 // Protected endpoints
                 .anyRequest().authenticated()
@@ -78,22 +87,15 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        
-        // Allow all origins during development
-        configuration.setAllowedOrigins(Arrays.asList("*"));
-        // Or use specific origins
-        /*
         configuration.setAllowedOrigins(Arrays.asList(
             adminFrontendUrl,
             storeFrontendUrl,
-            "http://localhost:8080"
+            "http://localhost:5173", // Add your frontend dev server port
+            "http://localhost:3000"
         ));
-        */
-        
         configuration.setAllowedMethods(Arrays.asList(
             "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
         ));
-        
         configuration.setAllowedHeaders(Arrays.asList(
             "Authorization",
             "Content-Type",
@@ -103,15 +105,12 @@ public class SecurityConfig {
             "Access-Control-Request-Method",
             "Access-Control-Request-Headers"
         ));
-        
         configuration.setExposedHeaders(Arrays.asList(
             "Authorization",
             "Access-Control-Allow-Origin",
             "Access-Control-Allow-Credentials"
         ));
-        
-        // Temporarily disable credentials requirement for development
-        configuration.setAllowCredentials(false);
+        configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { FiPlus, FiEdit2, FiTrash2, FiCheck, FiX, FiDroplet, FiHash } from 'react-icons/fi'
 import { toast } from 'react-hot-toast'
 import { useAuth } from '@/contexts/AuthContext'
 import { cn } from "@/lib/utils"
+import { storeAPI } from '@/services/api'
 
 const PRESET_COLORS = [
   { name: 'Red', hex: '#FF0000' },
@@ -32,6 +33,34 @@ export default function ColorsList() {
     hex: '#000000',
     value: '#000000'
   })
+
+  useEffect(() => {
+    if (currentStore?.id) {
+      fetchColors()
+    } else {
+      setColors([])
+    }
+  }, [currentStore])
+
+  const fetchColors = async () => {
+    try {
+      if (!currentStore?.id) {
+        setColors([])
+        return
+      }
+
+      setLoading(true)
+      const response = await storeAPI.getStoreColors(currentStore.id)
+      if (response.success) {
+        setColors(response.data || [])
+      }
+    } catch (error) {
+      console.error('Failed to fetch colors:', error)
+      toast.error('Failed to load colors')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleColorChange = (hex) => {
     setNewColor(prev => ({
@@ -168,37 +197,40 @@ export default function ColorsList() {
 
   const handleAddColor = async () => {
     try {
+      if (!currentStore?.id) {
+        toast.error('Please select a store first')
+        return
+      }
+
       if (!newColor.name.trim()) {
         toast.error('Please enter a color name')
         return
       }
 
-      if (!newColor.hex.match(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)) {
-        toast.error('Please enter a valid color code')
-        return
-      }
-
-      // API call to add/update color
-      const response = await storeAPI.addStoreColor({
+      const colorData = {
         name: newColor.name.trim(),
         value: newColor.hex,
         storeId: currentStore.id
-      })
+      }
+
+      const response = await storeAPI.addStoreColor(currentStore.id, colorData)
 
       if (response.success) {
         toast.success(`Color ${selectedColor ? 'updated' : 'added'} successfully`)
         setShowAddDialog(false)
         fetchColors()
+      } else {
+        throw new Error(response.message || 'Failed to add color')
       }
     } catch (error) {
       console.error('Failed to add color:', error)
-      toast.error('Failed to add color')
+      toast.error(error.message || 'Failed to add color')
     }
   }
 
   const handleDeleteColor = async (colorId) => {
     try {
-      await storeAPI.deleteStoreColor(colorId)
+      await storeAPI.deleteStoreColor(currentStore.id, colorId)
       toast.success('Color deleted successfully')
       fetchColors()
     } catch (error) {

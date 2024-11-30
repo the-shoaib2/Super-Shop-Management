@@ -1,7 +1,7 @@
 package com.server.filter;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -47,10 +47,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String email = claims.getSubject();
                 String fullName = claims.get("fullName", String.class);
                 
-                UserPrincipal principal = new UserPrincipal(userId, email, fullName);
+                UserPrincipal principal = new UserPrincipal(
+                    userId,
+                    email,
+                    "", // password not needed for token authentication
+                    Collections.singletonList("ROLE_USER") // default role
+                );
                 
                 UsernamePasswordAuthenticationToken authToken = 
-                    new UsernamePasswordAuthenticationToken(principal, null, new ArrayList<>());
+                    new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
                     
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }

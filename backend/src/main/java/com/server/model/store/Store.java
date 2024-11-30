@@ -6,12 +6,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.index.Indexed;
 import jakarta.validation.constraints.NotBlank;
+
 import com.server.model.store.products.Product;
+import com.server.model.store.products.ProductColor;
+import com.server.model.store.products.ProductSize;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -23,7 +27,7 @@ public class Store {
     @Id
     private String id;
     
-    @Indexed(unique = true)
+    @Indexed
     private String storeId;
     
     @NotBlank(message = "Store name is required")
@@ -44,9 +48,35 @@ public class Store {
     private String ownerEmail;
     
     @DBRef(lazy = true)
-    private List<Product> products;
+    private List<Product> products = new ArrayList<>();
+    
+    @DBRef(lazy = true)
+    private List<ProductColor> colors = new ArrayList<>();
+    
+    @DBRef(lazy = true)
+    private List<ProductSize> sizes = new ArrayList<>();
+    
+    @DBRef(lazy = true)
+    private List<Billboard> billboards = new ArrayList<>();
+    
+    @DBRef(lazy = true)
+    private List<Category> storeCategories = new ArrayList<>();
+    
+    @DBRef(lazy = true)
+    private List<Price> prices = new ArrayList<>();
     
     private boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    
+    public void initializeLists() {
+        if (products == null) products = new ArrayList<>();
+        if (colors == null) colors = new ArrayList<>();
+        if (sizes == null) sizes = new ArrayList<>();
+        if (billboards == null) billboards = new ArrayList<>();
+        if (storeCategories == null) storeCategories = new ArrayList<>();
+        if (prices == null) prices = new ArrayList<>();
+        if (categories == null) categories = new ArrayList<>();
+        if (tags == null) tags = new ArrayList<>();
+    }
 } 

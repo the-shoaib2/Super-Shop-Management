@@ -5,11 +5,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import com.server.model.store.Store;
-import com.server.repository.store.base.StoreBaseRepository;
+import com.server.repository.base.BaseRepository;
 import java.util.List;
 
 @Repository
-public interface StoreRepository extends StoreBaseRepository<Store, String> {
+public interface StoreRepository extends BaseRepository<Store, String> {
     @Query("{ 'ownerEmail': ?0 }")
     List<Store> findByOwnerEmail(String ownerEmail);
     

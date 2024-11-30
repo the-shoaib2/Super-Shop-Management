@@ -7,6 +7,5 @@ import java.util.List;
 
 @NoRepositoryBean
 public interface StoreBaseRepository<T, ID> extends BaseRepository<T, ID> {
-    @Query("{ 'storeId': ?0 }")
     List<T> findByStoreId(String storeId);
 } 

@@ -10,37 +10,27 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import com.server.model.store.products.Product;
 import com.server.service.store.settings.ProductService;
 import com.server.util.ApiResponse;
+import com.server.exception.store.StoreRequirementException;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class ProductsController {
     @Autowired
     private final ProductService productService;
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<Product>>> getAllProducts() {
-        try {
-            return ResponseEntity.ok(ApiResponse.success("Products retrieved successfully", 
-                productService.getAllProducts()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("Failed to retrieve products", null));
-        }
-    }
-
-    @GetMapping("/store/{storeId}")
+    @GetMapping("/stores/{storeId}/products")
     public ResponseEntity<ApiResponse<List<Product>>> getProductsByStore(@PathVariable String storeId) {
         try {
-            return ResponseEntity.ok(ApiResponse.success("Store products retrieved successfully",
-                productService.getProductsByStore(storeId)));
+            productService.setCurrentStore(storeId);
+            List<Product> products = productService.getProductsByStore(storeId);
+            return ResponseEntity.ok(ApiResponse.success("Store products retrieved successfully", products));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("Failed to retrieve store products", null));
+                .body(ApiResponse.error("Failed to retrieve store products: " + e.getMessage(), null));
         }
-
     }
 
     @GetMapping("/{id}")
@@ -49,15 +39,21 @@ public class ProductsController {
                 productService.getProduct(id)));
     }
 
-    @PostMapping
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<Product>> createProduct(@RequestBody Product product) {
+    @PostMapping("/stores/{storeId}/products")
+    @PreAuthorize("@storeSecurityService.isStoreOwner(#storeId, principal)")
+    public ResponseEntity<ApiResponse<Product>> createProduct(
+            @PathVariable String storeId,
+            @RequestBody Product product) {
         try {
+            productService.setCurrentStore(storeId);
             return ResponseEntity.ok(ApiResponse.success("Product created successfully",
                 productService.createProduct(product)));
+        } catch (StoreRequirementException e) {
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error("Store requirements not met: " + e.getMessage(), null));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("Failed to create product", null));
+                .body(ApiResponse.error("Failed to create product: " + e.getMessage(), null));
         }
     }
 

@@ -14,37 +14,32 @@ export function AuthProvider({ children }) {
   const location = useLocation()
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const initAuth = async () => {
       try {
-        const storedUser = localStorage.getItem('user')
-        if (storedUser && storedUser !== 'undefined') {
-          try {
-            setUser(JSON.parse(storedUser))
-          } catch (parseError) {
-            console.error('Failed to parse stored user:', parseError)
-            localStorage.removeItem('user')
-          }
-        } else {
-          // Only check auth if no stored user
-          const response = await authAPI.checkAuth()
-          if (response?.data) {
-            setUser(response.data)
-            localStorage.setItem('user', JSON.stringify(response.data))
-          }
+        setLoading(true)
+        const token = localStorage.getItem('token')
+        
+        if (!token) {
+          return
+        }
+
+        setAuthToken(token)
+        
+        const response = await authAPI.checkAuth()
+        if (response?.data) {
+          setUser(response.data)
+          localStorage.setItem('user', JSON.stringify(response.data))
         }
       } catch (error) {
-        console.error('Auth check failed:', error)
-        localStorage.removeItem('user')
-        if (location.pathname !== '/login' && location.pathname !== '/signup') {
-          navigate('/login')
-        }
+        console.error('Auth initialization failed:', error)
+        handleLogout()
       } finally {
         setLoading(false)
       }
     }
 
-    checkAuth()
-  }, [navigate, location.pathname])
+    initAuth()
+  }, [])
 
   const login = async (credentials) => {
     try {
@@ -148,7 +143,7 @@ export function AuthProvider({ children }) {
 
 export const useAuth = () => {
   const context = useContext(AuthContext)
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider')
   }
   return context

@@ -8,6 +8,7 @@ import com.server.exception.common.ResourceNotFoundException;
 import com.server.model.store.products.Product;
 import com.server.repository.store.products.ProductRepository;
 import com.server.service.store.base.StoreAwareService;
+import com.server.service.store.StoreRequirementsService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
 @Transactional
 public class ProductService extends StoreAwareService {
     private final ProductRepository productRepository;
+    private final StoreRequirementsService storeRequirementsService;
 
     public List<Product> getAllProducts() {
         return productRepository.findAll();
@@ -32,6 +34,8 @@ public class ProductService extends StoreAwareService {
     }
 
     public Product createProduct(Product product) {
+        storeRequirementsService.checkStoreRequirements(currentStoreId);
+        
         product.setCreatedAt(LocalDateTime.now());
         product.setUpdatedAt(LocalDateTime.now());
         product.setStoreId(currentStoreId);

@@ -12,9 +12,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.util.StringUtils;
 import org.springframework.lang.NonNull;
-
+import org.springframework.security.core.GrantedAuthority;
 import com.server.util.TokenUtil;
 import io.jsonwebtoken.Claims;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.Collection;
 
 import java.io.IOException;
 
@@ -37,8 +42,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String userId = claims.get("userId", String.class);
                 String email = claims.getSubject();
                 String fullName = claims.get("fullName", String.class);
-
-                UserPrincipal userPrincipal = new UserPrincipal(userId, email, fullName);
+                @SuppressWarnings("unchecked")
+                List<Map<String, String>> authoritiesList = claims.get("authorities", List.class);
+                Collection<GrantedAuthority> authorities = authoritiesList.stream()
+                    .map(item -> new SimpleGrantedAuthority(item.get("authority")))
+                    .collect(Collectors.toList());
+                UserPrincipal userPrincipal = new UserPrincipal(userId, email, fullName, authorities);
 
                 UsernamePasswordAuthenticationToken authentication = 
                     new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.getAuthorities());

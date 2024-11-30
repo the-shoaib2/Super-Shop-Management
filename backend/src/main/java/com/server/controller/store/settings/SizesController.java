@@ -12,18 +12,23 @@ import com.server.util.ApiResponse;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/{storeId}/sizes")
+@RequestMapping("/api/stores/{storeId}/sizes")
 @RequiredArgsConstructor
 public class SizesController {
     private final SizeService sizeService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<ProductSize>>> getSizes(@PathVariable String storeId) {
-        sizeService.setCurrentStore(storeId);
-        return ResponseEntity.ok(ApiResponse.success(
-            "Sizes retrieved successfully",
-            sizeService.getSizes()
-        ));
+        try {
+            sizeService.setCurrentStore(storeId);
+            return ResponseEntity.ok(ApiResponse.success(
+                "Sizes retrieved successfully",
+                sizeService.getSizes()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                .body(ApiResponse.error("Failed to retrieve sizes: " + e.getMessage(), null));
+        }
     }
 
     @PostMapping
@@ -31,11 +36,16 @@ public class SizesController {
     public ResponseEntity<ApiResponse<ProductSize>> createSize(
             @PathVariable String storeId,
             @RequestBody ProductSize size) {
-        sizeService.setCurrentStore(storeId);
-        return ResponseEntity.ok(ApiResponse.success(
-            "Size created successfully",
-            sizeService.createSize(size)
-        ));
+        try {
+            sizeService.setCurrentStore(storeId);
+            return ResponseEntity.ok(ApiResponse.success(
+                "Size created successfully",
+                sizeService.createSize(size)
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                .body(ApiResponse.error("Failed to create size: " + e.getMessage(), null));
+        }
     }
 
     @DeleteMapping("/{sizeId}")
@@ -43,8 +53,13 @@ public class SizesController {
     public ResponseEntity<ApiResponse<Void>> deleteSize(
             @PathVariable String storeId,
             @PathVariable String sizeId) {
-        sizeService.setCurrentStore(storeId);
-        sizeService.deleteSize(sizeId);
-        return ResponseEntity.ok(ApiResponse.success("Size deleted successfully", null));
+        try {
+            sizeService.setCurrentStore(storeId);
+            sizeService.deleteSize(sizeId);
+            return ResponseEntity.ok(ApiResponse.success("Size deleted successfully", null));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                .body(ApiResponse.error("Failed to delete size: " + e.getMessage(), null));
+        }
     }
 }

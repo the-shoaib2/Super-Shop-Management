@@ -3,8 +3,11 @@ package com.server.model.store.products;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.index.Indexed;
 import java.time.LocalDateTime;
-import java.util.List;
+
+import com.server.model.store.Store;
 
 @Data
 @Document(collection = "product_colors")
@@ -12,15 +15,18 @@ public class ProductColor {
     @Id
     private String id;
     private String name;
-    private String colorCode;    // Hex code
-    private String productId;
+    private String value;  // Hex color value
+    @Indexed
     private String storeId;
-    private Integer quantity;
-    private Integer availableQuantity;
+    @DBRef(lazy = true)
+    private Store store;
     private boolean isActive;
-    private boolean isEdited;
-    private List<String> editedList;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private String imageUrl;     // Color-specific product image
+
+    // Helper method to set store and storeId together
+    public void setStore(Store store) {
+        this.store = store;
+        this.storeId = store != null ? store.getId() : null;
+    }
 } 

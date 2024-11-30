@@ -12,18 +12,23 @@ import com.server.util.ApiResponse;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/{storeId}/billboards")
+@RequestMapping("/api/stores/{storeId}/billboards")
 @RequiredArgsConstructor
 public class BillboardsController {
     private final BillboardService billboardService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<Billboard>>> getBillboards(@PathVariable String storeId) {
-        billboardService.setCurrentStore(storeId);
-        return ResponseEntity.ok(ApiResponse.success(
-            "Billboards retrieved successfully", 
-            billboardService.getBillboards()
-        ));
+        try {
+            billboardService.setCurrentStore(storeId);
+            return ResponseEntity.ok(ApiResponse.success(
+                "Billboards retrieved successfully",
+                billboardService.getBillboards()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                .body(ApiResponse.error("Failed to retrieve billboards: " + e.getMessage(), null));
+        }
     }
 
     @PostMapping
@@ -31,11 +36,16 @@ public class BillboardsController {
     public ResponseEntity<ApiResponse<Billboard>> createBillboard(
             @PathVariable String storeId,
             @RequestBody Billboard billboard) {
-        billboardService.setCurrentStore(storeId);
-        return ResponseEntity.ok(ApiResponse.success(
-            "Billboard created successfully",
-            billboardService.createBillboard(billboard)
-        ));
+        try {
+            billboardService.setCurrentStore(storeId);
+            return ResponseEntity.ok(ApiResponse.success(
+                "Billboard created successfully",
+                billboardService.createBillboard(billboard)
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                .body(ApiResponse.error("Failed to create billboard: " + e.getMessage(), null));
+        }
     }
 
     @DeleteMapping("/{billboardId}")
@@ -43,8 +53,13 @@ public class BillboardsController {
     public ResponseEntity<ApiResponse<Void>> deleteBillboard(
             @PathVariable String storeId,
             @PathVariable String billboardId) {
-        billboardService.setCurrentStore(storeId);
-        billboardService.deleteBillboard(billboardId);
-        return ResponseEntity.ok(ApiResponse.success("Billboard deleted successfully", null));
+        try {
+            billboardService.setCurrentStore(storeId);
+            billboardService.deleteBillboard(billboardId);
+            return ResponseEntity.ok(ApiResponse.success("Billboard deleted successfully", null));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                .body(ApiResponse.error("Failed to delete billboard: " + e.getMessage(), null));
+        }
     }
 }

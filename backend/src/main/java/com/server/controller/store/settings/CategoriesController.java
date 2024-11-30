@@ -12,18 +12,23 @@ import com.server.util.ApiResponse;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/{storeId}/categories")
+@RequestMapping("/api/stores/{storeId}/categories")
 @RequiredArgsConstructor
 public class CategoriesController {
     private final CategoryService categoryService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<Category>>> getCategories(@PathVariable String storeId) {
-        categoryService.setCurrentStore(storeId);
-        return ResponseEntity.ok(ApiResponse.success(
-            "Categories retrieved successfully",
-            categoryService.getCategories()
-        ));
+        try {
+            categoryService.setCurrentStore(storeId);
+            return ResponseEntity.ok(ApiResponse.success(
+                "Categories retrieved successfully",
+                categoryService.getCategories()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                .body(ApiResponse.error("Failed to retrieve categories: " + e.getMessage(), null));
+        }
     }
 
     @PostMapping
@@ -31,20 +36,15 @@ public class CategoriesController {
     public ResponseEntity<ApiResponse<Category>> createCategory(
             @PathVariable String storeId,
             @RequestBody Category category) {
-        categoryService.setCurrentStore(storeId);
-        return ResponseEntity.ok(ApiResponse.success(
-            "Category created successfully",
-            categoryService.createCategory(category)
-        ));
-    }
-
-    @DeleteMapping("/{categoryId}")
-    @PreAuthorize("@storeSecurityService.isStoreOwner(#storeId, principal)")
-    public ResponseEntity<ApiResponse<Void>> deleteCategory(
-            @PathVariable String storeId,
-            @PathVariable String categoryId) {
-        categoryService.setCurrentStore(storeId);
-        categoryService.deleteCategory(categoryId);
-        return ResponseEntity.ok(ApiResponse.success("Category deleted successfully", null));
+        try {
+            categoryService.setCurrentStore(storeId);
+            return ResponseEntity.ok(ApiResponse.success(
+                "Category created successfully",
+                categoryService.createCategory(category)
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                .body(ApiResponse.error("Failed to create category: " + e.getMessage(), null));
+        }
     }
 }
