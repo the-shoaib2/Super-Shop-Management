@@ -1,14 +1,20 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { FiPlus, FiEdit2, FiTrash2, FiImage } from 'react-icons/fi'
+import { FiPlus } from 'react-icons/fi'
 import { toast } from 'react-hot-toast'
 import { useAuth } from '@/contexts/AuthContext'
+import { BillboardPickerDialog } from '@/components/dialogs/actions/BillboardActionDialogs'
+import { DeleteDialog } from '@/components/dialogs/actions/DeleteDialog'
+import { ViewModeSelector } from '@/components/views/ViewModeSelector'
+import { ProductViews } from '@/components/views/ProductViewImplementations'
 
 export default function BillboardsList() {
   const { currentStore } = useAuth()
   const [billboards, setBillboards] = useState([])
   const [showAddDialog, setShowAddDialog] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [selectedBillboard, setSelectedBillboard] = useState(null)
+  const [viewMode, setViewMode] = useState('grid')
   const [newBillboard, setNewBillboard] = useState({
     label: '',
     imageUrl: '',
@@ -21,6 +27,8 @@ export default function BillboardsList() {
   useEffect(() => {
     if (currentStore?.id) {
       fetchBillboards()
+    } else {
+      setBillboards([])
     }
   }, [currentStore])
 
@@ -30,22 +38,10 @@ export default function BillboardsList() {
       // API call to fetch billboards
       setBillboards([]) // Replace with actual API response
     } catch (error) {
+      console.error('Failed to fetch billboards:', error)
       toast.error('Failed to load billboards')
     } finally {
       setLoading(false)
-    }
-  }
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      setSelectedImage(file)
-      // Create preview URL
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setNewBillboard(prev => ({ ...prev, imageUrl: reader.result }))
-      }
-      reader.readAsDataURL(file)
     }
   }
 
@@ -73,145 +69,138 @@ export default function BillboardsList() {
     }
   }
 
+  const handleEditClick = (billboard) => {
+    setSelectedBillboard(billboard)
+    setNewBillboard({
+      label: billboard.label,
+      imageUrl: billboard.imageUrl,
+      description: billboard.description,
+      isActive: billboard.isActive
+    })
+    setShowAddDialog(true)
+  }
+
+  const handleDeleteClick = (billboard) => {
+    setSelectedBillboard(billboard)
+    setShowDeleteDialog(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await storeAPI.deleteStoreBillboard(currentStore.id, selectedBillboard.id)
+      toast.success('Billboard deleted successfully')
+      fetchBillboards()
+      setShowDeleteDialog(false)
+    } catch (error) {
+      console.error('Failed to delete billboard:', error)
+      toast.error('Failed to delete billboard')
+    }
+  }
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-48">
+      <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     )
   }
 
+  const ViewComponent = ProductViews.Billboards[
+    viewMode.charAt(0).toUpperCase() + viewMode.slice(1)
+  ]
+
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Billboards</h2>
-        <Button onClick={() => setShowAddDialog(true)}>
-          <FiPlus className="mr-2 h-4 w-4" />
-          Add Billboard
-        </Button>
+    <div className="space-y-4 bg-white rounded-lg shadow-sm">
+      <div className="p-4 sm:p-6 border-b">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-xl font-semibold text-gray-900 truncate">Billboards</h2>
+            <p className="mt-1 text-sm text-gray-500 hidden sm:block">
+              Manage your store's promotional billboards
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+            <ViewModeSelector 
+              viewMode={viewMode} 
+              onViewModeChange={setViewMode} 
+              className="w-full sm:w-auto"
+            />
+            <Button 
+              onClick={() => {
+                setSelectedBillboard(null)
+                setNewBillboard({
+                  label: '',
+                  imageUrl: '',
+                  description: '',
+                  isActive: true
+                })
+                setShowAddDialog(true)
+              }}
+              className="w-full sm:w-auto whitespace-nowrap"
+            >
+              <FiPlus className="mr-2 h-4 w-4" />
+              Add Billboard
+            </Button>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {billboards.map((billboard) => (
-          <div
-            key={billboard.id}
-            className="bg-white rounded-lg shadow-sm border overflow-hidden"
-          >
-            <div className="aspect-[16/9] relative">
-              <img
-                src={billboard.imageUrl}
-                alt={billboard.label}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-                <h3 className="text-white text-2xl font-bold text-center px-4">
-                  {billboard.label}
-                </h3>
-              </div>
-            </div>
-            <div className="p-4">
-              <p className="text-sm text-gray-600 mb-4">{billboard.description}</p>
-              <div className="flex justify-between items-center">
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  billboard.isActive 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-gray-100 text-gray-800'
-                }`}>
-                  {billboard.isActive ? 'Active' : 'Inactive'}
-                </span>
-                <div className="flex gap-2">
-                  <Button variant="ghost" size="sm">
-                    <FiEdit2 className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    <FiTrash2 className="h-4 w-4" />
-                  </Button>
-                </div>
+      <div className="p-4 sm:p-6">
+        {billboards.length > 0 ? (
+          <ViewComponent
+            items={billboards}
+            handleEditClick={handleEditClick}
+            handleDeleteClick={handleDeleteClick}
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed bg-gray-50/50 px-6 py-10">
+            <div className="text-center">
+              <h3 className="mt-2 text-sm font-semibold text-gray-900">No billboards</h3>
+              <p className="mt-1 text-sm text-gray-500">
+                Get started by creating a new billboard.
+              </p>
+              <div className="mt-6">
+                <Button 
+                  onClick={() => setShowAddDialog(true)}
+                  className="w-full sm:w-auto"
+                >
+                  <FiPlus className="mr-2 h-4 w-4" />
+                  Add Billboard
+                </Button>
               </div>
             </div>
           </div>
-        ))}
+        )}
       </div>
 
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Add Billboard</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleAddBillboard} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Label</label>
-              <input
-                type="text"
-                required
-                className="w-full p-2 border rounded-md"
-                value={newBillboard.label}
-                onChange={(e) => setNewBillboard({ ...newBillboard, label: e.target.value })}
-                placeholder="Summer Collection 2024"
-              />
-            </div>
+      <BillboardPickerDialog
+        isOpen={showAddDialog}
+        onClose={() => {
+          setShowAddDialog(false)
+          setSelectedBillboard(null)
+          setNewBillboard({
+            label: '',
+            imageUrl: '',
+            description: '',
+            isActive: true
+          })
+          setSelectedImage(null)
+        }}
+        onConfirm={handleAddBillboard}
+        billboard={selectedBillboard}
+        newBillboard={newBillboard}
+        onBillboardChange={setNewBillboard}
+        isEdit={!!selectedBillboard}
+      />
 
-            <div>
-              <label className="block text-sm font-medium mb-1">Description</label>
-              <textarea
-                className="w-full p-2 border rounded-md"
-                rows="3"
-                value={newBillboard.description}
-                onChange={(e) => setNewBillboard({ ...newBillboard, description: e.target.value })}
-                placeholder="Describe this billboard..."
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Image</label>
-              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md">
-                <div className="space-y-1 text-center">
-                  <FiImage className="mx-auto h-12 w-12 text-gray-400" />
-                  <div className="flex text-sm text-gray-600">
-                    <label className="relative cursor-pointer rounded-md font-medium text-primary hover:text-primary/90">
-                      <span>Upload a file</span>
-                      <input
-                        type="file"
-                        className="sr-only"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                      />
-                    </label>
-                    <p className="pl-1">or drag and drop</p>
-                  </div>
-                  <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
-                </div>
-              </div>
-              {newBillboard.imageUrl && (
-                <div className="mt-2">
-                  <img
-                    src={newBillboard.imageUrl}
-                    alt="Preview"
-                    className="h-32 w-full object-cover rounded-md"
-                  />
-                </div>
-              )}
-            </div>
-
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="isActive"
-                checked={newBillboard.isActive}
-                onChange={(e) => setNewBillboard({ ...newBillboard, isActive: e.target.checked })}
-                className="h-4 w-4 text-primary border-gray-300 rounded"
-              />
-              <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
-                Active
-              </label>
-            </div>
-
-            <Button type="submit" className="w-full">
-              Add Billboard
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <DeleteDialog
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Billboard"
+        itemName={selectedBillboard?.label}
+        itemType="billboard"
+      />
     </div>
   )
 } 
