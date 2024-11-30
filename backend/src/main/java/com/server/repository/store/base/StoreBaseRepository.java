@@ -1,7 +1,6 @@
 package com.server.repository.store.base;
 
 import org.springframework.data.repository.NoRepositoryBean;
-import org.springframework.data.mongodb.repository.Query;
 import com.server.repository.base.BaseRepository;
 import java.util.List;
 

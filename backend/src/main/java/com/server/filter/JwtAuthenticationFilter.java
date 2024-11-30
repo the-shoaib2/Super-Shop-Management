@@ -45,7 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (claims != null) {
                 String userId = claims.get("userId", String.class);
                 String email = claims.getSubject();
-                String fullName = claims.get("fullName", String.class);
+                // String fullName = claims.get("fullName", String.class);
                 
                 UserPrincipal principal = new UserPrincipal(
                     userId,
