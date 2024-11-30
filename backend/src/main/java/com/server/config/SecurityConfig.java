@@ -18,7 +18,7 @@ import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
 
-import com.server.filter.JwtAuthenticationFilter;
+import com.server.security.JwtAuthenticationFilter;
 import com.server.util.TokenUtil;
 
 @Configuration
@@ -61,6 +61,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/v1/store/public/**").permitAll()
                 .requestMatchers("/error").permitAll()
+
+                // Upload endpoints - require authentication
+                .requestMatchers("/api/upload/**").authenticated()
                 
                 // Store settings endpoints - require authentication
                 .requestMatchers("/api/stores/{storeId}/colors/**").authenticated()
@@ -73,7 +76,6 @@ public class SecurityConfig {
                 // Static resources
                 .requestMatchers("/favicon.ico").permitAll()
                 .requestMatchers("/static/**").permitAll()
-                .requestMatchers("/uploads/**").permitAll()
                 
                 // Public endpoints
                 .requestMatchers("/api/auth/**").permitAll()

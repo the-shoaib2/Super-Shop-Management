@@ -1,29 +1,25 @@
 package com.server.security;
 
+import java.io.IOException;
+import java.util.Arrays;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.lang.NonNull;
+
+import com.server.util.TokenUtil;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.util.StringUtils;
-import org.springframework.lang.NonNull;
-import org.springframework.security.core.GrantedAuthority;
-import com.server.util.TokenUtil;
 import io.jsonwebtoken.Claims;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.Collection;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
-
-@Component
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -32,41 +28,44 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response, 
+            @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
+        
         try {
-            String token = getTokenFromRequest(request);
+            String authHeader = request.getHeader("Authorization");
+            log.debug("Auth header: {}", authHeader);
+
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            String token = authHeader.substring(7);
+            Claims claims = tokenUtil.getClaimsFromToken(token);
             
-            if (StringUtils.hasText(token) && tokenUtil.validateToken(token)) {
-                Claims claims = tokenUtil.getClaimsFromToken(token);
+            if (claims != null && tokenUtil.validateToken(token)) {
                 String userId = claims.get("userId", String.class);
                 String email = claims.getSubject();
                 String fullName = claims.get("fullName", String.class);
-                @SuppressWarnings("unchecked")
-                List<Map<String, String>> authoritiesList = claims.get("authorities", List.class);
-                Collection<GrantedAuthority> authorities = authoritiesList.stream()
-                    .map(item -> new SimpleGrantedAuthority(item.get("authority")))
-                    .collect(Collectors.toList());
-                UserPrincipal userPrincipal = new UserPrincipal(userId, email, fullName, authorities);
-
+                
+                UserPrincipal principal = new UserPrincipal(
+                    userId,
+                    email,
+                    fullName,
+                    Arrays.asList(new SimpleGrantedAuthority("ROLE_USER"))
+                );
+                
                 UsernamePasswordAuthenticationToken authentication = 
-                    new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
+                    new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
+                    
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                log.debug("User authenticated: {}", email);
             }
         } catch (Exception e) {
-            logger.error("Cannot set user authentication", e);
+            log.error("Authentication error: ", e);
+            SecurityContextHolder.clearContext();
         }
-
+        
         filterChain.doFilter(request, response);
-    }
-
-    private String getTokenFromRequest(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
     }
 } 
