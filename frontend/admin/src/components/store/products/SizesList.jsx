@@ -129,6 +129,7 @@ export default function SizesList() {
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-xl font-semibold">Sizes</h2>
+     
         <div className="flex items-center gap-4 w-full sm:w-auto">
           <ViewModeSelector 
             viewMode={viewMode} 

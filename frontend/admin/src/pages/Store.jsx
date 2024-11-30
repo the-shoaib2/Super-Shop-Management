@@ -31,16 +31,16 @@ const SECTIONS = [
     path: '/store/sizes'
   },
   { 
-    id: 'billboards', 
-    label: 'Billboards', 
-    icon: FiLayout,
-    path: '/store/billboards'
-  },
-  { 
     id: 'categories', 
     label: 'Categories', 
     icon: FiTag,
     path: '/store/categories'
+  },  
+  { 
+    id: 'billboards', 
+    label: 'Billboards', 
+    icon: FiLayout,
+    path: '/store/billboards'
   },
   { 
     id: 'prices', 
@@ -91,8 +91,8 @@ export default function Products() {
           <Route path="products/*" element={<ProductsList />} />
           <Route path="colors/*" element={<ColorsList />} />
           <Route path="sizes/*" element={<SizesList />} />
-          <Route path="billboards/*" element={<BillboardsList />} />
           <Route path="categories/*" element={<CategoriesList />} />
+          <Route path="billboards/*" element={<BillboardsList />} />
           <Route path="prices/*" element={<PricesList />} />
           <Route path="*" element={<ProductsList />} />
         </Routes>

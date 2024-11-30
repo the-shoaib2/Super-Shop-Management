@@ -80,9 +80,7 @@ export default function CategoriesList() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex-1 min-w-0">
             <h2 className="text-xl font-semibold text-gray-900 truncate">Categories</h2>
-            <p className="mt-1 text-sm text-gray-500 hidden sm:block">
-              Manage your store's product categories
-            </p>
+
           </div>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
             <ViewModeSelector 
