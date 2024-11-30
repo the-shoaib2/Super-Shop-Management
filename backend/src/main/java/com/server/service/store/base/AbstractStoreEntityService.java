@@ -1,15 +1,13 @@
 package com.server.service.store.base;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.server.exception.common.ResourceNotFoundException;
 import com.server.model.store.Store;
 import com.server.repository.store.StoreRepository;
 
-import java.time.LocalDateTime;
+
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

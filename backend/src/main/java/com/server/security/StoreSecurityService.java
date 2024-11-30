@@ -3,8 +3,7 @@ package com.server.security;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.server.repository.store.StoreRepository;
-import com.server.model.store.Store;
-import com.server.security.UserPrincipal;
+
 
 @Service("storeSecurityService")
 public class StoreSecurityService {

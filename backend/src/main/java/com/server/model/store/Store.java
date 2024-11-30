@@ -47,21 +47,27 @@ public class Store {
     @Indexed
     private String ownerEmail;
     
+    @Builder.Default
     @DBRef(lazy = true)
     private List<Product> products = new ArrayList<>();
     
+    @Builder.Default
     @DBRef(lazy = true)
     private List<ProductColor> colors = new ArrayList<>();
     
+    @Builder.Default
     @DBRef(lazy = true)
     private List<ProductSize> sizes = new ArrayList<>();
     
+    @Builder.Default
     @DBRef(lazy = true)
     private List<Billboard> billboards = new ArrayList<>();
     
+    @Builder.Default
     @DBRef(lazy = true)
     private List<Category> storeCategories = new ArrayList<>();
     
+    @Builder.Default
     @DBRef(lazy = true)
     private List<Price> prices = new ArrayList<>();
     
