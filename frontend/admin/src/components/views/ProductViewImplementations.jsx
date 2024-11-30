@@ -182,6 +182,38 @@ const renderBillboardDetails = (billboard) => (
   </>
 )
 
+// Add Price Content Renderer
+const renderPriceContent = (price) => (
+  <div className="text-center">
+    <h3 className="font-medium text-lg">{price.name}</h3>
+    <p className="text-sm text-gray-500">{price.value}</p>
+  </div>
+)
+
+// Add Price Details Renderer
+const renderPriceDetails = (price) => (
+  <>
+    <div>
+      <h3 className="text-lg font-medium">{price.name}</h3>
+      <p className="text-sm text-gray-500">{price.value}</p>
+    </div>
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
+      <div>
+        <span className="text-gray-500">Created:</span>
+        <p>{new Date(price.createdAt).toLocaleDateString()}</p>
+      </div>
+      <div>
+        <span className="text-gray-500">Last Updated:</span>
+        <p>{new Date(price.updatedAt).toLocaleDateString()}</p>
+      </div>
+      <div>
+        <span className="text-gray-500">Products:</span>
+        <p>{price.productsCount || 0}</p>
+      </div>
+    </div>
+  </>
+)
+
 // Export View Components
 export const ProductViews = {
   Colors: {
@@ -203,5 +235,10 @@ export const ProductViews = {
     Grid: (props) => <BaseGridView {...props} renderContent={renderCategoryContent} />,
     List: (props) => <BaseListView {...props} renderContent={renderCategoryContent} />,
     Details: (props) => <BaseDetailsView {...props} renderContent={renderCategoryContent} renderDetails={renderCategoryDetails} />
+  },
+  Prices: {
+    Grid: (props) => <BaseGridView {...props} renderContent={renderPriceContent} />,
+    List: (props) => <BaseListView {...props} renderContent={renderPriceContent} />,
+    Details: (props) => <BaseDetailsView {...props} renderContent={renderPriceContent} renderDetails={renderPriceDetails} />
   }
 } 

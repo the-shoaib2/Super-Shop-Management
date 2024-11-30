@@ -3,10 +3,9 @@ import { Button } from '@/components/ui/button'
 import { FiPlus } from 'react-icons/fi'
 import { toast } from 'react-hot-toast'
 import { useAuth } from '@/contexts/AuthContext'
-import { storeAPI } from '@/services/api'
 import { DeleteDialog } from '@/components/dialogs/actions/DeleteDialog'
-import { ProductViews } from '@/components/views/ProductViewImplementations'
 import { ViewModeSelector } from '@/components/views/ViewModeSelector'
+import { ProductViews } from '@/components/views/ProductViewImplementations'
 
 export default function PricesList() {
   const { currentStore } = useAuth()
@@ -53,85 +52,96 @@ export default function PricesList() {
   const handleDeleteConfirm = async () => {
     try {
       await storeAPI.deleteStorePrice(currentStore.id, selectedPrice.id)
-      toast.success('Price range deleted successfully')
+      toast.success('Price deleted successfully')
       fetchPrices()
       setShowDeleteDialog(false)
     } catch (error) {
-      console.error('Failed to delete price range:', error)
-      toast.error('Failed to delete price range')
+      console.error('Failed to delete price:', error)
+      toast.error('Failed to delete price')
     }
   }
 
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h2 className="text-xl font-semibold">Price Ranges</h2>
-        <div className="flex items-center gap-4 w-full sm:w-auto">
-          <ViewModeSelector 
-            viewMode={viewMode} 
-            onViewModeChange={setViewMode} 
-          />
-          <Button 
-            onClick={() => {
-              setSelectedPrice(null)
-              setShowAddDialog(true)
-            }}
-            className="w-full sm:w-auto"
-          >
-            <FiPlus className="mr-2 h-4 w-4" />
-            Add Price Range
-          </Button>
-        </div>
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
+    )
+  }
 
-      {viewMode === 'grid' && (
-        <ProductViews.Prices.Grid 
-          items={prices} 
-          handleEditClick={handleEditClick}
-          handleDeleteClick={handleDeleteClick}
-        />
-      )}
-      {viewMode === 'list' && (
-        <ProductViews.Prices.List 
-          items={prices} 
-          handleEditClick={handleEditClick}
-          handleDeleteClick={handleDeleteClick}
-        />
-      )}
-      {viewMode === 'details' && (
-        <ProductViews.Prices.Details 
-          items={prices} 
-          handleEditClick={handleEditClick}
-          handleDeleteClick={handleDeleteClick}
-        />
-      )}
+  const ViewComponent = ProductViews.Prices[
+    viewMode.charAt(0).toUpperCase() + viewMode.slice(1)
+  ]
 
-      {/* Empty State */}
-      {prices.length === 0 && !loading && (
-        <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed">
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No price ranges</h3>
-          <p className="mt-1 text-sm text-gray-500">Get started by creating a new price range.</p>
-          <div className="mt-6">
-            <Button onClick={() => setShowAddDialog(true)}>
+  return (
+    <div className="space-y-4 bg-white rounded-lg shadow-sm">
+      <div className="p-4 sm:p-6 border-b">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-xl font-semibold text-gray-900 truncate">Prices</h2>
+            <p className="mt-1 text-sm text-gray-500 hidden sm:block">
+              Manage your store's product prices
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+            <ViewModeSelector 
+              viewMode={viewMode} 
+              onViewModeChange={setViewMode} 
+              className="w-full sm:w-auto"
+            />
+            <Button 
+              onClick={() => {
+                setSelectedPrice(null)
+                setShowAddDialog(true)
+              }}
+              className="w-full sm:w-auto whitespace-nowrap"
+            >
               <FiPlus className="mr-2 h-4 w-4" />
-              Add Price Range
+              Add Price
             </Button>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Dialogs */}
+      <div className="p-4 sm:p-6">
+        {prices.length > 0 ? (
+          <ViewComponent
+            items={prices}
+            handleEditClick={handleEditClick}
+            handleDeleteClick={handleDeleteClick}
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed bg-gray-50/50 px-6 py-10">
+            <div className="text-center">
+              <h3 className="mt-2 text-sm font-semibold text-gray-900">No prices</h3>
+              <p className="mt-1 text-sm text-gray-500">
+                Get started by creating a new price.
+              </p>
+              <div className="mt-6">
+                <Button 
+                  onClick={() => setShowAddDialog(true)}
+                  className="w-full sm:w-auto"
+                >
+                  <FiPlus className="mr-2 h-4 w-4" />
+                  Add Price
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Add/Edit Dialog Component */}
+      {/* ... Your price dialog component ... */}
+
       <DeleteDialog
         isOpen={showDeleteDialog}
         onClose={() => setShowDeleteDialog(false)}
         onConfirm={handleDeleteConfirm}
-        title="Delete Price Range"
+        title="Delete Price"
         itemName={selectedPrice?.name}
-        itemType="price range"
+        itemType="price"
       />
-
-      {/* Add/Edit Dialog Component */}
-      {/* ... Your existing dialog component ... */}
     </div>
   )
 } 
