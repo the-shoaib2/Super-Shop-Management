@@ -1,66 +1,51 @@
 package com.server.service.store.settings;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.server.model.store.Store;
 import com.server.model.store.products.ProductColor;
-import com.server.repository.store.StoreRepository;
 import com.server.repository.store.products.ProductColorRepository;
-import com.server.service.store.base.AbstractStoreEntityService;
+import com.server.exception.EntityNotFoundException;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-@Transactional
-public class ColorService extends AbstractStoreEntityService<ProductColor, ProductColorRepository> {
+@RequiredArgsConstructor
+public class ColorService {
+    private final ProductColorRepository colorRepository;
 
-    public ColorService(ProductColorRepository repository, StoreRepository storeRepository) {
-        super(repository, storeRepository);
+    public List<ProductColor> findAllByStore(String storeId) {
+        return colorRepository.findByStoreId(storeId);
     }
 
-    @Override
-    protected List<ProductColor> findByStoreId(String storeId) {
-        return repository.findByStoreId(storeId);
-    }
-
-    @Override
-    protected void setStoreId(ProductColor color, String storeId) {
+    @Transactional
+    public ProductColor create(ProductColor color, String storeId) {
         color.setStoreId(storeId);
+        return colorRepository.save(color);
     }
 
-    @Override
-    protected String getStoreId(ProductColor color) {
-        return color.getStoreId();
+    @Transactional
+    public ProductColor update(String storeId, ProductColor updatedColor) {
+        // First verify the color exists and belongs to the store
+        ProductColor existingColor = colorRepository.findByIdAndStoreId(updatedColor.getId(), storeId)
+            .orElseThrow(() -> new EntityNotFoundException(
+                "Color not found with id: " + updatedColor.getId() + " for store: " + storeId
+            ));
+
+        // Update the fields
+        existingColor.setName(updatedColor.getName());
+        existingColor.setValue(updatedColor.getValue());
+        
+        // Save and return the updated color
+        return colorRepository.save(existingColor);
     }
 
-    @Override
-    protected void setCreatedAt(ProductColor color) {
-        color.setCreatedAt(LocalDateTime.now());
-    }
-
-    @Override
-    protected void setUpdatedAt(ProductColor color) {
-        color.setUpdatedAt(LocalDateTime.now());
-    }
-
-    @Override
-    protected void updateStoreEntity(Store store, ProductColor color) {
-        store.getColors().add(color);
-        storeRepository.save(store);
-    }
-
-    @Override
-    protected void removeFromStore(Store store, ProductColor color) {
-        store.getColors().removeIf(c -> c.getId().equals(color.getId()));
-        storeRepository.save(store);
-    }
-
-    @Override
-    public Page<ProductColor> findAllByStorePaginated(String storeId, Pageable pageable) {
-        return repository.findByStoreId(storeId, pageable);
+    @Transactional
+    public void delete(String colorId) {
+        if (!colorRepository.existsById(colorId)) {
+            throw new EntityNotFoundException("Color not found with id: " + colorId);
+        }
+        colorRepository.deleteById(colorId);
     }
 } 

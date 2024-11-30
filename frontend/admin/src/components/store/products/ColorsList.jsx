@@ -15,7 +15,6 @@ import { ViewModeSelector } from '@/components/views/ViewModeSelector'
 export default function ColorsList() {
   const { currentStore } = useAuth()
   const [colors, setColors] = useState([])
-  const [showAddDialog, setShowAddDialog] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [showColorDialog, setShowColorDialog] = useState(false)
   const [selectedColor, setSelectedColor] = useState(null)
@@ -123,31 +122,50 @@ export default function ColorsList() {
         value: newColor.hex
       }
 
-      const response = await storeAPI.addStoreColor(currentStore.id, colorData)
+      let response;
+      
+      if (selectedColor) {
+        // Update existing color
+        response = await storeAPI.updateStoreColor(currentStore.id, selectedColor.id, colorData)
+      } else {
+        // Create new color
+        response = await storeAPI.addStoreColor(currentStore.id, colorData)
+      }
 
       if (response.success) {
         toast.success(`Color ${selectedColor ? 'updated' : 'added'} successfully`)
-        setShowAddDialog(false)
+        setShowColorDialog(false)
         fetchColors()
       } else {
-        throw new Error(response.message || 'Failed to add color')
+        throw new Error(response.message || `Failed to ${selectedColor ? 'update' : 'add'} color`)
       }
     } catch (error) {
-      console.error('Failed to add color:', error)
-      toast.error(error.message || 'Failed to add color')
+      console.error(`Failed to ${selectedColor ? 'update' : 'add'} color:`, error)
+      toast.error(error.message || `Failed to ${selectedColor ? 'update' : 'add'} color`)
     }
   }
 
   const handleDeleteColor = async (colorId) => {
     try {
-      await storeAPI.deleteStoreColor(currentStore.id, colorId)
-      toast.success('Color deleted successfully')
-      fetchColors()
+      if (!currentStore?.id) {
+        toast.error('Store not selected');
+        return;
+      }
+
+      const response = await storeAPI.deleteStoreColor(currentStore.id, colorId);
+      
+      if (response.success) {
+        toast.success('Color deleted successfully');
+        fetchColors();
+      } else {
+        throw new Error(response.message || 'Failed to delete color');
+      }
     } catch (error) {
-      console.error('Failed to delete color:', error)
-      toast.error('Failed to delete color')
+      console.error('Failed to delete color:', error);
+      toast.error(error.message || 'Failed to delete color');
+      throw error; // Re-throw to be handled by the caller
     }
-  }
+  };
 
   const isLightColor = (hex) => {
     const c = hex.substring(1)  // strip #
@@ -161,6 +179,16 @@ export default function ColorsList() {
     return luma > 128
   }
 
+  const handleAddClick = () => {
+    setSelectedColor(null)
+    setNewColor({ 
+      name: '', 
+      hex: '#000000', 
+      value: '#000000' 
+    })
+    setShowColorDialog(true)
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -171,11 +199,7 @@ export default function ColorsList() {
             onViewModeChange={setViewMode} 
           />
           <Button 
-            onClick={() => {
-              setSelectedColor(null)
-              setNewColor({ name: '', hex: '#000000', value: '#000000' })
-              setShowAddDialog(true)
-            }}
+            onClick={handleAddClick}
             className="w-full sm:w-auto"
           >
             <FiPlus className="mr-2 h-4 w-4" />
@@ -213,7 +237,7 @@ export default function ColorsList() {
           <h3 className="mt-2 text-sm font-medium text-gray-900">No colors</h3>
           <p className="mt-1 text-sm text-gray-500">Get started by creating a new color.</p>
           <div className="mt-6">
-            <Button onClick={() => setShowAddDialog(true)}>
+            <Button onClick={handleAddClick}>
               <FiPlus className="mr-2 h-4 w-4" />
               Add Color
             </Button>

@@ -82,6 +82,47 @@ export const storeAPI = {
     }
   },
 
+  updateStoreColor: async (storeId, colorId, colorData) => {
+    try {
+      if (!storeId || !colorId) {
+        return {
+          success: false,
+          message: 'Store ID and Color ID are required'
+        }
+      }
+
+      const response = await api.put(`/api/stores/${storeId}/colors/${colorId}`, colorData)
+      return {
+        success: true,
+        data: response.data?.data
+      }
+    } catch (error) {
+      console.error('Update color error:', error)
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to update color',
+        error
+      }
+    }
+  },
+
+  deleteStoreColor: async (storeId, colorId) => {
+    try {
+      const response = await api.delete(`/api/stores/${storeId}/colors/${colorId}`);
+      return {
+        success: true,
+        data: response.data?.data
+      };
+    } catch (error) {
+      console.error('Delete color error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to delete color',
+        error
+      };
+    }
+  },
+
   getStoreSizes: async (storeId) => {
     try {
       const response = await api.get(`/api/stores/${storeId}/sizes`);

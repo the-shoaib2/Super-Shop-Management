@@ -19,17 +19,17 @@ export const DeleteDialog = ({
       confirmText="Delete"
       confirmVariant="destructive"
     >
-      <div className="flex flex-col items-center gap-4 py-4">
-        <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center">
-          <FiAlertTriangle className="h-6 w-6 text-red-600" />
+      <div className="flex items-start gap-3 py-2">
+        <div className="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+          <FiAlertTriangle className="h-4 w-4 text-red-600" />
         </div>
         
-        <div className="text-center space-y-2">
-          <h3 className="font-semibold text-lg">
-            Are you sure you want to delete this {itemType}?
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            {message || `"${itemName}" will be permanently removed. This action cannot be undone.`}
+        <div className="space-y-1">
+          <p className="text-sm font-medium text-gray-900">
+            Are you sure you want to delete {itemType} "{itemName}"?
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {message || "This action cannot be undone."}
           </p>
         </div>
       </div>

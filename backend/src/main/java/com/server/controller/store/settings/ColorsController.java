@@ -44,6 +44,22 @@ public class ColorsController {
         }
     }
 
+    @PutMapping("/{colorId}")
+    @PreAuthorize("@storeSecurityService.isStoreOwner(#storeId, principal)")
+    public ResponseEntity<ApiResponse<ProductColor>> updateColor(
+            @PathVariable String storeId,
+            @PathVariable String colorId,
+            @Valid @RequestBody ProductColor color) {
+        try {
+            color.setId(colorId); // Ensure the ID is set for update
+            ProductColor updated = colorService.update(storeId, color);
+            return ResponseEntity.ok(ApiResponse.success("Color updated successfully", updated));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                .body(ApiResponse.error("Failed to update color: " + e.getMessage(), null));
+        }
+    }
+
     @DeleteMapping("/{colorId}")
     @PreAuthorize("@storeSecurityService.isStoreOwner(#storeId, principal)")
     public ResponseEntity<ApiResponse<Void>> deleteColor(
