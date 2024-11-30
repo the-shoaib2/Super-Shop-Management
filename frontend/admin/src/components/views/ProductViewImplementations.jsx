@@ -215,6 +215,29 @@ const renderPriceDetails = (price) => (
   </>
 )
 
+const renderCategoryDetails = (category) => (
+  <>
+    <div>
+      <h3 className="text-lg font-medium">{category.name}</h3>
+      <p className="text-sm text-gray-500">{category.description}</p>
+    </div>
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
+      <div>
+        <span className="text-gray-500">Products:</span>
+        <p>{category.productsCount || 0}</p>
+      </div>
+      <div>
+        <span className="text-gray-500">Created:</span>
+        <p>{new Date(category.createdAt).toLocaleDateString()}</p>
+      </div>
+      <div>
+        <span className="text-gray-500">Status:</span>
+        <p>{category.active ? 'Active' : 'Inactive'}</p>
+      </div>
+    </div>
+  </>
+)
+
 // Export View Components
 export const ProductViews = {
   Colors: {

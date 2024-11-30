@@ -249,9 +249,15 @@ export default function Dashboard() {
                   <h1 className="text-xl font-semibold text-gray-900">
                     {(currentStore?.name && currentStore?.name.length > 0) ? currentStore.name : 'No Store Selected'}
                   </h1>
-                  <p className="text-sm text-muted-foreground">
-                    {currentStore?.description || 'No description available'}
-                  </p>
+                  <div className="flex items-center space-x-2">
+                    <p className="text-sm text-muted-foreground">
+                      {currentStore?.description || 'No description available'}
+                    </p>
+                    <span className="text-sm text-muted-foreground">•</span>
+                    <span className="text-sm font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                      {currentStore?.category || 'Uncategorized'}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
