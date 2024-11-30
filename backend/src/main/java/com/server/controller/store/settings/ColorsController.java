@@ -10,10 +10,8 @@ import com.server.model.store.products.ProductColor;
 import com.server.service.store.settings.ColorService;
 import com.server.util.ApiResponse;
 
-
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 @RestController
 @RequestMapping("/api/stores/{storeId}/colors")
