@@ -7,6 +7,7 @@ import { storeAPI } from '@/services/api'
 import { DeleteDialog } from '@/components/dialogs/actions/DeleteDialog'
 import { ProductViews } from '@/components/views/ProductViewImplementations'
 import { ViewModeSelector } from '@/components/views/ViewModeSelector'
+import { CategoryActionDialog } from '@/components/dialogs/actions/CategoryActionDialogs'
 
 export default function CategoriesList() {
   const { currentStore } = useAuth()
@@ -17,20 +18,23 @@ export default function CategoriesList() {
   const [loading, setLoading] = useState(true)
   const [viewMode, setViewMode] = useState('grid')
 
-  useEffect(() => {
-    if (currentStore?.id) {
-      fetchCategories()
-    } else {
-      setCategories([])
-    }
-  }, [currentStore])
-
   const fetchCategories = async () => {
+    if (!currentStore?.id) {
+      setCategories([])
+      setLoading(false)
+      return
+    }
+
     try {
       setLoading(true)
+      console.log('Fetching categories for store:', currentStore.id)
       const response = await storeAPI.getStoreCategories(currentStore.id)
+      console.log('Categories response:', response)
+
       if (response.success) {
         setCategories(response.data || [])
+      } else {
+        toast.error(response.message || 'Failed to load categories')
       }
     } catch (error) {
       console.error('Failed to fetch categories:', error)
@@ -38,6 +42,15 @@ export default function CategoriesList() {
     } finally {
       setLoading(false)
     }
+  }
+
+  useEffect(() => {
+    fetchCategories()
+  }, [currentStore])
+
+  const handleSuccess = () => {
+    console.log('Category operation successful, refreshing list...')
+    fetchCategories()
   }
 
   const handleEditClick = (category) => {
@@ -130,8 +143,12 @@ export default function CategoriesList() {
         )}
       </div>
 
-      {/* Add/Edit Dialog Component */}
-      {/* ... Your existing dialog component ... */}
+      <CategoryActionDialog
+        isOpen={showAddDialog}
+        onClose={() => setShowAddDialog(false)}
+        category={selectedCategory}
+        onSuccess={handleSuccess}
+      />
 
       <DeleteDialog
         isOpen={showDeleteDialog}

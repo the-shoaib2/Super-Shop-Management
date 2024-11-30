@@ -201,20 +201,68 @@ export const storeAPI = {
   getStoreCategories: async (storeId) => {
     try {
       const response = await api.get(`/api/stores/${storeId}/categories`);
-      return response.data;
+      return {
+        success: true,
+        data: response.data?.data || []
+      };
     } catch (error) {
       console.error('Get categories error:', error);
-      throw error;
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch categories',
+        error
+      };
     }
   },
 
-  addStoreCategory: async (categoryData) => {
+  createStoreCategory: async (storeId, categoryData) => {
     try {
-      const response = await api.post(`/api/stores/${categoryData.storeId}/categories`, categoryData);
-      return response.data;
+      const response = await api.post(`/api/stores/${storeId}/categories`, categoryData);
+      return {
+        success: true,
+        data: response.data?.data
+      };
     } catch (error) {
-      console.error('Add category error:', error);
-      throw error;
+      console.error('Create category error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to create category',
+        error
+      };
+    }
+  },
+
+  updateStoreCategory: async (storeId, categoryId, categoryData) => {
+    try {
+      const response = await api.put(`/api/stores/${storeId}/categories/${categoryId}`, categoryData);
+      return {
+        success: true,
+        data: response.data?.data
+      };
+    } catch (error) {
+      console.error('Update category error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to update category',
+        error
+      };
+    }
+  },
+
+  deleteStoreCategory: async (storeId, categoryId) => {
+    try {
+      const response = await api.delete(`/api/stores/${storeId}/categories/${categoryId}`);
+      return {
+        success: true,
+        data: response.data?.data
+      };
+    } catch (error) {
+      console.error('Delete category error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to delete category',
+        error
+      };
     }
   },
 
