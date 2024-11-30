@@ -234,21 +234,11 @@ export const storeAPI = {
 
   updateStoreCategory: async (storeId, categoryId, categoryData) => {
     try {
-      console.log('Updating category:', { storeId, categoryId, categoryData });
-      
-      const response = await api.put(
-        `/api/stores/${storeId}/categories/${categoryId}`, 
-        categoryData
-      );
-      
-      if (response.data?.success) {
-        return {
-          success: true,
-          data: response.data.data
-        };
-      }
-      
-      throw new Error(response.data?.message || 'Failed to update category');
+      const response = await api.put(`/api/stores/${storeId}/categories/${categoryId}`, categoryData);
+      return {
+        success: true,
+        data: response.data?.data
+      };
     } catch (error) {
       console.error('Update category error:', error);
       return {

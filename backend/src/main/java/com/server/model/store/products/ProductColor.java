@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import com.server.model.store.Store;
 
 @Data
-@Document(collection = "product_colors")
+@Document(collection = "colors")
 public class ProductColor {
     @Id
     private String id;

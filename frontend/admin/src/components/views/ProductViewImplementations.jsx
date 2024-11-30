@@ -106,46 +106,17 @@ const renderBillboardContent = (billboard) => (
 )
 
 const renderCategoryContent = (category) => (
-  <div className="text-center">
-    <h3 className="font-medium text-lg">{category.name}</h3>
-    {category.description && (
-      <p className="text-sm text-gray-500 line-clamp-2">{category.description}</p>
-    )}
-  </div>
-)
-
-const renderCategoryDetails = (category) => (
-  <div className="space-y-4">
-    <div>
-      <h3 className="text-sm font-medium text-gray-500">Name</h3>
-      <p className="mt-1 text-sm text-gray-900">{category.name}</p>
-    </div>
-
-    {category.description && (
-      <div>
-        <h3 className="text-sm font-medium text-gray-500">Description</h3>
-        <p className="mt-1 text-sm text-gray-900">{category.description}</p>
+  <>
+    {category.imageUrl && (
+      <div className="aspect-square w-full relative mb-3">
+        <img src={category.imageUrl} alt={category.name} className="w-full h-full object-cover rounded-md" />
       </div>
     )}
-
-    <div className="grid grid-cols-2 gap-4">
-      <div>
-        <h3 className="text-sm font-medium text-gray-500">Created</h3>
-        <p className="mt-1 text-sm text-gray-900">
-          {formatDate(category.createdAt)}
-        </p>
-      </div>
-
-      {category.updatedAt && (
-        <div>
-          <h3 className="text-sm font-medium text-gray-500">Last Updated</h3>
-          <p className="mt-1 text-sm text-gray-900">
-            {formatDate(category.updatedAt)}
-          </p>
-        </div>
-      )}
+    <div className="text-center">
+      <h3 className="font-medium">{category.name}</h3>
+      <p className="text-sm text-gray-500">{category.description}</p>
     </div>
-  </div>
+  </>
 )
 
 // Details Renderers
