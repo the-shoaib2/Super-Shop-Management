@@ -7,6 +7,12 @@ import { BillboardPickerDialog } from '@/components/dialogs/actions/BillboardAct
 import { DeleteDialog } from '@/components/dialogs/actions/DeleteDialog'
 import { ViewModeSelector } from '@/components/views/ViewModeSelector'
 import { ProductViews } from '@/components/views/ProductViewImplementations'
+import { storeAPI } from '@/services/api'
+
+// Add temporary file storage utility
+const createTempFileUrl = (file) => {
+  return URL.createObjectURL(file)
+}
 
 export default function BillboardsList() {
   const { currentStore } = useAuth()
@@ -23,6 +29,7 @@ export default function BillboardsList() {
   })
   const [loading, setLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState(null)
+  const [tempImageUrl, setTempImageUrl] = useState(null)
 
   useEffect(() => {
     if (currentStore?.id) {
@@ -35,8 +42,12 @@ export default function BillboardsList() {
   const fetchBillboards = async () => {
     try {
       setLoading(true)
-      // API call to fetch billboards
-      setBillboards([]) // Replace with actual API response
+      const response = await storeAPI.getStoreBillboards(currentStore.id)
+      if (response.success) {
+        setBillboards(response.data || [])
+      } else {
+        throw new Error(response.message || 'Failed to fetch billboards')
+      }
     } catch (error) {
       console.error('Failed to fetch billboards:', error)
       toast.error('Failed to load billboards')
@@ -53,20 +64,67 @@ export default function BillboardsList() {
         return
       }
 
+      if (!newBillboard.label.trim()) {
+        toast.error('Please enter a label')
+        return
+      }
+
       // Create form data for API call
       const formData = new FormData()
       formData.append('image', selectedImage)
-      formData.append('label', newBillboard.label)
-      formData.append('description', newBillboard.description)
+      formData.append('label', newBillboard.label.trim())
+      formData.append('description', newBillboard.description.trim())
       formData.append('isActive', newBillboard.isActive)
 
-      // API call to add billboard
-      toast.success('Billboard added successfully')
-      setShowAddDialog(false)
-      fetchBillboards()
+      let response;
+      if (selectedBillboard) {
+        // Update existing billboard
+        response = await storeAPI.updateStoreBillboard(
+          currentStore.id, 
+          selectedBillboard.id, 
+          formData
+        )
+      } else {
+        // Create new billboard
+        response = await storeAPI.createStoreBillboard(
+          currentStore.id, 
+          formData
+        )
+      }
+
+      if (response.success) {
+        toast.success(`Billboard ${selectedBillboard ? 'updated' : 'added'} successfully`)
+        setShowAddDialog(false)
+        fetchBillboards()
+        
+        // Cleanup temporary file
+        if (tempImageUrl) {
+          URL.revokeObjectURL(tempImageUrl)
+          setTempImageUrl(null)
+        }
+      } else {
+        throw new Error(response.message || `Failed to ${selectedBillboard ? 'update' : 'add'} billboard`)
+      }
     } catch (error) {
-      toast.error('Failed to add billboard')
+      console.error('Failed to handle billboard:', error)
+      toast.error(error.message || 'Failed to process billboard')
     }
+  }
+
+  const handleImageSelect = (file) => {
+    // Cleanup previous temporary file if exists
+    if (tempImageUrl) {
+      URL.revokeObjectURL(tempImageUrl)
+    }
+
+    // Create new temporary file URL
+    const newTempUrl = createTempFileUrl(file)
+    setTempImageUrl(newTempUrl)
+    setSelectedImage(file)
+    setNewBillboard(prev => ({
+      ...prev,
+      imageUrl: newTempUrl
+    }))
   }
 
   const handleEditClick = (billboard) => {
@@ -87,15 +145,32 @@ export default function BillboardsList() {
 
   const handleDeleteConfirm = async () => {
     try {
-      await storeAPI.deleteStoreBillboard(currentStore.id, selectedBillboard.id)
-      toast.success('Billboard deleted successfully')
-      fetchBillboards()
-      setShowDeleteDialog(false)
+      const response = await storeAPI.deleteStoreBillboard(
+        currentStore.id, 
+        selectedBillboard.id
+      )
+      
+      if (response.success) {
+        toast.success('Billboard deleted successfully')
+        fetchBillboards()
+        setShowDeleteDialog(false)
+      } else {
+        throw new Error(response.message || 'Failed to delete billboard')
+      }
     } catch (error) {
       console.error('Failed to delete billboard:', error)
-      toast.error('Failed to delete billboard')
+      toast.error(error.message || 'Failed to delete billboard')
     }
   }
+
+  // Cleanup temporary files on unmount
+  useEffect(() => {
+    return () => {
+      if (tempImageUrl) {
+        URL.revokeObjectURL(tempImageUrl)
+      }
+    }
+  }, [tempImageUrl])
 
   if (loading) {
     return (
