@@ -14,6 +14,9 @@ import {
   DialogFooter,
   DialogCloseButton 
 } from '@/components/ui/animated-dialog'
+import ViewProductDialog from '@/components/dialogs/product/ViewProductDialog'
+import DeleteProductDialog from '@/components/dialogs/product/DeleteProductDialog'
+import { productAPI } from '@/services/api/store/productAPI'
 
 export default function ProductsList() {
   const navigate = useNavigate()
@@ -29,6 +32,9 @@ export default function ProductsList() {
     loading: true
   })
   const [showSetupDialog, setShowSetupDialog] = useState(false)
+  const [showViewDialog, setShowViewDialog] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState(null)
 
   useEffect(() => {
     if (currentStore?.id) {
@@ -203,9 +209,46 @@ export default function ProductsList() {
     </div>
   )
 
-  const handleCreateSuccess = () => {
+  const handleCreateSuccess = async (data) => {
+    await fetchProducts(); // Refresh the list
     setShowCreateDialog(false);
-    fetchProducts(); // Refresh the products list
+    setSelectedProduct(null);
+  };
+
+  const handleViewProduct = (product) => {
+    setSelectedProduct(product)
+    setShowViewDialog(true)
+  }
+
+  const handleEditProduct = async (product) => {
+    setSelectedProduct(product);
+    setShowCreateDialog(true);
+  };
+
+  const handleDeleteClick = (product) => {
+    setSelectedProduct(product);
+    setShowDeleteDialog(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      setLoading(true);
+      const response = await productAPI.deleteStoreProduct(currentStore.id, selectedProduct.id);
+      
+      if (response.success) {
+        toast.success(response.message);
+        await fetchProducts(); // Refresh the list
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      console.error('Delete product error:', error);
+      toast.error(error.message || 'Failed to delete product');
+    } finally {
+      setLoading(false);
+      setShowDeleteDialog(false);
+      setSelectedProduct(null);
+    }
   };
 
   if (loading) {
@@ -230,20 +273,19 @@ export default function ProductsList() {
         {products.map((product) => (
           <div
             key={product.id}
-            className="bg-white rounded-lg shadow-sm border overflow-hidden"
+            className="bg-white rounded-lg shadow-sm border overflow-hidden group"
           >
-            <div className="aspect-square relative group">
+            <div className="aspect-square relative">
               <img
                 src={product.imageUrl || '/placeholder.png'}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+              <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
                 <Button
-                  variant="ghost"
+                  variant="secondary"
                   size="sm"
-                  className="bg-white hover:bg-gray-100"
-                  onClick={() => navigate(`/store/products/${product.id}`)}
+                  onClick={() => handleViewProduct(product)}
                 >
                   <FiEye className="h-4 w-4" />
                 </Button>
@@ -260,14 +302,14 @@ export default function ProductsList() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => navigate(`/store/products/${product.id}/edit`)}
+                    onClick={() => handleEditProduct(product)}
                   >
                     <FiEdit2 className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleDeleteProduct(product.id)}
+                    onClick={() => handleDeleteClick(product)}
                   >
                     <FiTrash2 className="h-4 w-4" />
                   </Button>
@@ -286,13 +328,34 @@ export default function ProductsList() {
 
       <SetupRequirementsDialog />
 
-      {showCreateDialog && (
-        <CreateProductDialog
-          isOpen={showCreateDialog}
-          onClose={() => setShowCreateDialog(false)}
-          onSuccess={handleCreateSuccess}
-        />
-      )}
+      <ViewProductDialog 
+        isOpen={showViewDialog}
+        onClose={() => {
+          setShowViewDialog(false)
+          setSelectedProduct(null)
+        }}
+        product={selectedProduct}
+      />
+
+      <DeleteProductDialog
+        isOpen={showDeleteDialog}
+        onClose={() => {
+          setShowDeleteDialog(false)
+          setSelectedProduct(null)
+        }}
+        onConfirm={handleDeleteConfirm}
+        product={selectedProduct}
+      />
+
+      <CreateProductDialog
+        isOpen={showCreateDialog}
+        onClose={() => {
+          setShowCreateDialog(false)
+          setSelectedProduct(null)
+        }}
+        onSuccess={handleCreateSuccess}
+        initialData={selectedProduct}
+      />
     </div>
   )
 } 

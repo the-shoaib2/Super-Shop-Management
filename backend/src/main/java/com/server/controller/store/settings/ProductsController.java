@@ -95,20 +95,84 @@ public class ProductsController {
         }
     }
 
-    // Delete product
+    // Delete product from specific store
+    @DeleteMapping("/stores/{storeId}/products/{productId}")
+    @PreAuthorize("@storeSecurityService.isStoreOwner(#storeId, principal)")
+    public ResponseEntity<ApiResponse<Void>> deleteStoreProduct(
+            @PathVariable String storeId,
+            @PathVariable String productId) {
+        try {
+            // Set current store context
+            productService.setCurrentStore(storeId);
+            
+            // Verify product belongs to store
+            Product product = productService.getProduct(productId);
+            if (!product.getStoreId().equals(storeId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error("Product does not belong to this store", null));
+            }
+
+            // Delete the product
+            productService.deleteProduct(productId);
+            
+            return ResponseEntity.ok(ApiResponse.success("Product deleted successfully", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("Failed to delete product: " + e.getMessage(), null));
+        }
+    }
+
+    // Update product for specific store
+    @PutMapping("/stores/{storeId}/products/{productId}")
+    @PreAuthorize("@storeSecurityService.isStoreOwner(#storeId, principal)")
+    public ResponseEntity<ApiResponse<Product>> updateStoreProduct(
+            @PathVariable String storeId,
+            @PathVariable String productId,
+            @RequestBody Product product) {
+        try {
+            // Set current store context
+            productService.setCurrentStore(storeId);
+            
+            // Verify product belongs to store
+            Product existingProduct = productService.getProduct(productId);
+            if (!existingProduct.getStoreId().equals(storeId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error("Product does not belong to this store", null));
+            }
+
+            // Set product ID and store ID
+            product.setId(productId);
+            product.setStoreId(storeId);
+            
+            // Update the product
+            Product updatedProduct = productService.updateProduct(product);
+            
+            return ResponseEntity.ok(ApiResponse.success("Product updated successfully", updatedProduct));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("Failed to update product: " + e.getMessage(), null));
+        }
+    }
+
+    // Delete product (generic)
     @DeleteMapping("/products/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable String id) {
         try {
+            // Get product to verify ownership
+            Product product = productService.getProduct(id);
+            
+            // Delete the product
             productService.deleteProduct(id);
+            
             return ResponseEntity.ok(ApiResponse.success("Product deleted successfully", null));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("Failed to delete product", null));
+                .body(ApiResponse.error("Failed to delete product: " + e.getMessage(), null));
         }
     }
 
-    // Update product
+    // Update product (generic)
     @PutMapping("/products/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<Product>> updateProduct(
@@ -120,7 +184,7 @@ public class ProductsController {
             return ResponseEntity.ok(ApiResponse.success("Product updated successfully", updated));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("Failed to update product", null));
+                .body(ApiResponse.error("Failed to update product: " + e.getMessage(), null));
         }
     }
 }

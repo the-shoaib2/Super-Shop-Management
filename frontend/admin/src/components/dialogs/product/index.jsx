@@ -196,24 +196,35 @@ export default function CreateProductDialog({ isOpen, onClose, onSuccess, initia
         type: 'price'
       };
 
-      // Create product using store-specific endpoint
-      const response = await productAPI.createStoreProduct(
-        currentStore.id, 
-        productData
-      );
+      let response;
+      
+      if (initialData?.id) {
+        // Update existing product
+        response = await productAPI.updateStoreProduct(
+          currentStore.id,
+          initialData.id,
+          productData
+        );
+      } else {
+        // Create new product
+        response = await productAPI.createStoreProduct(
+          currentStore.id, 
+          productData
+        );
+      }
 
       if (response.success) {
-        toast.success('Product created successfully');
+        toast.success(response.message);
         if (onSuccess) {
           await onSuccess(response.data);
         }
         onClose();
       } else {
-        throw new Error(response.message || 'Failed to create product');
+        throw new Error(response.message || `Failed to ${initialData ? 'update' : 'create'} product`);
       }
     } catch (error) {
-      console.error('Create product error:', error);
-      toast.error(error.message || 'Failed to create product');
+      console.error('Product operation error:', error);
+      toast.error(error.message || `Failed to ${initialData ? 'update' : 'create'} product`);
     } finally {
       setLoading(false);
     }
@@ -277,6 +288,23 @@ export default function CreateProductDialog({ isOpen, onClose, onSuccess, initia
       setErrors({});
     }
   }, [isOpen]);
+
+  // Add useEffect to populate form when editing
+  useEffect(() => {
+    if (initialData && isOpen) {
+      setFormData({
+        name: initialData.name || '',
+        description: initialData.description || '',
+        price: initialData.price?.toString() || '',
+        category: initialData.categoryId || '',
+        sizes: initialData.sizeIds || [],
+        colors: initialData.colorIds || [],
+        billboardId: initialData.billboardId || '',
+        images: [],
+        imageUrls: initialData.images || []
+      });
+    }
+  }, [initialData, isOpen]);
 
   return (
     <AnimatedDialog 

@@ -50,20 +50,36 @@ export const productAPI = {
   updateProduct: async (productId, data) => {
     try {
       const response = await api.put(`/api/products/${productId}`, data);
-      return response.data;
+      return {
+        success: true,
+        data: response.data?.data,
+        message: response.data?.message || 'Product updated successfully'
+      };
     } catch (error) {
       console.error('Update product error:', error);
-      throw error;
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to update product',
+        error
+      };
     }
   },
 
   deleteProduct: async (productId) => {
     try {
       const response = await api.delete(`/api/products/${productId}`);
-      return response.data;
+      return {
+        success: true,
+        data: response.data?.data,
+        message: response.data?.message || 'Product deleted successfully'
+      };
     } catch (error) {
       console.error('Delete product error:', error);
-      throw error;
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to delete product',
+        error
+      };
     }
   },
 
@@ -91,6 +107,42 @@ export const productAPI = {
       return {
         success: false,
         message: error.response?.data?.message || 'Failed to upload images',
+        error
+      };
+    }
+  },
+
+  updateStoreProduct: async (storeId, productId, data) => {
+    try {
+      const response = await api.put(`/api/stores/${storeId}/products/${productId}`, data);
+      return {
+        success: true,
+        data: response.data?.data,
+        message: response.data?.message || 'Product updated successfully'
+      };
+    } catch (error) {
+      console.error('Update store product error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to update product',
+        error
+      };
+    }
+  },
+
+  deleteStoreProduct: async (storeId, productId) => {
+    try {
+      const response = await api.delete(`/api/stores/${storeId}/products/${productId}`);
+      return {
+        success: true,
+        data: response.data?.data,
+        message: response.data?.message || 'Product deleted successfully'
+      };
+    } catch (error) {
+      console.error('Delete store product error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to delete product',
         error
       };
     }
