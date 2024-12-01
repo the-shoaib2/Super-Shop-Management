@@ -100,6 +100,91 @@ export const ProductDetailsStep = ({ formData, setFormData, errors, setErrors, o
         </div>
       </FormField>
 
+      <FormField label="Stock Status *" error={errors.stockStatus}>
+        <select
+          className={`w-full h-11 px-4 border-2 rounded-lg bg-white appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all
+            ${errors.stockStatus ? 'border-red-300' : 'border-gray-200 hover:border-gray-300'}`}
+          value={formData.stockStatus}
+          onChange={(e) => {
+            const value = e.target.value;
+            setFormData(prev => ({
+              ...prev,
+              stockStatus: value
+            }));
+            if (errors.stockStatus) {
+              setErrors(prev => ({
+                ...prev,
+                stockStatus: null
+              }));
+            }
+          }}
+        >
+          <option value="">Select Stock Status</option>
+          <option value="in_stock">In Stock</option>
+          <option value="out_of_stock">Out of Stock</option>
+          <option value="backorder">On Backorder</option>
+        </select>
+      </FormField>
+
+      <FormField label="Quantity *" error={errors.quantity}>
+        <div className="relative">
+          <input
+            type="number"
+            min="0"
+            className={`w-full h-11 px-4 border-2 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all
+              ${errors.quantity ? 'border-red-300' : 'border-gray-200 hover:border-gray-300'}`}
+            value={formData.quantity}
+            onChange={(e) => {
+              const value = e.target.value;
+              setFormData(prev => ({
+                ...prev,
+                quantity: value,
+                stockStatus: parseInt(value) > 0 ? 'in_stock' : 'out_of_stock'
+              }));
+              if (errors.quantity) {
+                setErrors(prev => ({
+                  ...prev,
+                  quantity: null
+                }));
+              }
+            }}
+            placeholder="Enter quantity"
+          />
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+            <button
+              type="button"
+              className="p-1 hover:bg-gray-100 rounded"
+              onClick={() => {
+                const currentQty = parseInt(formData.quantity) || 0;
+                if (currentQty > 0) {
+                  setFormData(prev => ({
+                    ...prev,
+                    quantity: (currentQty - 1).toString(),
+                    stockStatus: currentQty - 1 > 0 ? 'in_stock' : 'out_of_stock'
+                  }));
+                }
+              }}
+            >
+              -
+            </button>
+            <button
+              type="button"
+              className="p-1 hover:bg-gray-100 rounded"
+              onClick={() => {
+                const currentQty = parseInt(formData.quantity) || 0;
+                setFormData(prev => ({
+                  ...prev,
+                  quantity: (currentQty + 1).toString(),
+                  stockStatus: 'in_stock'
+                }));
+              }}
+            >
+              +
+            </button>
+          </div>
+        </div>
+      </FormField>
+
       <div className="md:col-span-2">
         <FormField label="Description">
           <textarea
