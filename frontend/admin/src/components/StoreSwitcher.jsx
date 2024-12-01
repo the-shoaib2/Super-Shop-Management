@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useAuth } from '@/contexts/AuthContext'
 import { FiPlus, FiChevronDown } from 'react-icons/fi'
 import CreateStoreDialog from './dialogs/CreateStoreDialog'
+import StoreSwitcherDialog from './dialogs/StoreSwitcherDialog'
 import { storeAPI } from '@/services/api'
 import { toast } from 'react-hot-toast'
 
@@ -95,37 +95,13 @@ export default function StoreSwitcher() {
         </Button>
       </div>
 
-      <Dialog open={showStoreDialog} onOpenChange={setShowStoreDialog}>
-        <DialogContent className="max-w-[400px]">
-          <DialogHeader>
-            <DialogTitle>Switch Store</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto">
-            {stores.map((store) => (
-              <Button
-                key={store.id}
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleStoreSwitch(store)}
-              >
-                <div className="flex flex-col items-start">
-                  <span title={store.name}>{truncateText(store.name, 20)}</span>
-                  {store.category && (
-                    <span className="text-xs text-muted-foreground" title={store.category}>
-                      {truncateText(store.category, 25)}
-                    </span>
-                  )}
-                </div>
-              </Button>
-            ))}
-            {stores.length === 0 && !loading && (
-              <p className="text-center text-muted-foreground py-4">
-                No stores found. Create one to get started.
-              </p>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <StoreSwitcherDialog
+        open={showStoreDialog}
+        onClose={() => setShowStoreDialog(false)}
+        stores={stores}
+        loading={loading}
+        onStoreSwitch={handleStoreSwitch}
+      />
 
       <CreateStoreDialog 
         open={showCreateDialog} 
