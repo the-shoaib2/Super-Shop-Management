@@ -12,6 +12,7 @@ import com.server.exception.ResourceNotFoundException;
 
 import java.util.List;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -117,5 +118,9 @@ public class PriceService {
         Price price = getPrice(priceId);
         price.setProductIds(productIds);
         return priceRepository.save(price);
+    }
+
+    public Optional<Price> findById(String id) {
+        return priceRepository.findById(id);
     }
 } 

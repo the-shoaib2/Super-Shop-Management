@@ -14,7 +14,9 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
     "com.server.config",
     "com.server.admin",
     "com.server.exception",
-    "com.server.model.store.products"
+    "com.server.model.store.products",
+    "com.server.model.store",
+    "com.server.repository.store"
 })
 @EnableMongoRepositories(basePackages = "com.server.repository")
 public class BackendApplication {

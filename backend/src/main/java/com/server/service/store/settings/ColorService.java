@@ -9,6 +9,7 @@ import com.server.repository.store.products.ProductColorRepository;
 import com.server.exception.EntityNotFoundException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -47,5 +48,9 @@ public class ColorService {
             throw new EntityNotFoundException("Color not found with id: " + colorId);
         }
         colorRepository.deleteById(colorId);
+    }
+
+    public Optional<ProductColor> findById(String id) {
+        return colorRepository.findById(id);
     }
 } 

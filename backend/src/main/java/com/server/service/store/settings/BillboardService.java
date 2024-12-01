@@ -10,6 +10,7 @@ import com.server.service.store.base.StoreAwareService;
 
 import java.util.List;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class BillboardService extends StoreAwareService {
@@ -33,5 +34,9 @@ public class BillboardService extends StoreAwareService {
             .orElseThrow(() -> new ResourceNotFoundException("Billboard not found with id: " + billboardId));
         validateStore(billboard.getStoreId());
         billboardRepository.delete(billboard);
+    }
+    
+    public Optional<Billboard> findById(String id) {
+        return billboardRepository.findById(id);
     }
 } 

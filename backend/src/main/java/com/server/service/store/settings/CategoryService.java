@@ -16,6 +16,7 @@ import com.server.service.store.base.StoreAwareService;
 
 import java.util.List;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class CategoryService extends StoreAwareService {
@@ -125,5 +126,9 @@ public class CategoryService extends StoreAwareService {
             logger.error("Store ID mismatch. Current: {}, Requested: {}", currentStoreId, storeId);
             throw new ResourceNotFoundException("Resource not found in current store context");
         }
+    }
+
+    public Optional<Category> findById(String id) {
+        return categoryRepository.findById(id);
     }
 } 

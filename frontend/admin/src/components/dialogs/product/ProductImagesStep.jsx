@@ -1,6 +1,6 @@
 import { FiUpload, FiImage, FiX, FiLink } from 'react-icons/fi'
 import { ImagePreview } from '../shared/ImagePreview'
-import { ImageUrlInputs } from '@/components/inputs/ImageUrlInputs'
+import { ImageUrlInputs } from '@/components/ui/ImageUrlInputs'
 import PropTypes from 'prop-types'
 import React from 'react'
 

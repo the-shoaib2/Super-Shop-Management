@@ -9,6 +9,7 @@ import com.server.exception.EntityNotFoundException;
 
 import java.util.List;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class SizeService {
@@ -48,5 +49,9 @@ public class SizeService {
             .orElseThrow(() -> new EntityNotFoundException("Size not found with id: " + sizeId));
             
         sizeRepository.delete(size);
+    }
+    
+    public Optional<ProductSize> findById(String id) {
+        return sizeRepository.findById(id);
     }
 } 
