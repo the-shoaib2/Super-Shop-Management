@@ -6,8 +6,9 @@ import { useAuth } from '@/contexts/AuthContext'
 import { DeleteDialog } from '@/components/dialogs/actions/DeleteDialog'
 import { ViewModeSelector } from '@/components/views/ViewModeSelector'
 import { ProductViews } from '@/components/views/ProductViewImplementations'
-import { productAPI } from '@/services/api/store/productAPI'
-import CreateProductDialog from '@/components/dialogs/product'
+import { priceAPI } from '@/services/api/store/priceAPI'
+import CreatePriceDialog from '@/components/dialogs/price/CreatePriceDialog'
+import { GridView, ListView } from '@/components/views/PriceViewImplementations'
 
 export default function PricesList() {
   const { currentStore } = useAuth()
@@ -29,9 +30,7 @@ export default function PricesList() {
   const fetchPrices = useCallback(async () => {
     try {
       setLoading(true)
-      const response = await productAPI.getProducts(currentStore.id, {
-        type: 'price'
-      })
+      const response = await priceAPI.getPrices(currentStore.id)
       
       if (response.success) {
         setPrices(response.data || [])
@@ -58,7 +57,7 @@ export default function PricesList() {
 
   const handleDeleteConfirm = async () => {
     try {
-      const response = await productAPI.deleteProduct(selectedPrice.id)
+      const response = await priceAPI.deletePrice(currentStore.id, selectedPrice.id)
       if (response.success) {
         toast.success('Price deleted successfully')
         fetchPrices()
@@ -73,17 +72,17 @@ export default function PricesList() {
     }
   }
 
-  // Handle dialog close and refresh
   const handleDialogClose = () => {
     setShowAddDialog(false)
     setSelectedPrice(null)
   }
 
-  // Handle successful product creation
-  const handleProductCreated = async () => {
-    await fetchPrices() // Refresh the list
+  const handlePriceCreated = async () => {
+    await fetchPrices()
     handleDialogClose()
   }
+
+  const ViewComponent = viewMode === 'grid' ? GridView : ListView;
 
   if (loading) {
     return (
@@ -93,17 +92,12 @@ export default function PricesList() {
     )
   }
 
-  const ViewComponent = ProductViews.Prices[
-    viewMode.charAt(0).toUpperCase() + viewMode.slice(1)
-  ]
-
   return (
     <div className="space-y-4 bg-white rounded-lg shadow-sm">
       <div className="p-4 sm:p-6 border-b">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex-1 min-w-0">
             <h2 className="text-xl font-semibold text-gray-900 truncate">Prices</h2>
-
           </div>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
             <ViewModeSelector 
@@ -153,11 +147,10 @@ export default function PricesList() {
         )}
       </div>
 
-      {/* Add/Edit Dialog Component */}
-      <CreateProductDialog
+      <CreatePriceDialog
         isOpen={showAddDialog}
         onClose={handleDialogClose}
-        onSuccess={handleProductCreated}
+        onSuccess={handlePriceCreated}
         initialData={selectedPrice}
       />
 

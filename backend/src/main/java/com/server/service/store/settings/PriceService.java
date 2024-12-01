@@ -2,52 +2,120 @@ package com.server.service.store.settings;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 
-import com.server.exception.common.ResourceNotFoundException;
 import com.server.model.store.Price;
 import com.server.repository.store.settings.PriceRepository;
-import com.server.service.store.base.StoreAwareService;
+import com.server.exception.ResourceNotFoundException;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
-public class PriceService extends StoreAwareService {
+public class PriceService {
     private final PriceRepository priceRepository;
+    private final MongoTemplate mongoTemplate;
+    private String currentStoreId;
+
+    public void setCurrentStore(String storeId) {
+        this.currentStoreId = storeId;
+    }
 
     public List<Price> getPrices() {
-        return priceRepository.findByStoreId(currentStoreId);
+        Query query = new Query(Criteria.where("storeId").is(currentStoreId));
+        return mongoTemplate.find(query, Price.class);
     }
 
     public Price getPrice(String id) {
-        Price price = priceRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Price not found with id: " + id));
-        validateStore(price.getStoreId());
-        return price;
+        return priceRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Price not found"));
     }
 
     public Price createPrice(Price price) {
         price.setStoreId(currentStoreId);
-        price.setCreatedAt(LocalDateTime.now());
-        price.setUpdatedAt(LocalDateTime.now());
+        price.setCreatedAtIfNull();
+        price.calculateAllDiscounts();
         return priceRepository.save(price);
     }
 
     public Price updatePrice(Price price) {
-        Price existingPrice = getPrice(price.getId());
-        validateStore(existingPrice.getStoreId());
+        Price existing = getPrice(price.getId());
         
+        // Validate store ownership
+        if (!existing.getStoreId().equals(currentStoreId)) {
+            throw new IllegalArgumentException("Price does not belong to current store");
+        }
+
         price.setStoreId(currentStoreId);
+        price.setCreatedAt(existing.getCreatedAt());
         price.setUpdatedAt(LocalDateTime.now());
+        price.calculateAllDiscounts();
+        
         return priceRepository.save(price);
     }
 
     public void deletePrice(String id) {
         Price price = getPrice(id);
-        validateStore(price.getStoreId());
+        
+        // Validate store ownership
+        if (!price.getStoreId().equals(currentStoreId)) {
+            throw new IllegalArgumentException("Price does not belong to current store");
+        }
+
         priceRepository.deleteById(id);
+    }
+
+    // Get prices by product
+    public List<Price> getPricesByProduct(String productId) {
+        Query query = new Query(Criteria.where("storeId").is(currentStoreId)
+            .and("productIds").in(productId));
+        return mongoTemplate.find(query, Price.class);
+    }
+
+    // Get active prices
+    public List<Price> getActivePrices() {
+        Query query = new Query(Criteria.where("storeId").is(currentStoreId)
+            .and("isActive").is(true));
+        return mongoTemplate.find(query, Price.class);
+    }
+
+    // Get discounted prices
+    public List<Price> getDiscountedPrices() {
+        Query query = new Query(Criteria.where("storeId").is(currentStoreId)
+            .and("isDiscounted").is(true)
+            .and("isActive").is(true));
+        return mongoTemplate.find(query, Price.class);
+    }
+
+    // Add product to price
+    public Price addProductToPrice(String priceId, String productId) {
+        Price price = getPrice(priceId);
+        price.addProduct(productId);
+        return priceRepository.save(price);
+    }
+
+    // Remove product from price
+    public Price removeProductFromPrice(String priceId, String productId) {
+        Price price = getPrice(priceId);
+        price.removeProduct(productId);
+        return priceRepository.save(price);
+    }
+
+    // Get prices with multiple products
+    public List<Price> getPricesWithMultipleProducts() {
+        Query query = new Query(Criteria.where("storeId").is(currentStoreId)
+            .and("productIds").exists(true)
+            .and("productIds").not().size(0));
+        return mongoTemplate.find(query, Price.class);
+    }
+
+    // Update price for multiple products
+    public Price updatePriceForProducts(String priceId, List<String> productIds) {
+        Price price = getPrice(priceId);
+        price.setProductIds(productIds);
+        return priceRepository.save(price);
     }
 } 
