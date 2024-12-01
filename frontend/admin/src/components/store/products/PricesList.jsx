@@ -1,14 +1,15 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
-import { FiPlus } from 'react-icons/fi'
+import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
+import { FiPlus, FiSearch, FiFilter, FiDollarSign } from 'react-icons/fi'
 import { toast } from 'react-hot-toast'
 import { useAuth } from '@/contexts/AuthContext'
 import { DeleteDialog } from '@/components/dialogs/actions/DeleteDialog'
 import { ViewModeSelector } from '@/components/views/ViewModeSelector'
-import { ProductViews } from '@/components/views/ProductViewImplementations'
+import { GridView, ListView } from '@/components/views/PriceViewImplementations'
 import { priceAPI } from '@/services/api/store/priceAPI'
 import CreatePriceDialog from '@/components/dialogs/price/CreatePriceDialog'
-import { GridView, ListView } from '@/components/views/PriceViewImplementations'
 
 export default function PricesList() {
   const { currentStore } = useAuth()

@@ -1,6 +1,34 @@
+import { useState, useEffect } from 'react'
 import { FormField } from '../shared/FormField'
+import { useAuth } from '@/contexts/AuthContext'
+import { priceAPI } from '@/services/api/store/priceAPI'
+import { FiDollarSign } from 'react-icons/fi'
 
 export const ProductDetailsStep = ({ formData, setFormData, errors, setErrors, options }) => {
+  const { currentStore } = useAuth()
+  const [prices, setPrices] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  // Fetch prices when component mounts
+  useEffect(() => {
+    const fetchPrices = async () => {
+      try {
+        const response = await priceAPI.getActivePrices(currentStore.id)
+        if (response.success) {
+          setPrices(response.data)
+        }
+      } catch (error) {
+        console.error('Failed to fetch prices:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (currentStore?.id) {
+      fetchPrices()
+    }
+  }, [currentStore?.id])
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div className="md:col-span-2">
@@ -28,31 +56,43 @@ export const ProductDetailsStep = ({ formData, setFormData, errors, setErrors, o
         </FormField>
       </div>
 
-      <FormField label="Price *" error={errors.price}>
+      {/* Price Selection */}
+      <FormField label="Price *" error={errors.priceId}>
         <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            className={`w-full h-11 pl-8 pr-4 border-2 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all
-              ${errors.price ? 'border-red-300' : 'border-gray-200 hover:border-gray-300'}`}
-            value={formData.price}
+          <select
+            className={`w-full h-11 px-4 border-2 rounded-lg bg-white appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all
+              ${errors.priceId ? 'border-red-300' : 'border-gray-200 hover:border-gray-300'}`}
+            value={formData.priceId}
             onChange={(e) => {
               const value = e.target.value;
+              const selectedPrice = prices.find(p => p.id === value);
+              
               setFormData(prev => ({
                 ...prev,
-                price: value
+                priceId: value,
+                price: selectedPrice ? selectedPrice.amounts[selectedPrice.defaultCurrency] : ''
               }));
-              if (errors.price) {
+              
+              if (errors.priceId) {
                 setErrors(prev => ({
                   ...prev,
-                  price: null
+                  priceId: null
                 }));
               }
             }}
-            placeholder="0.00"
-          />
+          >
+            <option value="">Select Price</option>
+            {prices.map(price => (
+              <option key={price.id} value={price.id}>
+                {price.type} - {price.currencies?.find(c => c.code === price.defaultCurrency)?.symbol}
+                {price.amounts[price.defaultCurrency]} 
+                {price.isDiscounted && ` (${price.discountPercentages[price.defaultCurrency]}% off)`}
+              </option>
+            ))}
+          </select>
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+            <FiDollarSign className="h-5 w-5 text-gray-400" />
+          </div>
         </div>
       </FormField>
 
@@ -83,23 +123,10 @@ export const ProductDetailsStep = ({ formData, setFormData, errors, setErrors, o
               </option>
             ))}
           </select>
-          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-            <svg
-              className="h-5 w-5 text-gray-400"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </div>
         </div>
       </FormField>
 
+      {/* Stock Status and Quantity */}
       <FormField label="Stock Status *" error={errors.stockStatus}>
         <select
           className={`w-full h-11 px-4 border-2 rounded-lg bg-white appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all
