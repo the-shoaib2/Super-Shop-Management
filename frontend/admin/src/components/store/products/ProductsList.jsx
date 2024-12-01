@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/AuthContext'
 import { FiPlus, FiEdit2, FiTrash2, FiEye, FiAlertCircle } from 'react-icons/fi'
 import { toast } from 'react-hot-toast'
-import CreateProductDialog from '@/components/dialogs/CreateProductDialog'
+import CreateProductDialog from '@/components/dialogs/product/index'
 import { storeAPI } from '@/services/api'
 import { 
   AnimatedDialog,
@@ -73,62 +73,120 @@ export default function ProductsList() {
   }
 
   const handleAddProduct = () => {
-    setShowCreateDialog(true)
+    const allRequirementsMet = 
+      storeSetup.hasColors && 
+      storeSetup.hasSizes && 
+      storeSetup.hasCategories && 
+      storeSetup.hasBillboards;
+
+    if (!allRequirementsMet) {
+      setShowSetupDialog(true);
+    } else {
+      setShowCreateDialog(true);
+    }
   }
 
-  const SetupRequirementsDialog = () => (
-    <AnimatedDialog open={showSetupDialog} onOpenChange={setShowSetupDialog}>
-      <DialogHeader>
-        <DialogTitle>Complete Store Setup</DialogTitle>
-        <DialogCloseButton />
-      </DialogHeader>
-      <DialogContent>
-        <p className="text-sm text-gray-500 mb-6 text-center">
-          Before adding products, please set up the following:
-        </p>
-        <div className="space-y-4">
-          <RequirementItem
-            title="Colors"
-            met={storeSetup.hasColors}
-            path="/store/colors"
-          />
-          <RequirementItem
-            title="Sizes"
-            met={storeSetup.hasSizes}
-            path="/store/sizes"
-          />
-          <RequirementItem
-            title="Categories"
-            met={storeSetup.hasCategories}
-            path="/store/categories"
-          />
-          <RequirementItem
-            title="Billboards"
-            met={storeSetup.hasBillboards}
-            path="/store/billboards"
-          />
-        </div>
-      </DialogContent>
-      <DialogFooter>
-        <Button variant="ghost" size="sm" onClick={() => setShowSetupDialog(false)}>
-          Close
-        </Button>
-        <Button variant="ghost" size="sm" onClick={() => navigate('/store/setup')}>
-          Set up
-        </Button>
-      </DialogFooter>
-    </AnimatedDialog>
-  )
+  const SetupRequirementsDialog = () => {
+    const allRequirementsMet = Object.values(storeSetup).every(value => 
+      value === true || value === false
+    ) && storeSetup.hasColors && storeSetup.hasSizes && 
+      storeSetup.hasCategories && storeSetup.hasBillboards;
+
+    return (
+      <AnimatedDialog open={showSetupDialog} onOpenChange={setShowSetupDialog}>
+        <DialogHeader>
+          <DialogTitle>
+            {allRequirementsMet ? "Store Setup Complete" : "Complete Store Setup"}
+          </DialogTitle>
+          <DialogCloseButton />
+        </DialogHeader>
+        <DialogContent>
+          {allRequirementsMet ? (
+            <div className="text-center py-4">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <p className="text-sm text-gray-600 mb-2">
+                All requirements are met! You're ready to add products.
+              </p>
+            </div>
+          ) : (
+            <>
+              <p className="text-sm text-gray-500 mb-6 text-center">
+                Before adding products, please set up the following:
+              </p>
+              <div className="space-y-3">
+                <RequirementItem
+                  title="Colors"
+                  met={storeSetup.hasColors}
+                  path="/store/colors"
+                />
+                <RequirementItem
+                  title="Sizes"
+                  met={storeSetup.hasSizes}
+                  path="/store/sizes"
+                />
+                <RequirementItem
+                  title="Categories"
+                  met={storeSetup.hasCategories}
+                  path="/store/categories"
+                />
+                <RequirementItem
+                  title="Billboards"
+                  met={storeSetup.hasBillboards}
+                  path="/store/billboards"
+                />
+              </div>
+            </>
+          )}
+        </DialogContent>
+        <DialogFooter>
+          {allRequirementsMet ? (
+            <Button 
+              size="sm" 
+              onClick={() => {
+                setShowSetupDialog(false);
+                handleAddProduct();
+              }}
+            >
+              Add Product
+            </Button>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" onClick={() => setShowSetupDialog(false)}>
+                Close
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/store/setup')}>
+                Set up
+              </Button>
+            </>
+          )}
+        </DialogFooter>
+      </AnimatedDialog>
+    )
+  }
 
   const RequirementItem = ({ title, met, path }) => (
-    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-      <div className="flex items-center">
+    <div className={`flex items-center justify-between p-3 rounded-lg transition-colors
+      ${met ? 'bg-green-50' : 'bg-gray-50'}`}
+    >
+      <div className="flex items-center gap-3">
         {met ? (
-          <div className="h-4 w-4 bg-green-500 rounded-full mr-3" />
+          <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
+            <svg className="w-3 h-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
         ) : (
-          <div className="h-4 w-4 bg-yellow-500 rounded-full mr-3" />
+          <div className="w-5 h-5 rounded-full bg-yellow-100 flex items-center justify-center">
+            <FiAlertCircle className="w-3 h-3 text-yellow-600" />
+          </div>
         )}
-        <span className="font-medium">{title}</span>
+        <span className={`font-medium ${met ? 'text-green-800' : 'text-gray-700'}`}>
+          {title}
+        </span>
       </div>
       {!met && (
         <Button
@@ -144,6 +202,11 @@ export default function ProductsList() {
       )}
     </div>
   )
+
+  const handleCreateSuccess = () => {
+    setShowCreateDialog(false);
+    fetchProducts(); // Refresh the products list
+  };
 
   if (loading) {
     return (
@@ -227,6 +290,7 @@ export default function ProductsList() {
         <CreateProductDialog
           isOpen={showCreateDialog}
           onClose={() => setShowCreateDialog(false)}
+          onSuccess={handleCreateSuccess}
         />
       )}
     </div>
