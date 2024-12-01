@@ -6,7 +6,14 @@ import { FiPlus, FiEdit2, FiTrash2, FiEye, FiAlertCircle } from 'react-icons/fi'
 import { toast } from 'react-hot-toast'
 import CreateProductDialog from '@/components/dialogs/CreateProductDialog'
 import { storeAPI } from '@/services/api'
-import { Dialog } from '@/components/ui/dialog'
+import { 
+  AnimatedDialog,
+  DialogHeader,
+  DialogTitle,
+  DialogContent,
+  DialogFooter,
+  DialogCloseButton 
+} from '@/components/ui/animated-dialog'
 
 export default function ProductsList() {
   const navigate = useNavigate()
@@ -66,25 +73,16 @@ export default function ProductsList() {
   }
 
   const handleAddProduct = () => {
-    const { hasColors, hasSizes, hasCategories, hasBillboards } = storeSetup
-    
-    if (!hasColors || !hasSizes || !hasCategories || !hasBillboards) {
-      setShowSetupDialog(true)
-      return
-    }
-    
     setShowCreateDialog(true)
   }
 
   const SetupRequirementsDialog = () => (
-    <Dialog open={showSetupDialog} onOpenChange={setShowSetupDialog}>
-      <div className="p-6 max-w-md mx-auto">
-        <div className="flex items-center justify-center mb-6">
-          <FiAlertCircle className="h-12 w-12 text-yellow-500" />
-        </div>
-        <h2 className="text-lg font-semibold text-center mb-4">
-          Complete Store Setup
-        </h2>
+    <AnimatedDialog open={showSetupDialog} onOpenChange={setShowSetupDialog}>
+      <DialogHeader>
+        <DialogTitle>Complete Store Setup</DialogTitle>
+        <DialogCloseButton />
+      </DialogHeader>
+      <DialogContent>
         <p className="text-sm text-gray-500 mb-6 text-center">
           Before adding products, please set up the following:
         </p>
@@ -110,8 +108,16 @@ export default function ProductsList() {
             path="/store/billboards"
           />
         </div>
-      </div>
-    </Dialog>
+      </DialogContent>
+      <DialogFooter>
+        <Button variant="ghost" size="sm" onClick={() => setShowSetupDialog(false)}>
+          Close
+        </Button>
+        <Button variant="ghost" size="sm" onClick={() => navigate('/store/setup')}>
+          Set up
+        </Button>
+      </DialogFooter>
+    </AnimatedDialog>
   )
 
   const RequirementItem = ({ title, met, path }) => (
@@ -219,11 +225,8 @@ export default function ProductsList() {
 
       {showCreateDialog && (
         <CreateProductDialog
-          open={showCreateDialog}
-          onClose={() => {
-            setShowCreateDialog(false)
-            fetchProducts()
-          }}
+          isOpen={showCreateDialog}
+          onClose={() => setShowCreateDialog(false)}
         />
       )}
     </div>
