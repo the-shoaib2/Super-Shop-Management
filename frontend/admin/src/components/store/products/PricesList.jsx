@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { FiPlus } from 'react-icons/fi'
 import { toast } from 'react-hot-toast'
@@ -6,6 +6,8 @@ import { useAuth } from '@/contexts/AuthContext'
 import { DeleteDialog } from '@/components/dialogs/actions/DeleteDialog'
 import { ViewModeSelector } from '@/components/views/ViewModeSelector'
 import { ProductViews } from '@/components/views/ProductViewImplementations'
+import { productAPI } from '@/services/api/store/productAPI'
+import CreateProductDialog from '@/components/dialogs/product'
 
 export default function PricesList() {
   const { currentStore } = useAuth()
@@ -24,12 +26,17 @@ export default function PricesList() {
     }
   }, [currentStore])
 
-  const fetchPrices = async () => {
+  const fetchPrices = useCallback(async () => {
     try {
       setLoading(true)
-      const response = await storeAPI.getStorePrices(currentStore.id)
+      const response = await productAPI.getProducts(currentStore.id, {
+        type: 'price'
+      })
+      
       if (response.success) {
         setPrices(response.data || [])
+      } else {
+        throw new Error(response.message)
       }
     } catch (error) {
       console.error('Failed to fetch prices:', error)
@@ -37,7 +44,7 @@ export default function PricesList() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [currentStore?.id])
 
   const handleEditClick = (price) => {
     setSelectedPrice(price)
@@ -51,14 +58,31 @@ export default function PricesList() {
 
   const handleDeleteConfirm = async () => {
     try {
-      await storeAPI.deleteStorePrice(currentStore.id, selectedPrice.id)
-      toast.success('Price deleted successfully')
-      fetchPrices()
-      setShowDeleteDialog(false)
+      const response = await productAPI.deleteProduct(selectedPrice.id)
+      if (response.success) {
+        toast.success('Price deleted successfully')
+        fetchPrices()
+      } else {
+        throw new Error(response.message)
+      }
     } catch (error) {
       console.error('Failed to delete price:', error)
       toast.error('Failed to delete price')
+    } finally {
+      setShowDeleteDialog(false)
     }
+  }
+
+  // Handle dialog close and refresh
+  const handleDialogClose = () => {
+    setShowAddDialog(false)
+    setSelectedPrice(null)
+  }
+
+  // Handle successful product creation
+  const handleProductCreated = async () => {
+    await fetchPrices() // Refresh the list
+    handleDialogClose()
   }
 
   if (loading) {
@@ -130,7 +154,12 @@ export default function PricesList() {
       </div>
 
       {/* Add/Edit Dialog Component */}
-      {/* ... Your price dialog component ... */}
+      <CreateProductDialog
+        isOpen={showAddDialog}
+        onClose={handleDialogClose}
+        onSuccess={handleProductCreated}
+        initialData={selectedPrice}
+      />
 
       <DeleteDialog
         isOpen={showDeleteDialog}

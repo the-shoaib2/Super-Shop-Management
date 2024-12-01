@@ -9,7 +9,7 @@ import { toast } from 'react-hot-toast'
 import { storeAPI, productAPI } from '@/services/api'
 import { uploadMultipleImages } from '@/services/api'
 
-export default function CreateProductDialog({ isOpen, onClose }) {
+export default function CreateProductDialog({ isOpen, onClose, onSuccess, initialData }) {
   const { currentStore } = useAuth()
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
@@ -29,7 +29,8 @@ export default function CreateProductDialog({ isOpen, onClose }) {
     sizes: [],
     colors: [],
     billboardId: '',
-    images: []
+    images: [],
+    imageUrls: []
   })
   const [errors, setErrors] = useState({})
   const [uploadProgress, setUploadProgress] = useState(0)
@@ -162,11 +163,25 @@ export default function CreateProductDialog({ isOpen, onClose }) {
 
       setLoading(true);
 
-      // Upload images first
-      const uploadResponse = await productAPI.uploadProductImages(formData.images.map(img => img.file));
-      if (!uploadResponse.success) {
-        throw new Error('Failed to upload images');
+      // First upload images if any
+      let uploadedImages = [];
+      
+      if (formData.images.length > 0) {
+        const imagesToUpload = formData.images.map(img => img.file);
+        const uploadResponse = await productAPI.uploadProductImages(imagesToUpload);
+        
+        if (!uploadResponse.success) {
+          throw new Error('Failed to upload images: ' + uploadResponse.message);
+        }
+        
+        uploadedImages = uploadResponse.data.map(img => img.secure_url);
       }
+
+      // Combine uploaded images with image URLs
+      const allImages = [
+        ...uploadedImages,
+        ...(formData.imageUrls?.filter(url => url) || [])
+      ];
 
       // Prepare product data
       const productData = {
@@ -176,15 +191,22 @@ export default function CreateProductDialog({ isOpen, onClose }) {
         categoryId: formData.category,
         sizeIds: formData.sizes,
         colorIds: formData.colors,
-        images: uploadResponse.data.urls,
-        storeId: currentStore.id
+        images: allImages,
+        storeId: currentStore.id,
+        type: 'price'
       };
 
-      // Create product
-      const response = await productAPI.createProduct(productData);
-      
+      // Create product using store-specific endpoint
+      const response = await productAPI.createStoreProduct(
+        currentStore.id, 
+        productData
+      );
+
       if (response.success) {
         toast.success('Product created successfully');
+        if (onSuccess) {
+          await onSuccess(response.data);
+        }
         onClose();
       } else {
         throw new Error(response.message || 'Failed to create product');
@@ -227,6 +249,7 @@ export default function CreateProductDialog({ isOpen, onClose }) {
         return (
           <ProductImagesStep
             formData={formData}
+            setFormData={setFormData}
             handleImageUpload={handleImageUpload}
             removeImage={removeImage}
           />
@@ -235,6 +258,25 @@ export default function CreateProductDialog({ isOpen, onClose }) {
         return null
     }
   }
+
+  // Reset form when dialog closes
+  useEffect(() => {
+    if (!isOpen) {
+      setStep(1);
+      setFormData({
+        name: '',
+        description: '',
+        price: '',
+        category: '',
+        sizes: [],
+        colors: [],
+        billboardId: '',
+        images: [],
+        imageUrls: []
+      });
+      setErrors({});
+    }
+  }, [isOpen]);
 
   return (
     <AnimatedDialog 
@@ -327,7 +369,7 @@ export default function CreateProductDialog({ isOpen, onClose }) {
               className="min-w-[80px]"
               disabled={loading}
             >
-              {step === 3 ? (loading ? 'Creating...' : 'Create') : 'Next'}
+              {step === 3 ? (loading ? 'Product Creating...' : 'Product Create') : 'Next'}
             </Button>
           </div>
         </DialogFooter>

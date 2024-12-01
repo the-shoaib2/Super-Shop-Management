@@ -4,10 +4,18 @@ export const productAPI = {
   getProducts: async (storeId, params = {}) => {
     try {
       const response = await api.get(`/api/stores/${storeId}/products`, { params });
-      return response.data;
+      return {
+        success: true,
+        data: response.data?.data || [],
+        message: response.data?.message
+      };
     } catch (error) {
       console.error('Get products error:', error);
-      throw error;
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch products',
+        error
+      };
     }
   },
 
@@ -21,9 +29,9 @@ export const productAPI = {
     }
   },
 
-  createProduct: async (productData) => {
+  createStoreProduct: async (storeId, productData) => {
     try {
-      const response = await api.post('/api/products', productData);
+      const response = await api.post(`/api/stores/${storeId}/products`, productData);
       return {
         success: true,
         data: response.data?.data,
@@ -59,14 +67,15 @@ export const productAPI = {
     }
   },
 
-  uploadProductImages: async (files) => {
+  uploadProductImages: async (files, folder = 'products') => {
     try {
       const formData = new FormData();
       files.forEach(file => {
-        formData.append('images', file);
+        formData.append('files', file);
       });
+      formData.append('folder', folder);
 
-      const response = await api.post('/api/products/upload-images', formData, {
+      const response = await api.post('/api/upload/images', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

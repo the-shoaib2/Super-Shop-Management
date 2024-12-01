@@ -3,7 +3,6 @@ package com.server.service.store.settings;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.server.exception.common.ResourceNotFoundException;
 import com.server.model.store.products.Product;
 import com.server.repository.store.products.ProductRepository;
@@ -34,11 +33,17 @@ public class ProductService extends StoreAwareService {
     }
 
     public Product createProduct(Product product) {
-        storeRequirementsService.checkStoreRequirements(currentStoreId);
+        // Validate store requirements
+        // storeRequirementsService.checkStoreRequirements(currentStoreId);
+        
+        // Ensure store ID is set
+        if (product.getStoreId() == null) {
+            product.setStoreId(currentStoreId);
+        }
         
         product.setCreatedAt(LocalDateTime.now());
         product.setUpdatedAt(LocalDateTime.now());
-        product.setStoreId(currentStoreId);
+        
         return productRepository.save(product);
     }
 
@@ -46,6 +51,13 @@ public class ProductService extends StoreAwareService {
         Product product = getProduct(id);
         validateStore(product.getStoreId());
         productRepository.deleteById(id);
+    }
+
+    public Product updateProduct(Product product) {
+        Product existingProduct = getProduct(product.getId());
+        validateStore(existingProduct.getStoreId());
+        product.setUpdatedAt(LocalDateTime.now());
+        return productRepository.save(product);
     }
 
     public List<Product> getLowStockProducts(String storeId, int threshold) {

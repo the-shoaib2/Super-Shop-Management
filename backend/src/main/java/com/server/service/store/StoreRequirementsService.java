@@ -24,7 +24,6 @@ public class StoreRequirementsService {
     private final PriceRepository priceRepository;
 
     public void checkStoreRequirements(String storeId) {
-        logger.debug("Checking store requirements for storeId: {}", storeId);
         
         try {
             // Check if store has colors
