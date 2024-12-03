@@ -37,8 +37,11 @@ const categories = [
 
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-screen bg-background ml-auto">
-      <Billboard />
+    <div className="flex flex-col min-h-screen bg-background">
+      {/* Billboard Section */}
+      <div className="w-full mt-16">
+        <Billboard />
+      </div>
       
       <div className="container mx-auto px-4 py-12 space-y-16">
         {/* Featured Products */}
