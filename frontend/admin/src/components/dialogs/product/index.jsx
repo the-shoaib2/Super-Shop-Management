@@ -311,7 +311,7 @@ export default function CreateProductDialog({ isOpen, onClose, onSuccess, initia
       isOpen={isOpen} 
       onClose={onClose}
       maxWidth="max-w-3xl"
-      className="overflow-hidden shadow-[0_0_50px_-12px_rgb(0,0,0,0.25)] rounded-xl"
+      className="overflow-hidden shadow-[0_0_50px_-12px_rgb(0,0,0,0.25)] rounded-xl mx-10"
     >
       <div className="flex flex-col h-[600px]">
         <DialogHeader className="px-4 py-3 border-b flex-shrink-0">

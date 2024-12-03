@@ -16,7 +16,7 @@ export const ProductVariantsStep = ({
   const visibleSizes = showAllSizes ? options.sizes : options.sizes.slice(0, MAX_VISIBLE);
   
   return (
-    <div className="space-y-8">
+    <div className="flex-1 overflow-y-auto px-10 py-6">
       {/* Colors Section - Only show if colors exist */}
       {options.colors.length > 0 ? (
         <div>

@@ -56,21 +56,21 @@ export function Billboard() {
     setTimeout(() => {
       setIsAnimating(false);
       setDirection('left');
-    }, 200);
+    }, 750);
   };
 
   useEffect(() => {
     const timer = setInterval(() => {
       nextSlide();
-    }, 2000);
+    }, 4000);
 
     return () => clearInterval(timer);
   }, [nextSlide]);
 
   return (
-    <div className="relative h-[500px] w-full overflow-hidden">
+    <div className="relative h-[500px] w-full overflow-hidden px-4 md:px-6 lg:px-8 my-8">
       {/* Slides Container */}
-      <div className="relative h-full w-full">
+      <div className="relative h-full w-full rounded-2xl overflow-hidden shadow-xl">
         {slides.map((slide, index) => (
           <div
             key={index}
@@ -84,17 +84,17 @@ export function Billboard() {
             }`}
           >
             {/* Overlay */}
-            <div className="absolute inset-0 bg-black/30">
-              <div className="container mx-auto px-4 h-full flex flex-col justify-center">
+            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30">
+              <div className="container h-full mx-auto px-6 md:px-8 flex flex-col justify-center">
                 <h1 
-                  className={`text-4xl md:text-6xl font-bold text-white mb-4 transition-all duration-700 ${
+                  className={`text-4xl md:text-6xl font-bold text-white mb-4 transition-all duration-700 max-w-2xl ${
                     index === currentIndex ? 'translate-x-0 opacity-100' : 'translate-x-[100px] opacity-0'
                   }`}
                 >
                   {slide.title}
                 </h1>
                 <p 
-                  className={`text-xl md:text-2xl text-white/90 transition-all duration-700 delay-100 ${
+                  className={`text-xl md:text-2xl text-white/90 transition-all duration-700 delay-100 max-w-xl ${
                     index === currentIndex ? 'translate-x-0 opacity-100' : 'translate-x-[100px] opacity-0'
                   }`}
                 >
@@ -102,7 +102,7 @@ export function Billboard() {
                 </p>
                 <Button 
                   size="lg" 
-                  className={`mt-8 w-fit rounded-full text-lg transition-all duration-700 delay-200 ${
+                  className={`mt-8 w-fit rounded-full text-lg transition-all duration-700 delay-200 hover:scale-105 ${
                     index === currentIndex ? 'translate-x-0 opacity-100' : 'translate-x-[100px] opacity-0'
                   }`}
                   onClick={() => window.location.href = '/products'}
@@ -116,11 +116,11 @@ export function Billboard() {
       </div>
 
       {/* Navigation Buttons */}
-      <div className="absolute inset-0 flex items-center justify-between p-4">
+      <div className="absolute inset-x-4 md:inset-x-6 lg:inset-x-8 inset-y-0 flex items-center justify-between pointer-events-none">
         <Button
           variant="ghost"
           size="icon"
-          className="h-12 w-12 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white transition-all duration-200"
+          className="h-12 w-12 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white transition-all duration-200 pointer-events-auto"
           onClick={prevSlide}
           disabled={isAnimating}
         >
@@ -129,7 +129,7 @@ export function Billboard() {
         <Button
           variant="ghost"
           size="icon"
-          className="h-12 w-12 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white transition-all duration-200"
+          className="h-12 w-12 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white transition-all duration-200 pointer-events-auto"
           onClick={nextSlide}
           disabled={isAnimating}
         >
@@ -138,15 +138,17 @@ export function Billboard() {
       </div>
 
       {/* Dots */}
-      <div className="absolute bottom-4 left-0 right-0">
-        <div className="flex items-center justify-center gap-2">
+      <div className="absolute bottom-6 left-0 right-0">
+        <div className="flex items-center justify-center gap-3">
           {slides.map((_, slideIndex) => (
             <div
               key={slideIndex}
               onClick={() => goToSlide(slideIndex)}
               className={`
-                transition-all w-3 h-3 rounded-full cursor-pointer
-                ${currentIndex === slideIndex ? 'bg-white scale-125' : 'bg-white/50 hover:bg-white/70'}
+                w-2.5 h-2.5 rounded-full cursor-pointer transition-all duration-300
+                ${currentIndex === slideIndex 
+                  ? 'bg-white w-8' 
+                  : 'bg-white/50 hover:bg-white/70'}
                 ${isAnimating ? 'cursor-not-allowed' : 'cursor-pointer'}
               `}
             />
