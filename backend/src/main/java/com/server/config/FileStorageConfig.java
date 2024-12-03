@@ -10,7 +10,7 @@ import org.springframework.context.annotation.ComponentScan;
     "com.server.service.storage.impl"
 })
 public class FileStorageConfig {
-    @Value("${file.storage.base-url:http://localhost:8080/uploads}")
+    @Value("${file.storage.base-url:/uploads}")
     private String baseUrl;
 
     public String getBaseUrl() {
