@@ -82,6 +82,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/store/public/**").permitAll()
                 .requestMatchers("/error").permitAll()
 
+                // Permit access to Swagger UI
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+
                 // Account endpoints
                 .requestMatchers("/api/accounts/me").authenticated()
                 .requestMatchers("/api/accounts/**").authenticated()

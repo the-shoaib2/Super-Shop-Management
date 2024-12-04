@@ -1,7 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Billboard } from "@/components/Billboard";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
+import { usePageLoading } from '../hooks/usePageLoading';
+import { CustomerReviews } from "@/components/CustomerReviews";
+import { ShopDetails } from "@/components/ShopDetails";
+import { ExtraServices } from "@/components/ExtraServices";
 
 const categories = [
   { id: 'all', name: 'All Products' },
@@ -38,6 +42,16 @@ const products = [
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [isLoading, setIsLoading] = useState(true);
+  usePageLoading(isLoading);
+
+  useEffect(() => {
+    // Simulate loading time
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const filteredProducts = selectedCategory === 'all' 
     ? products 
@@ -78,6 +92,15 @@ export default function Home() {
           ))}
         </div>
       </div>
+
+      {/* Customer Reviews Section */}
+      <CustomerReviews />
+
+      {/* Extra Services Section */}
+      <ExtraServices />
+
+      {/* Shop Details Section */}
+      <ShopDetails />
     </div>
   );
 }
