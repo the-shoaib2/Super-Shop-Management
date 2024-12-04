@@ -68,7 +68,7 @@ export function Billboard() {
   }, [nextSlide]);
 
   return (
-    <div className="relative h-[500px] w-full overflow-hidden px-4 md:px-6 lg:px-8 my-8">
+    <div className="relative h-[500px] w-full overflow-hidden px-8 md:px-6 lg:px-8 my-8">
       {/* Slides Container */}
       <div className="relative h-full w-full rounded-2xl overflow-hidden shadow-xl">
         {slides.map((slide, index) => (
@@ -116,24 +116,24 @@ export function Billboard() {
       </div>
 
       {/* Navigation Buttons */}
-      <div className="absolute inset-x-4 md:inset-x-6 lg:inset-x-8 inset-y-0 flex items-center justify-between pointer-events-none">
+      <div className="absolute inset-y-0 left-10 right-10 flex items-center justify-between pointer-events-none">
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
-          className="h-12 w-12 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white transition-all duration-200 pointer-events-auto"
+          className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 border-white/10 hover:border-white/20 backdrop-blur-sm text-white transition-all duration-200 pointer-events-auto"
           onClick={prevSlide}
           disabled={isAnimating}
         >
-          <ChevronLeft className="h-8 w-8" />
+          <ChevronLeft className="h-4 w-4" />
         </Button>
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
-          className="h-12 w-12 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white transition-all duration-200 pointer-events-auto"
+          className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 border-white/10 hover:border-white/20 backdrop-blur-sm text-white transition-all duration-200 pointer-events-auto"
           onClick={nextSlide}
           disabled={isAnimating}
         >
-          <ChevronRight className="h-8 w-8" />
+          <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
 

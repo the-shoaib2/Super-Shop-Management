@@ -77,7 +77,7 @@ export function Navbar() {
             <Button
               variant="ghost"
               size="icon"
-              className="relative rounded-full hover:bg-primary/10 active:scale-95 transition-all duration-200"
+              className="relative rounded-full hover:bg-primary/80 active:scale-95 transition-all duration-200"
               onClick={handleFavoritesClick}
             >
               <div className="relative">
@@ -86,9 +86,7 @@ export function Navbar() {
                     {favorites.items.length}
                   </span>
                 )}
-                <Heart className={`h-5 w-5 transition-colors ${
-                  favorites.items.length > 0 ? 'text-primary fill-primary' : 'text-muted-foreground hover:text-primary'
-                }`} />
+                <Heart className="h-5 w-5 " />
               </div>
             </Button>
 
@@ -96,7 +94,7 @@ export function Navbar() {
             <Button
               variant="ghost"
               size="icon"
-              className="relative rounded-full hover:bg-primary/10 active:scale-95 transition-all duration-200"
+              className="relative rounded-full hover:bg-primary/80 active:scale-95 transition-all duration-200"
               onClick={handleCartClick}
             >
               <div className="relative">
@@ -105,7 +103,7 @@ export function Navbar() {
                     {cart.items.length}
                   </span>
                 )}
-                <ShoppingCart className="h-5 w-5 text-muted-foreground hover:text-primary" />
+                <ShoppingCart className="h-5 w-5 " />
               </div>
             </Button>
           </div>
@@ -157,7 +155,7 @@ export function Navbar() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="relative rounded-full hover:bg-primary/10 active:scale-95 transition-all duration-200"
+                className="rounded-full hover:bg-primary/10 active:scale-95 transition-all duration-200"
                 onClick={handleCartClick}
               >
                 <div className="relative">
