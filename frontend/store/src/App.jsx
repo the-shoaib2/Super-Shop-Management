@@ -9,29 +9,29 @@ import { LoadingProvider } from './contexts/LoadingContext';
 
 function App() {
   return (
-    <LoadingProvider>
-      <div className="flex flex-col min-h-screen overflow-x-hidden bg-background">
-        <Router>
+      <Router>
+        <div className="min-h-screen bg-background">
           <Navbar />
-          <div className="flex-1 pt-16"> 
-            <main className="container mx-auto px-4">
+          <LoadingProvider>
+          <main className="pt-16 min-h-[calc(100vh-4rem)] overflow-y-auto">
+            <div className="container mx-auto px-4">
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/favorites" element={<Favorites />} />
               </Routes>
-            </main>
-          </div>
+            </div>
+          </main>
+          </LoadingProvider>
           <Toaster
             position="top-center"
             toastOptions={{
               duration: 2000,
             }}
           />
-        </Router>
-      </div>
-    </LoadingProvider>
+        </div>
+      </Router>
   );
 }
 
