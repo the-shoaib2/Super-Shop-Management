@@ -11,10 +11,16 @@ import { LoadingProvider } from './contexts/LoadingContext';
 function App() {
   return (
       <Router>
-        <div className="min-h-screen bg-background">
+        <div className="flex flex-col min-h-screen bg-background">
+
+          {/* Navbar */}
+          <div className="sticky top-0 z-50">
           <Navbar />
+          </div>
+          {/* Loading */}
           <LoadingProvider>
-          <main className="pt-16 min-h-[calc(100vh-4rem)] overflow-y-auto">
+            {/* Main Content */}
+          <main className="flex-grow pt-16 overflow-y-auto">
             <div className="container mx-auto px-4">
               <Routes>
                 <Route path="/" element={<Home />} />
