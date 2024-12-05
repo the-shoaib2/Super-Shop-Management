@@ -62,7 +62,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/store/public/**").permitAll()
                 .requestMatchers("/error").permitAll()
 
-                // Upload endpoints - require authentication
+                // Upload endpoints - require only authentication
                 .requestMatchers("/api/upload/**").authenticated()
                 
                 // Store settings endpoints - require authentication
@@ -77,12 +77,7 @@ public class SecurityConfig {
                 .requestMatchers("/favicon.ico").permitAll()
                 .requestMatchers("/static/**").permitAll()
                 
-                // Public endpoints
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/v1/store/public/**").permitAll()
-                .requestMatchers("/error").permitAll()
-
-                // Permit access to Swagger UI
+                // Swagger UI
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
                 // Account endpoints

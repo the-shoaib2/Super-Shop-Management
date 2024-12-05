@@ -47,19 +47,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String userId = claims.get("userId", String.class);
                 String email = claims.getSubject();
                 String fullName = claims.get("fullName", String.class);
+                String role = claims.get("role", String.class);
                 
                 UserPrincipal principal = new UserPrincipal(
                     userId,
                     email,
                     fullName,
-                    Arrays.asList(new SimpleGrantedAuthority("ROLE_USER"))
+                    role != null ? 
+                        Arrays.asList(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase())) :
+                        Arrays.asList(new SimpleGrantedAuthority("ROLE_USER"))
                 );
                 
                 UsernamePasswordAuthenticationToken authentication = 
                     new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
                     
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                log.debug("User authenticated: {}", email);
+                log.debug("User authenticated: {} with role: {}", email, role);
             }
         } catch (Exception e) {
             log.error("Authentication error: ", e);

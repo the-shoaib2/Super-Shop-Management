@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Upload Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .upload-container {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #eee;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>File Upload Test</h1>
+    
+    <div class="upload-container">
+        <h2>Single Image Upload</h2>
+        <input type="file" id="singleFile" accept="image/*">
+        <button onclick="uploadSingleFile()">Upload Single Image</button>
+    </div>
+
+    <div class="upload-container">
+        <h2>Multiple Images Upload</h2>
+        <input type="file" id="multipleFiles" accept="image/*" multiple>
+        <button onclick="uploadMultipleFiles()">Upload Multiple Images</button>
+    </div>
+
+    <div id="result"></div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8080/api';
+        let authToken = ''; // Set your JWT token here
+
+        async function uploadSingleFile() {
+            const fileInput = document.getElementById('singleFile');
+            const file = fileInput.files[0];
+            if (!file) {
+                showResult('Please select a file first', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('folder', 'test-uploads');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/upload/image`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+                showResult('Single file upload result: ' + JSON.stringify(result, null, 2), response.ok ? 'success' : 'error');
+            } catch (error) {
+                showResult('Error uploading file: ' + error.message, 'error');
+            }
+        }
+
+        async function uploadMultipleFiles() {
+            const fileInput = document.getElementById('multipleFiles');
+            const files = fileInput.files;
+            if (files.length === 0) {
+                showResult('Please select files first', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            for (let file of files) {
+                formData.append('files', file);
+            }
+            formData.append('folder', 'test-uploads');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/upload/images`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+                showResult('Multiple files upload result: ' + JSON.stringify(result, null, 2), response.ok ? 'success' : 'error');
+            } catch (error) {
+                showResult('Error uploading files: ' + error.message, 'error');
+            }
+        }
+
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<pre class="${type}">${message}</pre>`;
+        }
+    </script>
+</body>
+</html>
