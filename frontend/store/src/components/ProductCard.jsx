@@ -1,90 +1,102 @@
-import { Heart, Eye } from 'lucide-react';
-import { Button } from './ui/button';
-import { Card } from './ui/card';
-import { useState } from 'react';
+import { Button } from "./ui/button";
+import { Card } from "./ui/card";
+import { Badge } from "./ui/badge";
+import { Heart, ShoppingCart } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { ProductDialog } from './ProductDialog';
 
 export function ProductCard({ product }) {
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const addToCart = (product) => {
+    if (!product.inStock) {
+      toast.error('Product is out of stock!');
+      return;
+    }
+    
+    const cart = JSON.parse(localStorage.getItem('cart')) || { items: [] };
+    const existingItem = cart.items.find(item => item.id === product.id);
+    
+    if (existingItem) {
+      existingItem.quantity += 1;
+    } else {
+      cart.items.push({ ...product, quantity: 1 });
+    }
+    
+    localStorage.setItem('cart', JSON.stringify(cart));
+    toast.success('Added to cart!');
+  };
 
-  const toggleFavorite = () => {
-    setIsFavorite(!isFavorite);
-    toast.success(
-      !isFavorite ? 'Added to favorites!' : 'Removed from favorites!'
-    );
+  const addToFavorites = (product) => {
+    const favorites = JSON.parse(localStorage.getItem('favorites')) || { items: [] };
+    const existingItem = favorites.items.find(item => item.id === product.id);
+    
+    if (!existingItem) {
+      favorites.items.push(product);
+      localStorage.setItem('favorites', JSON.stringify(favorites));
+      toast.success('Added to favorites!');
+    } else {
+      toast('Already in favorites!', { icon: '⚠️' });
+    }
   };
 
   return (
-    <>
-      <Card className="group overflow-hidden rounded-xl border-2 hover:border-primary/50 transition-all duration-300">
-        {/* Image Container */}
-        <div className="relative aspect-square">
-          <img
-            src={product.image}
-            alt={product.name}
-            className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
-          />
+    <Card className="overflow-hidden group hover:shadow-lg transition-all duration-300">
+      <div className="relative aspect-[4/4] overflow-hidden">
+        <img
+          src={product.image}
+          alt={product.name}
+          className={`object-cover w-full h-full group-hover:scale-105 transition-transform duration-300 
+            ${!product.inStock ? 'opacity-75 grayscale' : ''}`}
+        />
+        <div className="absolute top-2 right-2 flex flex-col gap-1">
+          {product.isDiscount && (
+            <Badge className="bg-red-500 text-xs">
+              {product.discount}% OFF
+            </Badge>
+          )}
+          <Badge className={`text-xs ${product.inStock ? 'bg-green-500' : 'bg-red-500'}`}>
+            {product.inStock ? 'In Stock' : 'Out of Stock'}
+          </Badge>
+        </div>
+      </div>
+      <div className="p-3">
+        <h3 className="text-base font-semibold truncate">{product.name}</h3>
+        <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{product.description}</p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <span className="text-base font-bold">
+              ${product.isDiscount 
+                ? (product.price * (1 - product.discount / 100)).toFixed(2)
+                : product.price.toFixed(2)
+              }
+            </span>
+            {product.isDiscount && (
+              <span className="text-xs text-muted-foreground line-through">
+                ${product.price}
+              </span>
+            )}
+          </div>
+
           {/* Quick Action Buttons */}
-          <div className="absolute top-4 right-4 flex flex-col gap-2">
+          <div className="flex gap-2">
             <Button
-              variant="secondary"
+              variant="ghost"
               size="icon"
-              className="h-10 w-10 rounded-full bg-white/80 hover:bg-white shadow-lg"
-              onClick={toggleFavorite}
+              className="rounded-full"
+              onClick={() => addToFavorites(product)}
             >
-              <Heart
-                className={`h-5 w-5 transition-colors ${
-                  isFavorite ? 'fill-primary text-primary' : 'text-gray-600'
-                }`}
-              />
+              <Heart className="h-5 w-5" />
             </Button>
             <Button
-              variant="secondary"
+              variant={product.inStock ? "default" : "ghost"}
               size="icon"
-              className="h-10 w-10 rounded-full bg-white/80 hover:bg-white shadow-lg"
-              onClick={() => setIsDialogOpen(true)}
+              className={`rounded-full ${!product.inStock ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={() => addToCart(product)}
+              disabled={!product.inStock}
             >
-              <Eye className="h-5 w-5 text-gray-600" />
+              <ShoppingCart className="h-5 w-5" />
             </Button>
           </div>
         </div>
-
-        {/* Product Info */}
-        <div className="p-4">
-          <div className="mb-2">
-            <p className="text-sm text-muted-foreground capitalize">
-              {product.category}
-            </p>
-            <h3 className="font-semibold text-lg truncate">
-              {product.name}
-            </h3>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <p className="text-lg font-bold text-primary">
-              ${product.price.toFixed(2)}
-            </p>
-            <Button
-              variant="default"
-              size="sm"
-              className="rounded-full px-6"
-              onClick={() => {
-                toast.success('Added to cart!');
-              }}
-            >
-              Add to Cart
-            </Button>
-          </div>
-        </div>
-      </Card>
-
-      <ProductDialog 
-        product={product}
-        isOpen={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-      />
-    </>
+      </div>
+    </Card>
   );
 }
