@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Billboard } from "@/components/Billboard";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
-import { usePageLoading } from '../hooks/usePageLoading';
 import { CustomerReviews } from "@/components/CustomerReviews";
 import { ShopDetails } from "@/components/ShopDetails";
 import { ExtraServices } from "@/components/ExtraServices";
@@ -42,16 +41,6 @@ const products = [
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [isLoading, setIsLoading] = useState(true);
-  usePageLoading(isLoading);
-
-  useEffect(() => {
-    // Simulate loading time
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
 
   const filteredProducts = selectedCategory === 'all' 
     ? products 
@@ -60,7 +49,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Billboard Section */}
-      <div className="w-full mt-16">
+      <div className="w-full mt-0">
         <Billboard />
       </div>
       

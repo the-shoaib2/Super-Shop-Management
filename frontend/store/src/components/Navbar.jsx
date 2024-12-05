@@ -1,5 +1,5 @@
 import { Button } from "./ui/button";
-import { ShoppingCart, Store, Search, Heart, Menu, X } from 'lucide-react';
+import { ShoppingCart, Store, Heart, Menu, X, Home, Gift, UserCheck } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -44,78 +44,105 @@ export function Navbar() {
           </span>
         </Link>
 
-        {/* Search Bar - Hidden on mobile, shown on md and up */}
-        <div className="hidden md:flex items-center relative max-w-md flex-1 mx-6">
-          <Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search products..."
-            className="w-full pl-10 pr-4 py-2 text-sm bg-muted/50 rounded-full border border-input focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
-          />
-        </div>
-
-        {/* Desktop Navigation */}
+        {/* Navigation Links - Hidden on mobile, shown on md and up */}
         <div className="hidden md:flex items-center space-x-4">
-          {/* Favorites Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="relative rounded-full hover:bg-primary/80 active:scale-95 transition-all duration-200"
-            onClick={() => navigate('/favorites')}
-          >
-            <div className="relative">
-              {favorites.items.length > 0 && (
-                <span className="absolute -right-1 -top-1 z-10 h-4 w-4 rounded-full bg-primary text-[10px] font-medium text-white flex items-center justify-center">
-                  {favorites.items.length}
-                </span>
-              )}
-              <Heart className="h-5 w-5" />
-            </div>
-          </Button>
+          <Link to="/">
+            <Button variant="ghost" className="relative rounded-full flex items-center space-x-2">
+              <Home className="h-4 w-4" />
+              <span>Home</span>
+            </Button>
+          </Link>
+          <Link to="/products">
+            <Button variant="ghost" className="relative rounded-full flex items-center space-x-2">
+              <UserCheck className="h-4 w-4" />
+              <span>For You</span>
+            </Button>
+          </Link>
+          <Link to="/special">
+            <Button variant="ghost" className="relative rounded-full flex items-center space-x-2">
+              <Gift className="h-4 w-4" />
+              <span>Special</span>
+            </Button>
+          </Link>
 
-          {/* Cart Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="relative rounded-full hover:bg-primary/80 active:scale-95 transition-all duration-200"
-            onClick={() => navigate('/cart')}
-          >
-            <div className="relative">
-              {cart.items.length > 0 && (
-                <span className="absolute -right-1 -top-1 z-10 h-4 w-4 rounded-full bg-primary text-[10px] font-medium text-white flex items-center justify-center">
-                  {cart.items.length}
-                </span>
-              )}
-              <ShoppingCart className="h-5 w-5" />
-            </div>
-          </Button>
         </div>
 
-        {/* Mobile Menu Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden rounded-full hover:bg-primary/10 active:scale-95 transition-all duration-200"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </Button>
+        {/* Right Side Icons */}
+        <div className="flex items-center space-x-4">
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-4">
+            {/* Favorites Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative rounded-full hover:bg-primary/80 active:scale-95 transition-all duration-200"
+              onClick={() => navigate('/favorites')}
+            >
+              <div className="relative">
+                {favorites.items.length > 0 && (
+                  <span className="absolute -right-1 -top-1 z-10 h-4 w-4 rounded-full bg-primary text-[10px] font-medium text-white flex items-center justify-center">
+                    {favorites.items.length}
+                  </span>
+                )}
+                <Heart className="h-5 w-5" />
+              </div>
+            </Button>
+
+            {/* Cart Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative rounded-full hover:bg-primary/80 active:scale-95 transition-all duration-200"
+              onClick={() => navigate('/cart')}
+            >
+              <div className="relative">
+                {cart.items.length > 0 && (
+                  <span className="absolute -right-1 -top-1 z-10 h-4 w-4 rounded-full bg-primary text-[10px] font-medium text-white flex items-center justify-center">
+                    {cart.items.length}
+                  </span>
+                )}
+                <ShoppingCart className="h-5 w-5" />
+              </div>
+            </Button>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden rounded-full hover:bg-primary/10 active:scale-95 transition-all duration-200"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
+        </div>
       </nav>
 
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden py-4 space-y-4">
-          {/* Mobile Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search products..."
-              className="w-full pl-10 pr-4 py-2 text-sm bg-muted/50 rounded-full border border-input focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
-            />
-          </div>
-          
           {/* Mobile Navigation */}
+          <div className="relative rounded-full flex justify-center space-x-4">
+            <Link to="/">
+              <Button variant="ghost" className=" flex items-center space-x-2">
+                <Home className="h-4 w-4" />
+                <span>Home</span>
+              </Button>
+            </Link>
+            
+            <Link to="/for-you">
+              <Button variant="ghost" className=" flex items-center space-x-2">
+                <UserCheck className="h-4 w-4" />
+                <span>For You</span>
+              </Button>
+            </Link>
+            <Link to="/special">
+              <Button variant="ghost" className=" flex items-center space-x-2">
+                <Gift className="h-4 w-4" />
+                <span>Special</span>
+              </Button>
+            </Link>
+          </div>
           <div className="flex justify-center space-x-4">
             <Button
               variant="ghost"

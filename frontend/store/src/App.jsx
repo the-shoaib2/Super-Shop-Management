@@ -5,6 +5,7 @@ import Products from './pages/Products';
 import Home from './pages/Home';
 import Cart from './pages/Cart';
 import Favorites from './pages/Favorites';
+import Special from './pages/Special';
 import { LoadingProvider } from './contexts/LoadingContext';
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
                 <Route path="/products" element={<Products />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/favorites" element={<Favorites />} />
+                <Route path="/special" element={<Special />} />
               </Routes>
             </div>
           </main>
