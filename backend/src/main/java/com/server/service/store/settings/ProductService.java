@@ -38,7 +38,7 @@ public class ProductService extends StoreAwareService {
 
     public Product createProduct(Product product) {
         // Validate store requirements
-        // storeRequirementsService.checkStoreRequirements(currentStoreId);
+        storeRequirementsService.checkStoreRequirements(currentStoreId);
         
         // Ensure store ID is set
         if (product.getStoreId() == null) {
