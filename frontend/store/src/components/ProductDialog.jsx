@@ -8,52 +8,85 @@ import toast from "react-hot-toast";
 const MotionDialogContent = motion(DialogContent);
 
 const fadeIn = {
-  hidden: { opacity: 0, y: 20, scale: 0.95 },
+  hidden: { opacity: 0, scale: 0.95 },
   visible: { 
     opacity: 1, 
-    y: 0, 
     scale: 1,
-    transition: { duration: 0.2, ease: "easeOut" }
+    transition: {
+      duration: 0.2,
+      ease: "easeOut"
+    }
   },
   exit: { 
-    opacity: 0,
+    opacity: 0, 
     scale: 0.95,
-    transition: { duration: 0.15, ease: "easeIn" }
+    transition: {
+      duration: 0.15,
+      ease: "easeIn"
+    }
   }
 };
 
+const features = [
+  {
+    icon: Package,
+    title: "Premium Quality",
+    description: "Professional grade materials"
+  },
+  {
+    icon: Shield,
+    title: "1 Year Warranty",
+    description: "Manufacturer guarantee"
+  },
+  {
+    icon: Truck,
+    title: "Free Returns",
+    description: "Within 30 days of purchase"
+  }
+];
+
 export function ProductDialog({ product, isOpen, onClose }) {
-  const [isFavorite, setIsFavorite] = useState(false);
   const [selectedQuantity, setSelectedQuantity] = useState(1);
+  const [isFavorite, setIsFavorite] = useState(() => {
+    const favorites = JSON.parse(localStorage.getItem("favorites") || "{ \"items\": [] }");
+    return favorites.items.some(item => item.id === product?.id);
+  });
+
+  const handleQuantityChange = (e) => {
+    const value = parseInt(e.target.value);
+    if (value >= 1 && value <= 10) {
+      setSelectedQuantity(value);
+    }
+  };
 
   const handleAddToCart = () => {
-    toast.success(
-      `Added ${selectedQuantity} ${product.name}${selectedQuantity > 1 ? 's' : ''} to cart!`,
-      {
-        duration: 2000,
-      }
-    );
+    const cart = JSON.parse(localStorage.getItem("cart") || "{ \"items\": [] }");
+    const existingItem = cart.items.find(item => item.id === product.id);
+
+    if (existingItem) {
+      existingItem.quantity += selectedQuantity;
+    } else {
+      cart.items.push({ ...product, quantity: selectedQuantity });
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    toast.success("Added to cart!");
     onClose();
   };
 
   const toggleFavorite = () => {
-    setIsFavorite(!isFavorite);
-    if (!isFavorite) {
-      toast.success(`Added ${product.name} to favorites!`, {
-        icon: '❤️',
-      });
+    const favorites = JSON.parse(localStorage.getItem("favorites") || "{ \"items\": [] }");
+    
+    if (isFavorite) {
+      favorites.items = favorites.items.filter(item => item.id !== product.id);
+      toast.success("Removed from favorites");
     } else {
-      toast('Removed from favorites', {
-        icon: '💔',
-      });
+      favorites.items.push(product);
+      toast.success("Added to favorites!");
     }
-  };
-
-  const handleQuantityChange = (e) => {
-    const value = parseInt(e.target.value);
-    if (value > 0 && value <= 10) {
-      setSelectedQuantity(value);
-    }
+    
+    localStorage.setItem("favorites", JSON.stringify(favorites));
+    setIsFavorite(!isFavorite);
   };
 
   if (!product) return null;
@@ -67,77 +100,98 @@ export function ProductDialog({ product, isOpen, onClose }) {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="max-w-3xl overflow-hidden rounded-lg"
+            className="max-w-3xl overflow-hidden rounded-lg p-0 sm:p-6"
           >
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold">
-                {product.name}
-              </DialogTitle>
-            </DialogHeader>
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Product Image Section */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 }}
+                className="relative aspect-square md:aspect-auto md:h-full"
+              >
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="h-full w-full object-cover rounded-t-lg md:rounded-lg"
+                />
+                <div className="absolute top-4 left-4">
+                  <span className="px-3 py-1 text-xs font-medium bg-primary/10 text-primary backdrop-blur-sm rounded-full">
+                    {product.category}
+                  </span>
+                </div>
+              </motion.div>
 
-            <div className="grid gap-8 md:grid-cols-2 mt-6">
-              {/* Product Image */}
-              <div className="space-y-4">
-                <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="object-cover w-full h-full hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute top-2 left-2">
-                    <span className="px-3 py-1 text-xs font-medium bg-primary/10 text-primary backdrop-blur-sm rounded-full">
-                      {product.category}
+              {/* Product Details Section */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+                className="p-6 md:p-0 space-y-6"
+              >
+                <div>
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl font-bold">
+                      {product.name}
+                    </DialogTitle>
+                  </DialogHeader>
+                  <div className="flex items-center gap-2 mt-2">
+                    <div className="flex">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className="w-4 h-4 fill-primary text-primary" />
+                      ))}
+                    </div>
+                    <span className="text-sm text-muted-foreground">(50+ Reviews)</span>
+                  </div>
+                  <p className="mt-4 text-muted-foreground">
+                    {product.description}
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-3xl font-bold text-primary">
+                      ৳{product.price.toFixed(2)}
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      In Stock
                     </span>
                   </div>
-                </div>
-                
-                {/* Product Rating */}
-                <div className="flex items-center gap-2 px-2">
-                  <div className="flex">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-primary text-primary" />
-                    ))}
-                  </div>
-                  <span className="text-sm text-muted-foreground">(50+ Reviews)</span>
-                </div>
-              </div>
-
-              {/* Product Details */}
-              <div className="flex flex-col justify-between">
-                <div className="space-y-6">
-                  <div>
-                    <p className="text-sm text-muted-foreground capitalize">
-                      {product.category}
-                    </p>
-                    <p className="mt-2 text-3xl font-bold text-primary">
-                      ৳{product.price.toFixed(2)}
-                    </p>
-                  </div>
-
-                  <p className="text-muted-foreground">
-                    {product.description || "Professional grade billiard equipment crafted with premium materials for optimal performance."}
-                  </p>
 
                   {/* Quantity Selector */}
-                  <div className="space-y-2">
-                    <label htmlFor="quantity" className="text-sm font-medium">
-                      Quantity
-                    </label>
-                    <input
-                      type="number"
-                      id="quantity"
-                      min="1"
-                      max="10"
-                      value={selectedQuantity}
-                      onChange={handleQuantityChange}
-                      className="w-20 px-3 py-2 border rounded-lg text-sm"
-                    />
+                  <div className="flex items-center gap-4">
+                    <label className="text-sm font-medium">Quantity:</label>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => selectedQuantity > 1 && setSelectedQuantity(q => q - 1)}
+                        className="h-8 w-8"
+                      >
+                        -
+                      </Button>
+                      <input
+                        type="number"
+                        min="1"
+                        max="10"
+                        value={selectedQuantity}
+                        onChange={handleQuantityChange}
+                        className="w-16 text-center p-1 border rounded-md"
+                      />
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => selectedQuantity < 10 && setSelectedQuantity(q => q + 1)}
+                        className="h-8 w-8"
+                      >
+                        +
+                      </Button>
+                    </div>
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex gap-4">
+                  <div className="flex gap-3">
                     <Button
-                      size="lg"
                       className="flex-1 rounded-full"
                       onClick={handleAddToCart}
                     >
@@ -145,7 +199,6 @@ export function ProductDialog({ product, isOpen, onClose }) {
                       Add to Cart
                     </Button>
                     <Button
-                      size="lg"
                       variant="outline"
                       className="rounded-full"
                       onClick={toggleFavorite}
@@ -160,33 +213,29 @@ export function ProductDialog({ product, isOpen, onClose }) {
                 </div>
 
                 {/* Features */}
-                <div className="space-y-4 pt-6 mt-6 border-t">
+                <div className="border-t pt-6 space-y-4">
                   <h4 className="font-semibold">Product Features</h4>
-                  <div className="grid grid-cols-1 gap-4">
-                    <div className="flex items-center gap-3">
-                      <Package className="w-5 h-5 text-primary" />
-                      <div>
-                        <p className="text-sm font-medium">Premium Quality</p>
-                        <p className="text-xs text-muted-foreground">Professional grade materials</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Shield className="w-5 h-5 text-primary" />
-                      <div>
-                        <p className="text-sm font-medium">1 Year Warranty</p>
-                        <p className="text-xs text-muted-foreground">Manufacturer guarantee</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Truck className="w-5 h-5 text-primary" />
-                      <div>
-                        <p className="text-sm font-medium">Free Returns</p>
-                        <p className="text-xs text-muted-foreground">Within 30 days of purchase</p>
-                      </div>
-                    </div>
+                  <div className="grid gap-4">
+                    {features.map((feature, index) => (
+                      <motion.div
+                        key={feature.title}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 + index * 0.1 }}
+                        className="flex items-center gap-3"
+                      >
+                        <feature.icon className="w-5 h-5 text-primary" />
+                        <div>
+                          <p className="text-sm font-medium">{feature.title}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {feature.description}
+                          </p>
+                        </div>
+                      </motion.div>
+                    ))}
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </MotionDialogContent>
         )}

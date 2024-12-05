@@ -1,9 +1,37 @@
-import { useState, useEffect } from 'react';
-import { ProductCard } from '../components/ProductCard';
-import { Button } from '../components/ui/button';
-import { Search } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
+import { ProductDialog } from "@/components/ProductDialog";
 
-const categories = ['All', 'Cues', 'Balls', 'Tables', 'Accessories'];
+const MotionDiv = motion.div;
+
+const categories = [
+  "All Products",
+  "Cue Sticks",
+  "Balls",
+  "Tables",
+  "Accessories",
+  "Maintenance",
+];
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1
+  }
+};
 
 const products = [
   {
@@ -11,7 +39,7 @@ const products = [
     name: "Professional Pool Cue",
     description: "High-quality maple wood pool cue with precision tip, perfect for professional players. Features excellent balance and control.",
     price: 199.99,
-    category: "Cues",
+    category: "Cue Sticks",
     image: "https://images.unsplash.com/photo-1610726343776-cae3ec70afd7?q=80&w=2070&auto=format&fit=crop"
   },
   {
@@ -56,102 +84,112 @@ const products = [
   }
 ];
 
-const Products = () => {
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
+export default function Products() {
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("All Products");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading state
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-  }, [selectedCategory]);
+    setLoading(false);
+  }, []);
 
-  const filteredProducts = products
-    .filter(product => selectedCategory === 'All' || product.category === selectedCategory)
-    .filter(product => 
-      searchQuery === '' || 
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+  const filteredProducts = products.filter(product => {
+    const matchesCategory = selectedCategory === "All Products" || product.category === selectedCategory;
+    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) || product.description.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/50 bg-clip-text text-transparent">
-            Our Products
-          </h1>
-          
-          {/* Search Bar */}
-          <div className="relative max-w-md w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-sm bg-muted/50 rounded-full border border-input focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
-            />
-          </div>
+    <div className="container mx-auto px-4 py-8 mt-16">
+      {/* Search and Filter Section */}
+      <div className="mb-8 space-y-6">
+        {/* Search Bar */}
+        <div className="relative max-w-md mx-auto">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 rounded-full border focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+          />
         </div>
 
-        {/* Category Filter */}
-        <div className="overflow-x-auto pb-2">
-          <div className="flex space-x-2 min-w-max">
-            {categories.map((category) => (
-              <Button
-                key={category}
-                variant={selectedCategory === category ? "default" : "outline"}
-                onClick={() => setSelectedCategory(category)}
-                className={`
-                  rounded-full px-6 transition-all duration-200
-                  ${selectedCategory === category 
-                    ? 'shadow-md hover:shadow-lg scale-105' 
-                    : 'hover:border-primary/50 hover:text-primary'}
-                `}
-              >
-                {category}
-              </Button>
-            ))}
-          </div>
+        {/* Categories */}
+        <div className="flex flex-wrap justify-center gap-2">
+          {categories.map((category) => (
+            <Button
+              key={category}
+              variant={selectedCategory === category ? "default" : "outline"}
+              onClick={() => setSelectedCategory(category)}
+              className="rounded-full"
+            >
+              {category}
+            </Button>
+          ))}
         </div>
+      </div>
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
-          {isLoading ? (
-            // Loading skeleton
-            Array.from({ length: 8 }).map((_, index) => (
-              <div key={index} className="animate-pulse">
-                <div className="bg-muted rounded-lg h-[300px] mb-4"></div>
-                <div className="space-y-3">
-                  <div className="h-4 bg-muted rounded w-3/4"></div>
-                  <div className="h-4 bg-muted rounded w-full"></div>
-                  <div className="h-4 bg-muted rounded w-1/2"></div>
+      {/* Products Grid */}
+      <MotionDiv
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+      >
+        {filteredProducts.map((product) => (
+          <MotionDiv
+            key={product.id}
+            variants={itemVariants}
+            whileHover={{ scale: 1.03 }}
+            className="group cursor-pointer"
+            onClick={() => {
+              setSelectedProduct(product);
+              setIsDialogOpen(true);
+            }}
+          >
+            <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
+              <img
+                src={product.image}
+                alt={product.name}
+                className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300"
+              />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute bottom-4 left-4 right-4">
+                  <h3 className="text-white font-semibold truncate">{product.name}</h3>
+                  <p className="text-white/80 text-sm mt-1">৳{product.price.toFixed(2)}</p>
                 </div>
               </div>
-            ))
-          ) : (
-            filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))
-          )}
-        </div>
+            </div>
+            <div className="mt-3 space-y-1">
+              <h3 className="font-medium truncate">{product.name}</h3>
+              <p className="text-sm text-muted-foreground">৳{product.price.toFixed(2)}</p>
+              <p className="text-xs text-primary">{product.category}</p>
+            </div>
+          </MotionDiv>
+        ))}
+      </MotionDiv>
 
-        {/* Empty State */}
-        {!isLoading && filteredProducts.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-lg text-muted-foreground">
-              No products found. Try adjusting your search or filter.
-            </p>
-          </div>
-        )}
-      </div>
+      {/* Empty State */}
+      {filteredProducts.length === 0 && (
+        <MotionDiv
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center py-16"
+        >
+          <h3 className="text-lg font-semibold">No products found</h3>
+          <p className="text-muted-foreground mt-2">Try adjusting your search or filter criteria</p>
+        </MotionDiv>
+      )}
+
+      {/* Product Dialog */}
+      <ProductDialog
+        product={selectedProduct}
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+      />
     </div>
   );
-};
-
-export default Products;
+}
