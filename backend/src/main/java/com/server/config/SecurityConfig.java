@@ -104,7 +104,11 @@ public class SecurityConfig {
             adminFrontendUrl,
             storeFrontendUrl,
             "http://localhost:5173",
-            "http://localhost:3000"
+            "http://localhost:5174",
+            "http://localhost:3000",
+            "https://4lnkrm5n-3000.inc1.devtunnels.ms/",
+            "https://4lnkrm5n-5173.inc1.devtunnels.ms/",
+            "https://4lnkrm5n-5174.inc1.devtunnels.ms/"
         ));
         configuration.setAllowedMethods(Arrays.asList(
             "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
