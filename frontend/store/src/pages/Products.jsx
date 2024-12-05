@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
+import { ProductCard } from "@/components/ProductCard";
 import { ProductDialog } from "@/components/ProductDialog";
 
 const MotionDiv = motion.div;
@@ -20,16 +21,27 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1
+      staggerChildren: 0.15,
+      duration: 0.4,
+      ease: "easeOut"
     }
   }
 };
 
 const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
+  hidden: { 
+    opacity: 0,
+    y: 20,
+    scale: 0.95
+  },
   visible: {
+    opacity: 1,
     y: 0,
-    opacity: 1
+    scale: 1,
+    transition: {
+      duration: 0.6,
+      ease: "easeOut"
+    }
   }
 };
 
@@ -40,7 +52,10 @@ const products = [
     description: "High-quality maple wood pool cue with precision tip, perfect for professional players. Features excellent balance and control.",
     price: 199.99,
     category: "Cue Sticks",
-    image: "https://images.unsplash.com/photo-1610726343776-cae3ec70afd7?q=80&w=2070&auto=format&fit=crop"
+    image: "https://images.unsplash.com/photo-1610726343776-cae3ec70afd7?q=80&w=2070&auto=format&fit=crop",
+    isDiscount: true,
+    discount: 15,
+    inStock: true
   },
   {
     id: 2,
@@ -48,7 +63,10 @@ const products = [
     description: "Professional grade phenolic resin ball set with precise measurements and perfect roundness for tournament play.",
     price: 299.99,
     category: "Balls",
-    image: "https://images.unsplash.com/photo-1626776876729-bab4991b7991?q=80&w=1974&auto=format&fit=crop"
+    image: "https://images.unsplash.com/photo-1626776876729-bab4991b7991?q=80&w=1974&auto=format&fit=crop",
+    isDiscount: false,
+    discount: 0,
+    inStock: true
   },
   {
     id: 3,
@@ -56,7 +74,10 @@ const products = [
     description: "Slate bed pool table with Italian cloth, professional cushions, and solid wood construction. Perfect for clubs and serious players.",
     price: 2499.99,
     category: "Tables",
-    image: "https://images.unsplash.com/photo-1609726121380-243fcdbb1935?q=80&w=2070&auto=format&fit=crop"
+    image: "https://images.unsplash.com/photo-1609726121380-243fcdbb1935?q=80&w=2070&auto=format&fit=crop",
+    isDiscount: true,
+    discount: 20,
+    inStock: false
   },
   {
     id: 4,
@@ -64,7 +85,10 @@ const products = [
     description: "Premium performance chalk set with superior grip and consistency. Includes 4 cubes of professional-grade chalk.",
     price: 19.99,
     category: "Accessories",
-    image: "https://images.unsplash.com/photo-1609726494499-27d3e942456c?q=80&w=2070&auto=format&fit=crop"
+    image: "https://images.unsplash.com/photo-1609726494499-27d3e942456c?q=80&w=2070&auto=format&fit=crop",
+    isDiscount: false,
+    discount: 0,
+    inStock: true
   },
   {
     id: 5,
@@ -72,7 +96,10 @@ const products = [
     description: "Handcrafted leather cue case with premium stitching, plush interior, and secure locks. Holds up to 2 cues.",
     price: 79.99,
     category: "Accessories",
-    image: "https://images.unsplash.com/photo-1611776246-c4add6822d7f?q=80&w=2069&auto=format&fit=crop"
+    image: "https://images.unsplash.com/photo-1611776246-c4add6822d7f?q=80&w=2069&auto=format&fit=crop",
+    isDiscount: true,
+    discount: 10,
+    inStock: true
   },
   {
     id: 6,
@@ -80,7 +107,10 @@ const products = [
     description: "Professional bridge stick with adjustable head and non-slip grip. Essential for those difficult shots.",
     price: 49.99,
     category: "Accessories",
-    image: "https://images.unsplash.com/photo-1609726494563-a9821d3c8a0e?q=80&w=2070&auto=format&fit=crop"
+    image: "https://images.unsplash.com/photo-1609726494563-a9821d3c8a0e?q=80&w=2070&auto=format&fit=crop",
+    isDiscount: false,
+    discount: 0,
+    inStock: true
   }
 ];
 
@@ -143,31 +173,10 @@ export default function Products() {
           <MotionDiv
             key={product.id}
             variants={itemVariants}
-            whileHover={{ scale: 1.03 }}
-            className="group cursor-pointer"
-            onClick={() => {
-              setSelectedProduct(product);
-              setIsDialogOpen(true);
-            }}
+            whileHover={{ y: -5 }}
+            className="group"
           >
-            <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
-                <div className="absolute bottom-4 left-4 right-4">
-                  <h3 className="text-white font-semibold truncate">{product.name}</h3>
-                  <p className="text-white/80 text-sm mt-1">৳{product.price.toFixed(2)}</p>
-                </div>
-              </div>
-            </div>
-            <div className="mt-3 space-y-1">
-              <h3 className="font-medium truncate">{product.name}</h3>
-              <p className="text-sm text-muted-foreground">৳{product.price.toFixed(2)}</p>
-              <p className="text-xs text-primary">{product.category}</p>
-            </div>
+            <ProductCard product={product} />
           </MotionDiv>
         ))}
       </MotionDiv>

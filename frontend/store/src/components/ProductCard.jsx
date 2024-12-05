@@ -3,6 +3,7 @@ import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Heart, ShoppingCart } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { LazyImage } from "./LazyImage";
 
 export function ProductCard({ product }) {
   const addToCart = (product) => {
@@ -40,7 +41,7 @@ export function ProductCard({ product }) {
   return (
     <Card className="overflow-hidden group hover:shadow-lg transition-all duration-300">
       <div className="relative aspect-[4/4] overflow-hidden">
-        <img
+        <LazyImage
           src={product.image}
           alt={product.name}
           className={`object-cover w-full h-full group-hover:scale-105 transition-transform duration-300 
