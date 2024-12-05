@@ -72,6 +72,16 @@ public class SecurityConfig {
                 .requestMatchers("/api/stores/{storeId}/billboards/**").authenticated()
                 .requestMatchers("/api/stores/{storeId}/prices/**").authenticated()
                 .requestMatchers("/api/stores/{storeId}/products/**").authenticated()
+
+                // Dashboard endpoints
+                .requestMatchers("/api/**").authenticated()
+                .requestMatchers("/api/store/{storeId}/dashboard").authenticated()
+                .requestMatchers("/api/stores/{storeId}/analytics/**").authenticated()
+                .requestMatchers("/api/stores/{storeId}/reviews/**").authenticated()
+                .requestMatchers("/api/stores/{storeId}/orders/**").authenticated()
+                .requestMatchers("/api/stores/{storeId}/products/**").authenticated()
+                .requestMatchers("/api/stores/{storeId}/inventory/**").authenticated()
+                .requestMatchers("/api/stores/{storeId}/customers/**").authenticated()
                 
                 // Static resources
                 .requestMatchers("/favicon.ico").permitAll()

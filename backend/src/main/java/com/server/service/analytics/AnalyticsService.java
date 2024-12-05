@@ -205,4 +205,74 @@ public class AnalyticsService {
         }
         return report;
     }
+
+    public Map<String, Object> getProductStockAnalytics(String storeId) {
+        Map<String, Object> stockData = new HashMap<>();
+        try {
+            // Get product stock levels
+            List<Map<String, Object>> stockLevels = orderRepository.getProductStockLevels(storeId);
+            stockData.put("stockLevels", stockLevels);
+
+            // Get low stock alerts (products below threshold)
+            List<Map<String, Object>> lowStockAlerts = orderRepository.getLowStockProducts(storeId);
+            stockData.put("lowStockAlerts", lowStockAlerts);
+
+            // Get stock value by category
+            Map<String, BigDecimal> stockValueByCategory = orderRepository.getStockValueByCategory(storeId);
+            stockData.put("stockValueByCategory", stockValueByCategory);
+
+            return stockData;
+        } catch (Exception e) {
+            logger.error("Error getting product stock analytics for store {}: {}", storeId, e.getMessage());
+            return Collections.emptyMap();
+        }
+    }
+
+    public Map<String, Object> getSalesTrend(String storeId, LocalDateTime start, LocalDateTime end) {
+        Map<String, Object> trendData = new HashMap<>();
+        try {
+            // Get daily sales trend
+            List<Map<String, Object>> dailySales = orderRepository.getDailySalesTrend(storeId, start, end);
+            trendData.put("dailySales", dailySales);
+
+            // Get sales by product category
+            Map<String, BigDecimal> salesByCategory = orderRepository.getSalesByCategory(storeId, start, end);
+            trendData.put("salesByCategory", salesByCategory);
+
+            // Get top selling products
+            List<Map<String, Object>> topProducts = orderRepository.getTopSellingProducts(storeId, start, end);
+            trendData.put("topProducts", topProducts);
+
+            // Get sales growth rate
+            BigDecimal growthRate = orderRepository.calculateSalesGrowthRate(storeId, start, end);
+            trendData.put("growthRate", growthRate);
+
+            return trendData;
+        } catch (Exception e) {
+            logger.error("Error getting sales trend for store {}: {}", storeId, e.getMessage());
+            return Collections.emptyMap();
+        }
+    }
+
+    public Map<String, Object> getCategoryAnalytics(String storeId) {
+        Map<String, Object> categoryData = new HashMap<>();
+        try {
+            // Get sales distribution by category
+            Map<String, BigDecimal> categoryDistribution = orderRepository.getCategorySalesDistribution(storeId);
+            categoryData.put("salesDistribution", categoryDistribution);
+
+            // Get category growth rates
+            Map<String, BigDecimal> categoryGrowth = orderRepository.getCategoryGrowthRates(storeId);
+            categoryData.put("growthRates", categoryGrowth);
+
+            // Get top performing categories
+            List<Map<String, Object>> topCategories = orderRepository.getTopPerformingCategories(storeId);
+            categoryData.put("topCategories", topCategories);
+
+            return categoryData;
+        } catch (Exception e) {
+            logger.error("Error getting category analytics for store {}: {}", storeId, e.getMessage());
+            return Collections.emptyMap();
+        }
+    }
 } 
