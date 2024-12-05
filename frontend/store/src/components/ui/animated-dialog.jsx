@@ -1,5 +1,5 @@
-import { Dialog } from '@headlessui/react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion';
+import { X } from 'lucide-react';
 
 const overlayVariants = {
   hidden: { opacity: 0 },
@@ -53,14 +53,12 @@ export function AnimatedDialog({
   maxWidth = 'max-w-lg',
   className = ''
 }) {
+  if (!isOpen) return null;
+
   return (
     <AnimatePresence>
       {isOpen && (
-        <Dialog 
-          open={isOpen} 
-          onClose={onClose} 
-          className="relative z-50"
-        >
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
           {/* Backdrop */}
           <motion.div
             className="fixed inset-0 bg-background/80 backdrop-blur-sm"
@@ -68,23 +66,22 @@ export function AnimatedDialog({
             initial="hidden"
             animate="visible"
             exit="exit"
+            onClick={onClose}
           />
           
           {/* Dialog container */}
-          <div className="fixed inset-0 flex items-center justify-center p-4">
-            <motion.div
-              className={`w-full ${maxWidth} ${className}`}
-              variants={dialogVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-            >
-              <Dialog.Panel className="relative bg-card rounded-lg shadow-xl overflow-hidden">
-                {children}
-              </Dialog.Panel>
-            </motion.div>
-          </div>
-        </Dialog>
+          <motion.div
+            className={`relative w-full ${maxWidth} ${className}`}
+            variants={dialogVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
+            <div className="relative bg-card rounded-lg shadow-xl overflow-hidden">
+              {children}
+            </div>
+          </motion.div>
+        </div>
       )}
     </AnimatePresence>
   )
@@ -99,14 +96,6 @@ export function DialogHeader({ children, className = '' }) {
   )
 }
 
-export function DialogTitle({ children, className = '' }) {
-  return (
-    <Dialog.Title className={`text-lg font-semibold text-foreground ${className}`}>
-      {children}
-    </Dialog.Title>
-  )
-}
-
 export function DialogContent({ children, className = '' }) {
   return (
     <div className={`p-4 ${className}`}>
@@ -117,7 +106,7 @@ export function DialogContent({ children, className = '' }) {
 
 export function DialogFooter({ children, className = '' }) {
   return (
-    <div className={`border-t border-border p-4 bg-muted flex justify-end space-x-2 ${className}`}>
+    <div className={`p-4 border-t border-border flex justify-end gap-2 ${className}`}>
       {children}
     </div>
   )
@@ -127,11 +116,10 @@ export function DialogCloseButton({ onClose }) {
   return (
     <button
       onClick={onClose}
-      className="rounded-full p-1.5 text-muted-foreground hover:bg-muted transition-colors"
+      className="p-2 rounded-full hover:bg-muted transition-colors"
+      aria-label="Close dialog"
     >
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-      </svg>
+      <X className="h-5 w-5" />
     </button>
   )
-} 
+}
