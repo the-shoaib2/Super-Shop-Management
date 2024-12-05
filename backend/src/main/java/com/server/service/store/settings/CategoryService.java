@@ -17,6 +17,7 @@ import com.server.service.store.base.StoreAwareService;
 import java.util.List;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.ArrayList;
 
 @Service
 public class CategoryService extends StoreAwareService {
@@ -93,6 +94,13 @@ public class CategoryService extends StoreAwareService {
         
         Category savedCategory = categoryRepository.save(category);
         logger.debug("Created category with ID: {} for store: {}", savedCategory.getId(), currentStoreId);
+        
+        // Update store's categories list
+        if (store.getStoreCategories() == null) {
+            store.setStoreCategories(new ArrayList<>());
+        }
+        store.getStoreCategories().add(savedCategory);
+        storeRepository.save(store);
         
         return savedCategory;
     }

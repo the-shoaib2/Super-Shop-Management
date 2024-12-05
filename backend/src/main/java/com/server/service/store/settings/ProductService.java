@@ -5,11 +5,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.server.exception.common.ResourceNotFoundException;
 import com.server.model.store.products.Product;
+import com.server.model.store.Store;
 import com.server.repository.store.products.ProductRepository;
+import com.server.repository.store.StoreRepository;
 import com.server.service.store.base.StoreAwareService;
 import com.server.service.store.StoreRequirementsService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -17,6 +20,7 @@ import java.util.List;
 @Transactional
 public class ProductService extends StoreAwareService {
     private final ProductRepository productRepository;
+    private final StoreRepository storeRepository;
     private final StoreRequirementsService storeRequirementsService;
 
     public List<Product> getAllProducts() {
@@ -44,7 +48,19 @@ public class ProductService extends StoreAwareService {
         product.setCreatedAt(LocalDateTime.now());
         product.setUpdatedAt(LocalDateTime.now());
         
-        return productRepository.save(product);
+        Product savedProduct = productRepository.save(product);
+        
+        // Update store's products list
+        Store store = storeRepository.findById(currentStoreId)
+            .orElseThrow(() -> new ResourceNotFoundException("Store not found with id: " + currentStoreId));
+        
+        if (store.getProducts() == null) {
+            store.setProducts(new ArrayList<>());
+        }
+        store.getProducts().add(savedProduct);
+        storeRepository.save(store);
+        
+        return savedProduct;
     }
 
     public void deleteProduct(String id) {

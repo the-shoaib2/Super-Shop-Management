@@ -5,9 +5,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.server.model.store.products.ProductColor;
+import com.server.model.store.Store;
 import com.server.repository.store.products.ProductColorRepository;
+import com.server.repository.store.StoreRepository;
 import com.server.exception.EntityNotFoundException;
+import com.server.exception.ResourceNotFoundException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ColorService {
     private final ProductColorRepository colorRepository;
+    private final StoreRepository storeRepository;
 
     public List<ProductColor> findAllByStore(String storeId) {
         return colorRepository.findByStoreId(storeId);
@@ -23,7 +28,19 @@ public class ColorService {
     @Transactional
     public ProductColor create(ProductColor color, String storeId) {
         color.setStoreId(storeId);
-        return colorRepository.save(color);
+        ProductColor savedColor = colorRepository.save(color);
+        
+        // Update store's colors list
+        Store store = storeRepository.findById(storeId)
+            .orElseThrow(() -> new ResourceNotFoundException("Store not found with id: " + storeId));
+        
+        if (store.getColors() == null) {
+            store.setColors(new ArrayList<>());
+        }
+        store.getColors().add(savedColor);
+        storeRepository.save(store);
+        
+        return savedColor;
     }
 
     @Transactional

@@ -7,17 +7,21 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
 import com.server.model.store.Price;
+import com.server.model.store.Store;
 import com.server.repository.store.settings.PriceRepository;
+import com.server.repository.store.StoreRepository;
 import com.server.exception.ResourceNotFoundException;
 
 import java.util.List;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
 public class PriceService {
     private final PriceRepository priceRepository;
+    private final StoreRepository storeRepository;
     private final MongoTemplate mongoTemplate;
     private String currentStoreId;
 
@@ -39,7 +43,19 @@ public class PriceService {
         price.setStoreId(currentStoreId);
         price.setCreatedAtIfNull();
         price.calculateAllDiscounts();
-        return priceRepository.save(price);
+        Price savedPrice = priceRepository.save(price);
+        
+        // Update store's prices list
+        Store store = storeRepository.findById(currentStoreId)
+            .orElseThrow(() -> new ResourceNotFoundException("Store not found with id: " + currentStoreId));
+        
+        if (store.getPrices() == null) {
+            store.setPrices(new ArrayList<>());
+        }
+        store.getPrices().add(savedPrice);
+        storeRepository.save(store);
+        
+        return savedPrice;
     }
 
     public Price updatePrice(Price price) {

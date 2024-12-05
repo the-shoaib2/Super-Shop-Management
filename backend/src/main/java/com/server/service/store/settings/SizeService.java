@@ -4,18 +4,25 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.server.model.store.products.ProductSize;
+import com.server.model.store.Store;
 import com.server.repository.store.products.ProductSizeRepository;
+import com.server.repository.store.StoreRepository;
 import com.server.exception.EntityNotFoundException;
+import com.server.exception.ResourceNotFoundException;
 
 import java.util.List;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.ArrayList;
 
 @Service
 public class SizeService {
     
     @Autowired
     private ProductSizeRepository sizeRepository;
+    
+    @Autowired
+    private StoreRepository storeRepository;
     
     public List<ProductSize> getSizes(String storeId) {
         return sizeRepository.findByStoreId(storeId);
@@ -24,7 +31,19 @@ public class SizeService {
     public ProductSize createSize(ProductSize size) {
         size.setCreatedAt(LocalDateTime.now());
         size.setUpdatedAt(LocalDateTime.now());
-        return sizeRepository.save(size);
+        ProductSize savedSize = sizeRepository.save(size);
+        
+        // Update store's sizes list
+        Store store = storeRepository.findById(size.getStoreId())
+            .orElseThrow(() -> new ResourceNotFoundException("Store not found with id: " + size.getStoreId()));
+        
+        if (store.getSizes() == null) {
+            store.setSizes(new ArrayList<>());
+        }
+        store.getSizes().add(savedSize);
+        storeRepository.save(store);
+        
+        return savedSize;
     }
     
     public ProductSize updateSize(ProductSize size) {
