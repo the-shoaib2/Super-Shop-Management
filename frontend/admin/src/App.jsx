@@ -74,6 +74,7 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="store/*" element={<Store />} />
             <Route path="orders" element={<Orders />} />
+            <Route path="cart" element={<ShoppingCart />} />
             <Route path="apis" element={<APIs />} />
             <Route path="account-settings" element={<AccountSettings />} />
           </Route>

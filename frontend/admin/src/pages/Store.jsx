@@ -61,7 +61,7 @@ export default function Products() {
       {/* Top Navigation */}
       <div className="border-b">
         <h1 className="text-2xl font-bold px-6 py-4">Product Management</h1>
-        <nav className="flex space-x-4 px-6" aria-label="Tabs">
+        <nav className="flex space-x-4 px-6 " aria-label="Tabs">
           {SECTIONS.map(section => {
             const Icon = section.icon
             const isActive = location.pathname.includes(section.id)
@@ -71,13 +71,17 @@ export default function Products() {
                 key={section.id}
                 to={section.path}
                 className={`
-                  flex items-center px-3 py-4 text-sm font-medium border-b-2 
+                  group flex items-center gap-2 px-3 py-2 text-sm font-medium 
+                  rounded-lg transition-all duration-300 ease-in-out 
                   ${isActive 
-                    ? 'border-primary text-primary' 
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}
+                    ? 'bg-primary/90 text-primary-foreground scale-[1.02] shadow-sm' 
+                    : 'text-muted-foreground hover:bg-accent/30 hover:text-foreground'}
                 `}
               >
-                <Icon className="h-4 w-4 mr-2" />
+                <Icon className={`
+                  h-4 w-4 transition-all duration-300 
+                  ${isActive ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-foreground'}
+                `} />
                 {section.label}
               </Link>
             )

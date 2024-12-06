@@ -33,6 +33,11 @@ export function NavUser({
   const navigate = useNavigate()
   const { logout } = useAuth()
 
+  // Fallback avatar and name if user is undefined
+  const avatarSrc = user?.avatar || '/default-avatar.png'
+  const userName = user?.fullName || user?.name || 'Guest'
+  const userEmail = user?.email || 'guest@example.com'
+
   const handleLogout = async () => {
     try {
       await logout()
@@ -50,12 +55,12 @@ export function NavUser({
         <button className="w-full flex items-center justify-between p-2 rounded-lg bg-primary text-white hover:bg-primary/90 cursor-pointer transition-all duration-200 ease-in-out">
           <div className="flex items-center space-x-3">
             <Avatar className="h-8 w-8 rounded-lg">
-              <AvatarImage src={user.avatar} alt={user.name} />
-              <AvatarFallback className="rounded-lg text-white bg-primary">CN</AvatarFallback>
+              <AvatarImage src={avatarSrc} alt={userName} />
+              <AvatarFallback className="rounded-lg text-white bg-primary">{userName.charAt(0).toUpperCase()}</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-semibold text-white">{user.fullName}</span>
-              <span className="truncate text-xs text-white/70">{user.email}</span>
+              <span className="truncate font-semibold text-white">{userName}</span>
+              <span className="truncate text-xs text-white/70">{userEmail}</span>
             </div>
           </div>
           <ChevronsUpDown className="ml-auto size-4 text-white/70" />
@@ -69,12 +74,12 @@ export function NavUser({
         <DropdownMenuLabel className="p-0 font-normal">
           <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
             <Avatar className="h-8 w-8 rounded-lg">
-              <AvatarImage src={user.avatar} alt={user.fullName || user.name} />
-              <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+              <AvatarImage src={avatarSrc} alt={userName} />
+              <AvatarFallback className="rounded-lg">{userName.charAt(0).toUpperCase()}</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-semibold">{user.fullName}</span>
-              <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+              <span className="truncate font-semibold">{userName}</span>
+              <span className="truncate text-xs text-muted-foreground">{userEmail}</span>
             </div>
           </div>
         </DropdownMenuLabel>

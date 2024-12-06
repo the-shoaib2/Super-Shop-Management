@@ -277,7 +277,7 @@ export default function ProductsList() {
           >
             <div className="aspect-square relative">
               <img
-                src={product.imageUrl || '/placeholder.png'}
+                src={product.images?.[0] || '/placeholder.png'}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />
