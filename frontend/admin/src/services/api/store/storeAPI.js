@@ -276,13 +276,54 @@ export const storeAPI = {
     }
   },
 
-  addStoreBillboard: async (billboardData) => {
+  createStoreBillboard: async (storeId, billboardData) => {
     try {
-      const response = await api.post(`/api/stores/${billboardData.storeId}/billboards`, billboardData);
-      return response.data;
+      const response = await api.post(`/api/stores/${storeId}/billboards`, billboardData);
+      return {
+        success: true,
+        data: response.data?.data
+      };
     } catch (error) {
-      console.error('Add billboard error:', error);
-      throw error;
+      console.error('Create billboard error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to create billboard',
+        error
+      };
+    }
+  },
+
+  updateStoreBillboard: async (storeId, billboardId, billboardData) => {
+    try {
+      const response = await api.put(`/api/stores/${storeId}/billboards/${billboardId}`, billboardData);
+      return {
+        success: true,
+        data: response.data?.data
+      };
+    } catch (error) {
+      console.error('Update billboard error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to update billboard',
+        error
+      };
+    }
+  },
+
+  deleteStoreBillboard: async (storeId, billboardId) => {
+    try {
+      const response = await api.delete(`/api/stores/${storeId}/billboards/${billboardId}`);
+      return {
+        success: true,
+        data: response.data?.data
+      };
+    } catch (error) {
+      console.error('Delete billboard error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to delete billboard',
+        error
+      };
     }
   },
 

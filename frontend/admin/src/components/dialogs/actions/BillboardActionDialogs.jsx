@@ -3,6 +3,7 @@ import { FiImage, FiUploadCloud, FiX } from 'react-icons/fi'
 import { BaseActionDialog } from './BaseActionDialog'
 import { Button } from '@/components/ui/button'
 import { cn } from "@/lib/utils"
+import CLOUDINARY_API from '@/services/api/cloudinaryAPI';
 
 export const BillboardPickerDialog = ({ 
   isOpen, 
@@ -25,29 +26,45 @@ export const BillboardPickerDialog = ({
   const handleImageChange = (e) => {
     const file = e.target.files[0]
     if (file) {
+      if (!file.type.startsWith('image/')) {
+        onBillboardChange(prev => ({ ...prev, imageUrl: '' }))
+        return
+      }
       handleFileUpload(file)
     }
   }
 
-  const handleFileUpload = (file) => {
+  const handleFileUpload = async (file) => {
+    if (!file) {
+      onBillboardChange(prev => ({ ...prev, imageUrl: '' }))
+      return
+    }
+
     setSelectedImage(file)
     setUploadProgress(0)
 
-    const reader = new FileReader()
-    
-    reader.onloadstart = () => setUploadProgress(20)
-    reader.onprogress = (event) => {
-      if (event.lengthComputable) {
-        const progress = (event.loaded / event.total) * 80
-        setUploadProgress(20 + progress)
-      }
-    }
-    reader.onloadend = () => {
-      setUploadProgress(100)
-      onBillboardChange(prev => ({ ...prev, imageUrl: reader.result }))
-    }
+    try {
+      // Start upload progress indication
+      setUploadProgress(20)
 
-    reader.readAsDataURL(file)
+      // Upload to Cloudinary
+      const result = await CLOUDINARY_API.uploadImage(file, 'billboards')
+      
+      if (result.success) {
+        setUploadProgress(100)
+        // Update billboard with the Cloudinary URL
+        onBillboardChange(prev => ({ 
+          ...prev, 
+          imageUrl: result.data.url 
+        }))
+      } else {
+        throw new Error(result.message || 'Failed to upload image')
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error)
+      setUploadProgress(0)
+      onBillboardChange(prev => ({ ...prev, imageUrl: '' }))
+    }
   }
 
   const handleDragOver = (e) => {
@@ -65,9 +82,11 @@ export const BillboardPickerDialog = ({
     setIsDragging(false)
     
     const file = e.dataTransfer.files[0]
-    if (file && file.type.startsWith('image/')) {
-      handleFileUpload(file)
+    if (!file || !file.type.startsWith('image/')) {
+      onBillboardChange(prev => ({ ...prev, imageUrl: '' }))
+      return
     }
+    handleFileUpload(file)
   }
 
   const removeImage = () => {

@@ -69,7 +69,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/stores/{storeId}/colors/**").authenticated()
                 .requestMatchers("/api/stores/{storeId}/sizes/**").authenticated()
                 .requestMatchers("/api/stores/{storeId}/categories/**").authenticated()
-                .requestMatchers("/api/stores/{storeId}/billboards/**").authenticated()
+                .requestMatchers("/api/stores/{storeId}/billboards/**").permitAll()
                 .requestMatchers("/api/stores/{storeId}/prices/**").authenticated()
                 .requestMatchers("/api/stores/{storeId}/products/**").authenticated()
 
@@ -110,8 +110,6 @@ public class SecurityConfig {
             storeFrontendUrl,
             "http://localhost:5173",
             "http://localhost:5174",
-            "http://localhost:3000",
-            "https://4lnkrm5n-3000.inc1.devtunnels.ms/",
             "https://4lnkrm5n-5173.inc1.devtunnels.ms/",
             "https://4lnkrm5n-5174.inc1.devtunnels.ms/"
         ));

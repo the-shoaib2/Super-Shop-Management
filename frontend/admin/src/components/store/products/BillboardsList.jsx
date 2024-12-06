@@ -59,7 +59,7 @@ export default function BillboardsList() {
   const handleAddBillboard = async (e) => {
     e.preventDefault()
     try {
-      if (!selectedImage) {
+      if (!newBillboard.imageUrl) {
         toast.error('Please select an image')
         return
       }
@@ -69,12 +69,12 @@ export default function BillboardsList() {
         return
       }
 
-      // Create form data for API call
-      const formData = new FormData()
-      formData.append('image', selectedImage)
-      formData.append('label', newBillboard.label.trim())
-      formData.append('description', newBillboard.description.trim())
-      formData.append('isActive', newBillboard.isActive)
+      const billboardData = {
+        label: newBillboard.label.trim(),
+        imageUrl: newBillboard.imageUrl,
+        description: newBillboard.description.trim(),
+        isActive: newBillboard.isActive
+      }
 
       let response;
       if (selectedBillboard) {
@@ -82,13 +82,13 @@ export default function BillboardsList() {
         response = await storeAPI.updateStoreBillboard(
           currentStore.id, 
           selectedBillboard.id, 
-          formData
+          billboardData
         )
       } else {
         // Create new billboard
         response = await storeAPI.createStoreBillboard(
           currentStore.id, 
-          formData
+          billboardData
         )
       }
 
@@ -96,12 +96,7 @@ export default function BillboardsList() {
         toast.success(`Billboard ${selectedBillboard ? 'updated' : 'added'} successfully`)
         setShowAddDialog(false)
         fetchBillboards()
-        
-        // Cleanup temporary file
-        if (tempImageUrl) {
-          URL.revokeObjectURL(tempImageUrl)
-          setTempImageUrl(null)
-        }
+        resetForm()
       } else {
         throw new Error(response.message || `Failed to ${selectedBillboard ? 'update' : 'add'} billboard`)
       }
@@ -109,6 +104,17 @@ export default function BillboardsList() {
       console.error('Failed to handle billboard:', error)
       toast.error(error.message || 'Failed to process billboard')
     }
+  }
+
+  const resetForm = () => {
+    setNewBillboard({
+      label: '',
+      imageUrl: '',
+      description: '',
+      isActive: true
+    })
+    setSelectedImage(null)
+    setSelectedBillboard(null)
   }
 
   const handleImageSelect = (file) => {

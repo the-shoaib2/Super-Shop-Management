@@ -52,9 +52,29 @@ public class BillboardService extends StoreAwareService {
             .orElseThrow(() -> new ResourceNotFoundException("Billboard not found with id: " + billboardId));
         validateStore(billboard.getStoreId());
         billboardRepository.delete(billboard);
+        
+        // Remove billboard from store's billboards list
+        Store store = storeRepository.findById(currentStoreId)
+            .orElseThrow(() -> new ResourceNotFoundException("Store not found with id: " + currentStoreId));
+        
+        store.getBillboards().removeIf(b -> b.getId().equals(billboardId));
+        storeRepository.save(store);
     }
     
     public Optional<Billboard> findById(String id) {
         return billboardRepository.findById(id);
     }
-} 
+    
+    public Billboard updateBillboard(String billboardId, Billboard updatedBillboard) {
+        Billboard existingBillboard = billboardRepository.findById(billboardId)
+            .orElseThrow(() -> new ResourceNotFoundException("Billboard not found with id: " + billboardId));
+        
+        // Update fields that can be modified
+        existingBillboard.setLabel(updatedBillboard.getLabel());
+        existingBillboard.setDescription(updatedBillboard.getDescription());
+        existingBillboard.setImageUrl(updatedBillboard.getImageUrl());
+        existingBillboard.setUpdatedAt(LocalDateTime.now());
+        
+        return billboardRepository.save(existingBillboard);
+    }
+}

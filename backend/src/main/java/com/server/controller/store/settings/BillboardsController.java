@@ -48,6 +48,24 @@ public class BillboardsController {
         }
     }
 
+    @PutMapping("/{billboardId}")
+    @PreAuthorize("@storeSecurityService.isStoreOwner(#storeId, principal)")
+    public ResponseEntity<ApiResponse<Billboard>> updateBillboard(
+            @PathVariable String storeId,
+            @PathVariable String billboardId,
+            @RequestBody Billboard billboard) {
+        try {
+            billboardService.setCurrentStore(storeId);
+            return ResponseEntity.ok(ApiResponse.success(
+                "Billboard updated successfully",
+                billboardService.updateBillboard(billboardId, billboard)
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                .body(ApiResponse.error("Failed to update billboard: " + e.getMessage(), null));
+        }
+    }
+
     @DeleteMapping("/{billboardId}")
     @PreAuthorize("@storeSecurityService.isStoreOwner(#storeId, principal)")
     public ResponseEntity<ApiResponse<Void>> deleteBillboard(
