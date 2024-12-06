@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { orderAPI } from '../services/api'
 import { toast } from 'react-hot-toast'
+import LoadingScreen from '@/components/LoadingScreen'
 
 export default function Orders() {
   const [orders, setOrders] = useState([])
@@ -56,7 +57,7 @@ export default function Orders() {
   }
 
   if (loading) {
-    return <div className="flex justify-center items-center h-64">Loading...</div>
+    return <LoadingScreen />
   }
 
   return (

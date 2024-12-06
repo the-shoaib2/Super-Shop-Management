@@ -4,6 +4,7 @@ import { BaseActionDialog } from './BaseActionDialog'
 import { Button } from '@/components/ui/button'
 import { cn } from "@/lib/utils"
 import CLOUDINARY_API from '@/services/api/cloudinaryAPI';
+import ImageUploadProgress from '@/components/ui/ImageUploadProgress'
 
 export const BillboardPickerDialog = ({ 
   isOpen, 
@@ -193,14 +194,7 @@ export const BillboardPickerDialog = ({
 
             {/* Upload Progress */}
             {uploadProgress > 0 && uploadProgress < 100 && (
-              <div className="absolute inset-x-0 bottom-0 px-4 py-2 bg-black/50">
-                <div className="relative w-full h-1 bg-gray-200 rounded-full overflow-hidden">
-                  <div 
-                    className="absolute inset-y-0 left-0 bg-primary transition-all duration-300"
-                    style={{ width: `${uploadProgress}%` }}
-                  />
-                </div>
-              </div>
+              <ImageUploadProgress progress={uploadProgress} />
             )}
           </div>
         </div>

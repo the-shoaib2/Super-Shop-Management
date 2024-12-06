@@ -1,17 +1,9 @@
 import { FiUpload, FiImage, FiX, FiLink } from 'react-icons/fi'
 import { ImagePreview } from '../shared/ImagePreview'
 import { ImageUrlInputs } from '@/components/ui/ImageUrlInputs'
+import ImageUploadProgress from '@/components/ui/ImageUploadProgress'
 import PropTypes from 'prop-types'
 import React from 'react'
-
-// Add a progress indicator component
-const ImageUploadProgress = ({ progress }) => (
-  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-    <div className="bg-white rounded-lg p-2 text-xs font-medium">
-      Uploading... {progress}%
-    </div>
-  </div>
-);
 
 export const ProductImagesStep = ({ 
   formData = { images: [], imageUrls: [] }, 

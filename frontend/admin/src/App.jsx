@@ -9,6 +9,8 @@ import AccountSettings from './pages/AccountSettings'
 import Login from './pages/auth/Login'
 import Signup from './pages/auth/Signup'
 import APIs from './pages/APIs'
+import { ShoppingCart } from 'lucide-react'
+import LoadingScreen from './components/LoadingScreen'
 
 // Configure future flags
 const routerOptions = {
@@ -22,7 +24,7 @@ function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
   
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
+    return <LoadingScreen />
   }
   
   if (!user) {
@@ -36,7 +38,7 @@ function PublicRoute({ children }) {
   const { user, loading } = useAuth()
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
+    return <LoadingScreen />
   }
 
   if (user) {
