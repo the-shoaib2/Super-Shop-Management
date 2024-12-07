@@ -88,6 +88,11 @@ public class AuthService {
             owner.setLastLogin(LocalDateTime.now());
             owner.setUpdatedAt(LocalDateTime.now());
             
+            // Explicitly initialize lazy-loaded collections
+            if (owner.getStores() == null) {
+                owner.setStores(new ArrayList<>());
+            }
+            
             return storeOwnerRepository.save(owner);
             
         } catch (UnauthorizedException e) {

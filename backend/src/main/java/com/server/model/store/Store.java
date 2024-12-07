@@ -48,27 +48,27 @@ public class Store {
     private String ownerEmail;
     
     @Builder.Default
-    @DBRef(lazy = true)
+    @DBRef(lazy = false)
     private List<Product> products = new ArrayList<>();
     
     @Builder.Default
-    @DBRef(lazy = true)
+    @DBRef(lazy = false)
     private List<ProductColor> colors = new ArrayList<>();
     
     @Builder.Default
-    @DBRef(lazy = true)
+    @DBRef(lazy = false)
     private List<ProductSize> sizes = new ArrayList<>();
     
     @Builder.Default
-    @DBRef(lazy = true)
+    @DBRef(lazy = false)
     private List<Billboard> billboards = new ArrayList<>();
     
     @Builder.Default
-    @DBRef(lazy = true)
+    @DBRef(lazy = false)
     private List<Category> storeCategories = new ArrayList<>();
     
     @Builder.Default
-    @DBRef(lazy = true)
+    @DBRef(lazy = false)
     private List<Price> prices = new ArrayList<>();
     
     private boolean isActive;
