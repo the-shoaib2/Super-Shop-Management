@@ -10,8 +10,27 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer, PieChart, Pie, Cell, RadialBarChart, RadialBar
 } from 'recharts'
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart"
+import {
+  Bar as ChartBar,
+  BarChart as ChartBarChart,
+  CartesianGrid as ChartCartesianGrid,
+  XAxis as ChartXAxis,
+  YAxis as ChartYAxis,
+} from "recharts"
 import { StoreCardDialog } from '../components/dialogs/StoreCardDialog'
 import { StoreSettingsDialog } from '../components/dialogs/StoreSettingsDialog'
+import { 
+  DEMO_SALES_DATA, 
+  DEMO_CATEGORY_STATS, 
+  DEMO_PRODUCT_STATS, 
+  DEMO_SALES_TREND_DATA,
+  DEMO_STATS
+} from "@/constants/dashboardData"
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#FF4560', '#775DD0']
 
@@ -20,20 +39,15 @@ export default function Dashboard() {
   const [showStoreDialog, setShowStoreDialog] = useState(false);
   const [currentStore, setCurrentStore] = useState(null);
   const [ownerStores, setOwnerStores] = useState([]);
-  const [stats, setStats] = useState({
-    totalSales: 0,
-    totalOrders: 0,
-    totalProducts: 0,
-    totalCustomers: 0
-  });
-  const [loading, setLoading] = useState(true);
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [salesData, setSalesData] = useState([])
-  const [productStats, setProductStats] = useState([])
-  const [orderStats, setOrderStats] = useState([])
-  const [categoryStats, setCategoryStats] = useState([])
+  const [stats, setStats] = useState(DEMO_STATS);
+  const [loading, setLoading] = useState(false);
+  const [salesData, setSalesData] = useState(DEMO_SALES_DATA);
+  const [productStats, setProductStats] = useState(DEMO_PRODUCT_STATS);
+  const [orderStats, setOrderStats] = useState(DEMO_SALES_TREND_DATA);
+  const [categoryStats, setCategoryStats] = useState(DEMO_CATEGORY_STATS);
   const [isQRDialogOpen, setIsQRDialogOpen] = useState(false)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -311,7 +325,7 @@ export default function Dashboard() {
                       strokeLinecap="round" 
                       strokeLinejoin="round" 
                       strokeWidth={2} 
-                      d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" 
+                      d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1z" 
                     />
                   </svg>
                 </button>
@@ -383,9 +397,9 @@ export default function Dashboard() {
                   <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
+              <ChartCartesianGrid strokeDasharray="3 3" />
+              <ChartXAxis dataKey="date" />
+              <ChartYAxis />
               <Tooltip />
               <Area 
                 type="monotone" 
@@ -433,21 +447,21 @@ export default function Dashboard() {
           <h2 className="text-lg font-semibold mb-4">Top Selling Products</h2>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart
+              <ChartBarChart
                 data={productStats}
                 layout="vertical"
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
               >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" />
-                <YAxis dataKey="name" type="category" width={100} />
+                <ChartCartesianGrid strokeDasharray="3 3" />
+                <ChartXAxis type="number" />
+                <ChartYAxis dataKey="name" type="category" width={100} />
                 <Tooltip />
-                <Bar dataKey="sales" fill="#82ca9d">
+                <ChartBar dataKey="sales" fill="#82ca9d">
                   {productStats.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
-                </Bar>
-              </BarChart>
+                </ChartBar>
+              </ChartBarChart>
             </ResponsiveContainer>
           </div>
         </div>
@@ -490,9 +504,9 @@ export default function Dashboard() {
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={salesData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
+                <ChartCartesianGrid strokeDasharray="3 3" />
+                <ChartXAxis dataKey="date" />
+                <ChartYAxis />
                 <Tooltip />
                 <Legend />
                 <Line 
@@ -514,73 +528,61 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Logout Confirmation Dialog */}
-      <Transition appear show={showLogoutConfirm} as={Fragment}>
-        <Dialog 
-          as="div" 
-          className="relative z-10" 
-          onClose={() => setShowLogoutConfirm(false)}
-        >
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
+{/* Sales Trend - Bar Chart */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="border p-4 rounded-lg">
+          <h2 className="text-lg font-semibold mb-4">Sales Trend</h2>
+          <ChartContainer
+            config={{
+              sales: {
+                label: "Sales",
+                color: "hsl(var(--chart-1))",
+              },
+              quantity: {
+                label: "Quantity",
+                color: "hsl(var(--chart-2))",
+              },
+            }}
           >
-            <div className="fixed inset-0 bg-black bg-opacity-25" />
-          </Transition.Child>
+            <ChartBarChart data={DEMO_SALES_DATA}>
+              <ChartCartesianGrid strokeDasharray="3 3" />
+              <ChartXAxis dataKey="category" />
+              <ChartYAxis />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <ChartBar dataKey="totalSales" name="Sales" />
+              <ChartBar dataKey="quantitySold" name="Quantity" />
+            </ChartBarChart>
+          </ChartContainer>
+        </div>
+{/* Profitability - Bar Chart */}
+        <div className="border p-4 rounded-lg">
+          <h2 className="text-lg font-semibold mb-4">Profitability</h2>
+          <ChartContainer
+            config={{
+              profit: {
+                label: "Profit",
+                color: "hsl(var(--chart-3))",
+              },
+              margin: {
+                label: "Margin %",
+                color: "hsl(var(--chart-4))",
+              },
+            }}
+          >
+            <ChartBarChart data={DEMO_CATEGORY_STATS}>
+              <ChartCartesianGrid strokeDasharray="3 3" />
+              <ChartXAxis dataKey="category" />
+              <ChartYAxis />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <ChartBar dataKey="netProfit" name="Profit" />
+              <ChartBar dataKey="profitMargin" name="Margin %" />
+            </ChartBarChart>
+          </ChartContainer>
+        </div>
+      </div>
 
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title
-                    as="h3"
-                    className="text-lg font-medium leading-6 text-gray-900"
-                  >
-                    Confirm Logout
-                  </Dialog.Title>
-                  <div className="mt-2">
-                    <p className="text-sm text-gray-500">
-                      Are you sure you want to logout? You will need to login again to access your account.
-                    </p>
-                  </div>
 
-                  <div className="mt-4 flex justify-end space-x-3">
-                    <button
-                      type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-gray-100 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200"
-                      onClick={() => setShowLogoutConfirm(false)}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
-                      onClick={handleConfirmLogout}
-                    >
-                      Logout
-                    </button>
-                  </div>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </Dialog>
-      </Transition>
-
-      {/* QR Code Dialog */}
+      QR Code Dialog
       <StoreCardDialog 
         isOpen={isQRDialogOpen}
         onClose={() => setIsQRDialogOpen(false)}

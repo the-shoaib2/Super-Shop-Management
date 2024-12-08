@@ -5,6 +5,12 @@ import AdminLayout from './layouts/AdminLayout'
 import Dashboard from './pages/Dashboard'
 import Store from './pages/Store'
 import Orders from './pages/Orders'
+import Sales from './pages/Sales'
+import Employees from './pages/Employees'
+import Customers from './pages/Customers'
+import Suppliers from './pages/Suppliers'
+import Finance from './pages/Finance'
+import Reports from './pages/Reports'
 import AccountSettings from './pages/AccountSettings'
 import Login from './pages/auth/Login'
 import Signup from './pages/auth/Signup'
@@ -74,6 +80,12 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="store/*" element={<Store />} />
             <Route path="orders" element={<Orders />} />
+            <Route path="sales" element={<Sales />} />
+            <Route path="employees" element={<Employees />} />
+            <Route path="customers" element={<Customers />} />
+            <Route path="suppliers" element={<Suppliers />} />
+            <Route path="finance" element={<Finance />} />
+            <Route path="reports" element={<Reports />} />
             <Route path="cart" element={<ShoppingCart />} />
             <Route path="apis" element={<APIs />} />
             <Route path="account-settings" element={<AccountSettings />} />
