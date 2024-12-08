@@ -1,4 +1,5 @@
-import { FiUpload, FiImage, FiX, FiLink } from 'react-icons/fi'
+import { FiUpload, FiImage, FiX, FiLink, FiStar } from 'react-icons/fi'
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { ImagePreview } from '../shared/ImagePreview'
 import { ImageUrlInputs } from '@/components/ui/ImageUrlInputs'
 import ImageUploadProgress from '@/components/ui/ImageUploadProgress'
@@ -19,6 +20,32 @@ export const ProductImagesStep = ({
       }))
     }
   }, [setFormData])
+
+  const onDragEnd = (result) => {
+    if (!result.destination) return;
+
+    const newImages = Array.from(formData.images);
+    const [reorderedItem] = newImages.splice(result.source.index, 1);
+    newImages.splice(result.destination.index, 0, reorderedItem);
+
+    setFormData(prev => ({
+      ...prev,
+      images: newImages
+    }));
+  }
+
+  const setMainImage = (index) => {
+    if (index === 0) return; // Already main image
+
+    const newImages = Array.from(formData.images);
+    const [selectedImage] = newImages.splice(index, 1);
+    newImages.unshift(selectedImage);
+
+    setFormData(prev => ({
+      ...prev,
+      images: newImages
+    }));
+  }
 
   // Check if any images or URLs are added
   const hasImages = formData.images.length > 0 || (formData.imageUrls?.length || 0) > 0
@@ -68,58 +95,77 @@ export const ProductImagesStep = ({
                 </label>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-2">
-                {formData.images.map((image, index) => (
-                  <div key={index} className="relative">
-                    <ImagePreview
-                      image={image}
-                      index={index}
-                      onRemove={removeImage}
-                    />
-                    {image.uploading && (
-                      <ImageUploadProgress progress={image.progress} />
-                    )}
-                  </div>
-                ))}
-                
-                {formData.images.length < 5 && (
-                  <label className="aspect-square rounded-lg border-2 border-dashed 
-                    flex flex-col items-center justify-center cursor-pointer
-                    hover:border-primary hover:bg-primary/5 group transition-all"
-                  >
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      className="hidden"
-                      onChange={handleImageUpload}
-                    />
-                    <FiUpload className="w-5 h-5 text-muted-foreground group-hover:text-primary mb-1" />
-                    <span className="text-[10px] text-muted-foreground group-hover:text-primary">
-                      Add More
-                    </span>
-                  </label>
-                )}
-              </div>
+              <DragDropContext onDragEnd={onDragEnd}>
+                <Droppable droppableId="product-images" direction="horizontal">
+                  {(provided) => (
+                    <div 
+                      {...provided.droppableProps} 
+                      ref={provided.innerRef} 
+                      className="grid grid-cols-2 gap-2"
+                    >
+                      {formData.images.map((image, index) => (
+                        <Draggable key={index} draggableId={`image-${index}`} index={index}>
+                          {(provided) => (
+                            <div 
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className="relative group"
+                            >
+                              <ImagePreview
+                                image={image}
+                                index={index}
+                                onRemove={removeImage}
+                              />
+                              {image.uploading && (
+                                <ImageUploadProgress progress={image.progress} />
+                              )}
+                              {index !== 0 && (
+                                <button 
+                                  onClick={() => setMainImage(index)}
+                                  className="absolute top-2 right-2 bg-white/80 rounded-full p-1 
+                                    opacity-0 group-hover:opacity-100 transition-opacity"
+                                  title="Set as main image"
+                                >
+                                  <FiStar className="w-4 h-4 text-yellow-500" />
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                      
+                      {formData.images.length < 5 && (
+                        <label className="aspect-square rounded-lg border-2 border-dashed 
+                          flex flex-col items-center justify-center cursor-pointer
+                          hover:border-primary hover:bg-primary/5 group transition-all"
+                        >
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            className="hidden"
+                            onChange={handleImageUpload}
+                          />
+                          <FiUpload className="w-5 h-5 text-muted-foreground group-hover:text-primary mb-1" />
+                          <span className="text-[10px] text-muted-foreground group-hover:text-primary">
+                            Add More
+                          </span>
+                        </label>
+                      )}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
             )}
           </div>
 
           {/* Right Side - Image URLs */}
           <div>
-            <div className="flex justify-between items-center mb-3">
-              <div>
-                <h3 className="text-sm font-medium">Image URLs</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">Add up to 5 image URLs</p>
-              </div>
-              <span className="text-xs font-medium px-2 py-1 bg-muted rounded-md">
-                {(formData.imageUrls?.length || 0)}/5
-              </span>
-            </div>
-
             <ImageUrlInputs 
-              urls={formData.imageUrls || []}
+              urls={formData.imageUrls || []} 
               onChange={handleUrlsChange}
-              maxUrls={5}
             />
           </div>
         </div>
@@ -152,8 +198,8 @@ ProductImagesStep.propTypes = {
   formData: PropTypes.shape({
     images: PropTypes.array.isRequired,
     imageUrls: PropTypes.array
-  }).isRequired,
+  }),
   setFormData: PropTypes.func.isRequired,
   handleImageUpload: PropTypes.func.isRequired,
   removeImage: PropTypes.func.isRequired
-} 
+}

@@ -16,7 +16,8 @@ public class Billboard {
     private Long id;
     private String label;
     private String imageUrl;
-    
+    private String description;
+    private boolean isActive;
     @ManyToOne
     private Store store;
     

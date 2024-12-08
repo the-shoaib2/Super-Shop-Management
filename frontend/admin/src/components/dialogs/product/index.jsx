@@ -1,13 +1,15 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react';
+import { toast } from 'react-hot-toast';
+
+import { productAPI } from '../../../services/api/store/productAPI';
+import { storeAPI } from '../../../services/api/store/storeAPI';
 import { ProductDetailsStep } from './ProductDetailsStep'
 import { ProductVariantsStep } from './ProductVariantsStep'
 import { ProductImagesStep } from './ProductImagesStep'
 import { AnimatedDialog, DialogHeader, DialogTitle, DialogContent, DialogFooter, DialogCloseButton } from '@/components/ui/animated-dialog'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/AuthContext'
-import { toast } from 'react-hot-toast'
-import { storeAPI, productAPI } from '@/services/api'
-import { uploadMultipleImages } from '@/services/api'
+import CLOUDINARY_API from '@/services/api/cloudinary/cloudinaryAPI'
 
 export default function CreateProductDialog({ isOpen, onClose, onSuccess, initialData }) {
   const { currentStore } = useAuth()
@@ -16,10 +18,13 @@ export default function CreateProductDialog({ isOpen, onClose, onSuccess, initia
   const [showAllColors, setShowAllColors] = useState(false)
   const [showAllSizes, setShowAllSizes] = useState(false)
   const [options, setOptions] = useState({
+    products: [],
+    product: null,
     colors: [],
     sizes: [],
     categories: [],
-    billboards: []
+    billboards: [],
+    prices: []
   })
   const [formData, setFormData] = useState({
     name: '',
@@ -30,7 +35,9 @@ export default function CreateProductDialog({ isOpen, onClose, onSuccess, initia
     colors: [],
     billboardId: '',
     images: [],
-    imageUrls: []
+    imageUrls: [],
+    stockStatus: '',
+    quantity: ''
   })
   const [errors, setErrors] = useState({})
   const [uploadProgress, setUploadProgress] = useState(0)
@@ -43,22 +50,87 @@ export default function CreateProductDialog({ isOpen, onClose, onSuccess, initia
 
   const loadOptions = async () => {
     try {
-      const [colors, sizes, categories, billboards] = await Promise.all([
+      if (!currentStore?.id) {
+        console.error('No current store ID available')
+        toast.error('No store selected')
+        return
+      }
+
+      const [products, product, colors, sizes, categories, billboards, prices] = await Promise.allSettled([
+        productAPI.getProducts(currentStore.id),
+        productAPI.getProductsbyIds(initialData?.id),
         storeAPI.getStoreColors(currentStore.id),
         storeAPI.getStoreSizes(currentStore.id),
         storeAPI.getStoreCategories(currentStore.id),
-        storeAPI.getStoreBillboards(currentStore.id)
+        storeAPI.getStoreBillboards(currentStore.id),
+        productAPI.getActivePrices(currentStore.id)
       ])
 
+      const logApiResult = (name, result) => {
+        if (result.status === 'rejected') {
+          console.error(`${name} API call failed:`, result.reason)
+        } else if (result.status === 'fulfilled') {
+          console.log(`${name} API result:`, result.value)
+        }
+      }
+
+      logApiResult('Products', products)
+      logApiResult('Product', product)
+      logApiResult('Colors', colors)
+      logApiResult('Sizes', sizes)
+      logApiResult('Categories', categories)
+      logApiResult('Billboards', billboards)
+      logApiResult('Prices', prices)
+
+      const extractData = (result) => 
+        result.status === 'fulfilled' && result.value?.success 
+          ? result.value.data 
+          : []
+
+      const extractSingleData = (result) => 
+        result.status === 'fulfilled' && result.value?.success 
+          ? result.value.data 
+          : null
+
       setOptions({
-        colors: colors.data || [],
-        sizes: sizes.data || [],
-        categories: categories.data || [],
-        billboards: billboards.data || []
+        products: extractData(products),
+        product: extractSingleData(product),
+        colors: extractData(colors),
+        sizes: extractData(sizes),
+        categories: extractData(categories),
+        billboards: extractData(billboards),
+        prices: extractData(prices)
       })
+
+      const productData = extractSingleData(product)
+      if (productData) {
+        setFormData({
+          name: productData.name || '',
+          description: productData.description || '',
+          price: productData.price || '',
+          category: productData.category?.id || '',
+          sizes: productData.sizes?.map(size => size.id) || [],
+          colors: productData.colors?.map(color => color.id) || [],
+          billboardId: productData.billboardId || '',
+          images: productData.images || [],
+          imageUrls: productData.images || [],
+          stockStatus: productData.stockStatus || '',
+          quantity: productData.quantity || ''
+        })
+      }
     } catch (error) {
-      console.error('Failed to load options:', error)
-      toast.error('Failed to load product options')
+      console.error('Comprehensive error in loadOptions:', error)
+      toast.error(`Failed to load options: ${error.message}`)
+      
+      setOptions({
+        products: [],
+        product: null,
+        colors: [],
+        sizes: [],
+        categories: [],
+        billboards: [],
+        prices: []
+      })
     }
   }
 
@@ -89,7 +161,6 @@ export default function CreateProductDialog({ isOpen, onClose, onSuccess, initia
       images: [...prev.images, ...newImages]
     }));
 
-    // Simulate upload progress
     newImages.forEach((image, index) => {
       let progress = 0;
       const interval = setInterval(() => {
@@ -163,27 +234,40 @@ export default function CreateProductDialog({ isOpen, onClose, onSuccess, initia
 
       setLoading(true);
 
-      // First upload images if any
       let uploadedImages = [];
       
       if (formData.images.length > 0) {
         const imagesToUpload = formData.images.map(img => img.file);
-        const uploadResponse = await productAPI.uploadProductImages(imagesToUpload);
         
-        if (!uploadResponse.success) {
-          throw new Error('Failed to upload images: ' + uploadResponse.message);
+        try {
+          const uploadResponse = await CLOUDINARY_API.uploadImages(imagesToUpload, 'products');
+          
+          if (!uploadResponse || !uploadResponse.success) {
+            console.error('Upload failed:', uploadResponse);
+            toast.error(`Image upload failed: ${uploadResponse?.message || 'Unknown error'}`);
+            throw new Error('Failed to upload images: ' + (uploadResponse?.message || 'No response'));
+          }
+          
+          if (!uploadResponse.data || !Array.isArray(uploadResponse.data)) {
+            console.error('Invalid upload response data:', uploadResponse);
+            throw new Error('Invalid image upload response');
+          }
+          
+          uploadedImages = uploadResponse.data.map(img => 
+            img.secure_url || img.url || null
+          ).filter(url => url !== null);
+        } catch (error) {
+          console.error('Image upload error:', error);
+          toast.error(`Failed to upload images: ${error.message}`);
+          throw error;
         }
-        
-        uploadedImages = uploadResponse.data.map(img => img.secure_url);
       }
 
-      // Combine uploaded images with image URLs
       const allImages = [
         ...uploadedImages,
         ...(formData.imageUrls?.filter(url => url) || [])
       ];
 
-      // Prepare product data
       const productData = {
         name: formData.name,
         description: formData.description,
@@ -191,22 +275,23 @@ export default function CreateProductDialog({ isOpen, onClose, onSuccess, initia
         categoryId: formData.category,
         sizeIds: formData.sizes,
         colorIds: formData.colors,
-        images: allImages,
+        images: uploadedImages.length > 0 ? uploadedImages : [null], 
         storeId: currentStore.id,
-        type: 'price'
+        type: 'price',
+        stockStatus: formData.stockStatus,
+        quantity: formData.quantity
       };
 
+      
       let response;
       
       if (initialData?.id) {
-        // Update existing product
         response = await productAPI.updateStoreProduct(
           currentStore.id,
           initialData.id,
           productData
         );
       } else {
-        // Create new product
         response = await productAPI.createStoreProduct(
           currentStore.id, 
           productData
@@ -270,7 +355,6 @@ export default function CreateProductDialog({ isOpen, onClose, onSuccess, initia
     }
   }
 
-  // Reset form when dialog closes
   useEffect(() => {
     if (!isOpen) {
       setStep(1);
@@ -283,28 +367,29 @@ export default function CreateProductDialog({ isOpen, onClose, onSuccess, initia
         colors: [],
         billboardId: '',
         images: [],
-        imageUrls: []
+        imageUrls: [],
+        stockStatus: '',
+        quantity: ''
       });
       setErrors({});
     }
   }, [isOpen]);
 
-  // Add useEffect to populate form when editing
   useEffect(() => {
-    if (initialData && isOpen) {
-      setFormData({
-        name: initialData.name || '',
-        description: initialData.description || '',
-        price: initialData.price?.toString() || '',
-        category: initialData.categoryId || '',
-        sizes: initialData.sizeIds || [],
-        colors: initialData.colorIds || [],
-        billboardId: initialData.billboardId || '',
-        images: [],
-        imageUrls: initialData.images || []
-      });
+    if (initialData?.id) {
+      loadOptions()
     }
   }, [initialData, isOpen]);
+
+  console.log('Product Dialog - Initial Data:', initialData);
+  console.log('Product Dialog - Form Data:', formData);
+  console.log('Product Dialog - Options:', options);
+
+  if (!options) {
+
+    toast.error('Failed to load product options');
+    return null;
+  }
 
   return (
     <AnimatedDialog 
@@ -404,4 +489,4 @@ export default function CreateProductDialog({ isOpen, onClose, onSuccess, initia
       </div>
     </AnimatedDialog>
   )
-} 
+}

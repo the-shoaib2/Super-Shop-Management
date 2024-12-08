@@ -3,6 +3,13 @@ import api from '../../config/config';
 export const productAPI = {
   getProducts: async (storeId, params = {}) => {
     try {
+      if (!storeId) {
+        return {
+          success: false,
+          message: 'No store ID provided',
+          data: null
+        };
+      }
       const response = await api.get(`/api/stores/${storeId}/products`, { params });
       return {
         success: true,
@@ -14,18 +21,36 @@ export const productAPI = {
       return {
         success: false,
         message: error.response?.data?.message || 'Failed to fetch products',
+        data: [],
         error
       };
     }
   },
 
-  getProduct: async (productId) => {
+  getProductsbyIds: async (productId) => {
     try {
+      if (!productId) {
+        return {
+          success: false,
+          message: 'No product ID provided',
+          data: null
+        };
+      }
+
       const response = await api.get(`/api/products/${productId}`);
-      return response.data;
+      return {
+        success: true,
+        data: response.data?.data || null,
+        message: response.data?.message
+      };
     } catch (error) {
-      console.error('Get product error:', error);
-      throw error;
+      console.error('Get product by ID error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch product',
+        data: null,
+        error
+      };
     }
   },
 
@@ -42,6 +67,7 @@ export const productAPI = {
       return {
         success: false,
         message: error.response?.data?.message || 'Failed to create product',
+        data: null,
         error
       };
     }
@@ -60,6 +86,7 @@ export const productAPI = {
       return {
         success: false,
         message: error.response?.data?.message || 'Failed to update product',
+        data: null,
         error
       };
     }
@@ -78,6 +105,7 @@ export const productAPI = {
       return {
         success: false,
         message: error.response?.data?.message || 'Failed to delete product',
+        data: null,
         error
       };
     }
@@ -107,6 +135,7 @@ export const productAPI = {
       return {
         success: false,
         message: error.response?.data?.message || 'Failed to upload images',
+        data: null,
         error
       };
     }
@@ -125,6 +154,7 @@ export const productAPI = {
       return {
         success: false,
         message: error.response?.data?.message || 'Failed to update product',
+        data: null,
         error
       };
     }
@@ -143,6 +173,34 @@ export const productAPI = {
       return {
         success: false,
         message: error.response?.data?.message || 'Failed to delete product',
+        data: null,
+        error
+      };
+    }
+  },
+
+  getActivePrices: async (storeId) => {
+    try {
+      if (!storeId) {
+        return {
+          success: false,
+          message: 'No store ID provided',
+          data: []
+        };
+      }
+
+      const response = await api.get(`/api/stores/${storeId}/prices`);
+      return {
+        success: true,
+        data: response.data?.data || [],
+        message: response.data?.message
+      };
+    } catch (error) {
+      console.error('Get active prices error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch active prices',
+        data: [],
         error
       };
     }
