@@ -6,14 +6,14 @@ import {
   CardContent, 
   CardHeader, 
   CardTitle 
-} from "../components/ui/card.jsx";
-import { Button } from "../components/ui/button.jsx";
+} from "../../../components/ui/card.jsx";
+import { Button } from "../../../components/ui/button.jsx";
 import { 
   Tabs, 
   TabsList, 
   TabsTrigger, 
   TabsContent 
-} from '../components/ui/tabs.jsx';
+} from '../../../components/ui/tabs.jsx';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,13 +21,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../components/ui/dropdown-menu.jsx";
+} from "../../../components/ui/dropdown-menu.jsx";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "../components/ui/popover.jsx";
-import { Calendar } from "../components/ui/calendar.jsx";
+} from "../../../components/ui/popover.jsx";
+import { Calendar } from "../../../components/ui/calendar.jsx";
 import { 
   Table, 
   TableBody, 
@@ -35,8 +35,8 @@ import {
   TableHead, 
   TableHeader, 
   TableRow 
-} from "../components/ui/table.jsx";
-import { reportsService } from '../services/api/reports/reportsService.js';
+} from "../../../components/ui/table.jsx";
+import { reportsService } from '../../../services/api/reports/reportsService.js';
 import { 
   AlertCircle, 
   BarChart2, 
@@ -45,7 +45,7 @@ import {
   ChevronDown,
   Calendar as CalendarIcon
 } from 'lucide-react';
-import { cn } from "../lib/utils.js";
+import { cn } from "../../../lib/utils.js";
 import { useReactToPrint } from 'react-to-print';
 
 // Utility function for safe number formatting

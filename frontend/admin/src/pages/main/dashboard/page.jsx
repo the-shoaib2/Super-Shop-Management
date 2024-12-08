@@ -22,8 +22,8 @@ import {
   XAxis as ChartXAxis,
   YAxis as ChartYAxis,
 } from "recharts"
-import { StoreCardDialog } from '../components/dialogs/StoreCardDialog'
-import { StoreSettingsDialog } from '../components/dialogs/StoreSettingsDialog'
+import { StoreCardDialog } from '../../../components/dialogs/StoreCardDialog'
+import { StoreSettingsDialog } from '../../../components/dialogs/StoreSettingsDialog'
 import { 
   DEMO_SALES_DATA, 
   DEMO_CATEGORY_STATS, 
