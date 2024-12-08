@@ -1,4 +1,4 @@
-import api from '../config';
+import api from '../../config/config';
 
 export const authAPI = {
   login: async (credentials) => {

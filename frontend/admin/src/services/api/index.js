@@ -1,10 +1,16 @@
-import api from './config';
+import api from '../config/config';
 import { authAPI } from './auth/authAPI';
 import { accountAPI } from './account/accountAPI';
 import { storeAPI } from './store/storeAPI';
 import { orderAPI } from './store/orderAPI';
 import { productAPI } from './store/productAPI';
 import { dashboardAPI } from './dashboard/dashboardAPI';
+import { employeesService } from './employees/employeesService';
+import { financeService } from './finance/financeService';
+import { reportsService } from './reports/reportsService';
+import { salesService } from './sales/salesService';
+import { suppliersService } from './suppliers/suppliersService';
+import cloudinaryAPI from './cloudinary/cloudinaryAPI';
 
 // Auth helpers
 export const setAuthToken = (token) => {
@@ -27,5 +33,11 @@ export {
   storeAPI,
   orderAPI,
   productAPI,
-  dashboardAPI
-}; 
+  dashboardAPI,
+  employeesService,
+  financeService,
+  reportsService,
+  salesService,
+  suppliersService,
+  cloudinaryAPI
+};

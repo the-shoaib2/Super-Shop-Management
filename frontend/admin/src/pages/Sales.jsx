@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
 import { Input } from "../components/ui/input";
 import { Label } from '../components/ui/label.jsx';
-import { salesService } from '../services/salesService';
+import { salesService } from '../services/api/sales/salesService';
 import { motion } from 'framer-motion';
 
 const Sales = () => {

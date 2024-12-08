@@ -1,5 +1,5 @@
 import axios from 'axios';
-import api from './config';
+import api from '../../config/config';
 
 const CLOUDINARY_API = {
     // Upload a single image

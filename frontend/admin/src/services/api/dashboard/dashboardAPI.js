@@ -1,4 +1,4 @@
-import api from '../config';
+import api from '../../config/config';
 
 export const dashboardAPI = {
   getStats: async (storeId) => {

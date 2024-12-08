@@ -3,7 +3,7 @@ import { FiImage, FiUploadCloud, FiX } from 'react-icons/fi'
 import { BaseActionDialog } from './BaseActionDialog'
 import { Button } from '@/components/ui/button'
 import { cn } from "@/lib/utils"
-import CLOUDINARY_API from '@/services/api/cloudinaryAPI';
+import CLOUDINARY_API from '@/services/api/cloudinary/cloudinaryAPI';
 import ImageUploadProgress from '@/components/ui/ImageUploadProgress'
 
 export const BillboardPickerDialog = ({ 

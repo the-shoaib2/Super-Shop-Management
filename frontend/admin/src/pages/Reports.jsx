@@ -36,7 +36,7 @@ import {
   TableHeader, 
   TableRow 
 } from "../components/ui/table.jsx";
-import { reportsService } from '../services/reportsService.js';
+import { reportsService } from '../services/api/reports/reportsService.js';
 import { 
   AlertCircle, 
   BarChart2, 

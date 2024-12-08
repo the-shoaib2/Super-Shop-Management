@@ -1,4 +1,4 @@
-import api from '../config';
+import api from '../../config/config';
 
 export const productAPI = {
   getProducts: async (storeId, params = {}) => {

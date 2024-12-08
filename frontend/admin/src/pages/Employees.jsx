@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
 import { Input } from "../components/ui/input";
 import { Label } from '../components/ui/label.jsx';
-import { employeesService } from '../services/employeesService';
+import { employeesService } from '../services/api/employees/employeesService';
 import { motion } from 'framer-motion';
 
 const Employees = () => {
