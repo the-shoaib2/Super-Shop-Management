@@ -86,8 +86,7 @@ function App() {
             <Route path="suppliers" element={<Suppliers />} />
             <Route path="finance" element={<Finance />} />
             <Route path="reports" element={<Reports />} />
-            <Route path="cart" element={<ShoppingCart />} />
-            <Route path="apis" element={<APIs />} />
+            <Route path="store-apis" element={<APIs />} />
             <Route path="account-settings" element={<AccountSettings />} />
           </Route>
         </Routes>

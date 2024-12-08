@@ -1,52 +1,14 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
-import { useAuth } from '@/contexts/AuthContext'
-import { FiCopy, FiEdit } from 'react-icons/fi'
+import { FiCopy, FiEdit, FiKey, FiLoader, FiTrash2 } from 'react-icons/fi'
 import { toast } from 'react-hot-toast'
+import { genetrateStoreApi } from '../../../services/api/apis/apis';
 
 const API_ENDPOINTS = [
   {
-    category: 'Authentication',
+    category: 'API Documentation',
     endpoints: [
-      { method: 'POST', path: '/api/auth/login', description: 'Login to account' },
-      { method: 'POST', path: '/api/auth/register', description: 'Create new account' },
-      { method: 'POST', path: '/api/auth/refresh', description: 'Refresh access token' },
-      { method: 'POST', path: '/api/auth/logout', description: 'Logout from account' }
-    ]
-  },
-  {
-    category: 'Profile',
-    endpoints: [
-      { method: 'GET', path: '/api/profile/me', description: 'Get user profile' },
-      { method: 'PUT', path: '/api/profile/update', description: 'Update profile information' },
-      { method: 'POST', path: '/api/profile/avatar', description: 'Update profile avatar' }
-    ]
-  },
-  {
-    category: 'Store Management',
-    endpoints: [
-      { method: 'GET', path: '/api/stores/owner/stores', description: 'Get all owner stores' },
-      { method: 'POST', path: '/api/stores/owner/stores', description: 'Create new store' },
-      { method: 'PUT', path: '/api/stores/owner/stores/:id', description: 'Update store details' },
-      { method: 'DELETE', path: '/api/stores/owner/stores/:id', description: 'Delete store' }
-    ]
-  },
-  {
-    category: 'Product Management',
-    endpoints: [
-      { method: 'GET', path: '/api/products', description: 'Get all products' },
-      { method: 'GET', path: '/api/products/:id', description: 'Get product details' },
-      { method: 'POST', path: '/api/products', description: 'Create new product' },
-      { method: 'PUT', path: '/api/products/:id', description: 'Update product' },
-      { method: 'DELETE', path: '/api/products/:id', description: 'Delete product' }
-    ]
-  },
-  {
-    category: 'Order Management',
-    endpoints: [
-      { method: 'GET', path: '/api/orders', description: 'Get all orders' },
-      { method: 'GET', path: '/api/orders/:id', description: 'Get order details' },
-      { method: 'PUT', path: '/api/orders/:id/status', description: 'Update order status' }
+      { method: 'GET', path: '/documentation', description: 'API Documentation Overview' }
     ]
   }
 ]
@@ -62,60 +24,63 @@ const getMethodColor = (method) => {
 }
 
 export default function APIs() {
-  const { currentStore } = useAuth()
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [showToken, setShowToken] = useState(false)
-  const [editingEndpoint, setEditingEndpoint] = useState(null)
-  const token = localStorage.getItem('token')
+  const [storeApiKeys, setStoreApiKeys] = useState([])
+  const [isGenerating, setIsGenerating] = useState(false)
+
+  const copyStoreApiKey = (key) => {
+    // Show "Not Implemented" toast
+
+    toast.error('Copy Store API Key.', {
+    })
+  }
+
+  const handleGenerateStoreApiKey = useCallback(async () => {
+    setIsGenerating(true)
+    try {
+      const response = await genetrateStoreApi();
+      
+      if (response.success) {
+        const newApiKey = response.data?.apiKey; // Adjust based on actual response structure
+        if (newApiKey) {
+          setStoreApiKeys(prevKeys => [...prevKeys, newApiKey])
+          toast.success('API key generated successfully')
+        } else {
+          throw new Error('No API key in response')
+        }
+      } else {
+        throw new Error(response.error || 'Failed to generate API key')
+      }
+    } catch (error) {
+      console.error('Error generating API key:', error)
+      toast.error(error.message || 'Failed to generate API key')
+    } finally {
+      setIsGenerating(false)
+    }
+  }, [])
+
+  const deleteStoreApiKey = (id) => {
+    // Show "Not Implemented" toast
+    toast.error('API Key Deletion Not Implemented', {
+
+      icon: '🚧'
+    })
+  }
 
   const handleCopyEndpoint = (endpoint) => {
-    const baseUrl = import.meta.env.VITE_API_URL
-    const fullUrl = `${baseUrl}${endpoint.path}`
-    
-    // Create example request object
-    const exampleRequest = {
-      url: fullUrl,
-      method: endpoint.method,
-      headers: {
-        'Authorization': 'Bearer your-token-here',
-        'Content-Type': 'application/json'
-      }
-    }
-
-    // Add example body for POST/PUT requests
-    if (['POST', 'PUT'].includes(endpoint.method)) {
-      exampleRequest.body = JSON.stringify({
-        // Add example request body based on endpoint
-        example: 'data'
-      }, null, 2)
-    }
-
-    const textToCopy = `// ${endpoint.description}
-fetch('${fullUrl}', {
-  method: '${endpoint.method}',
-  headers: {
-    'Authorization': 'Bearer ${token}',
-    'Content-Type': 'application/json'
-  }${['POST', 'PUT'].includes(endpoint.method) ? `,
-  body: JSON.stringify({
-    // Add your request data here
-  })` : ''}
-})`
-
-    navigator.clipboard.writeText(textToCopy)
-      .then(() => toast.success('Copied to clipboard!'))
-      .catch(() => toast.error('Failed to copy'))
+    // Show "Not Implemented" toast
+    toast.error('Endpoint Copy Not Implemented', {
+      icon: '🚧'
+    })
   }
 
   const handleEditEndpoint = (endpoint) => {
-    setEditingEndpoint(endpoint)
-    // You can implement a modal or form for editing the endpoint
-    toast.success('Edit functionality coming soon!')
+    // Show "Not Implemented" toast
+    toast.error('Endpoint Edit Not Implemented', {
+      icon: '🚧'
+    })  
   }
-
-  const filteredEndpoints = selectedCategory === 'all' 
-    ? API_ENDPOINTS 
-    : API_ENDPOINTS.filter(cat => cat.category === selectedCategory)
 
   return (
     <div className="p-6 space-y-6">
@@ -143,19 +108,89 @@ fetch('${fullUrl}', {
         </div>
       </div>
 
+      {/* Store API Key Generation */}
+      <div className="bg-white rounded-lg shadow-sm border p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-semibold">Store API Keys</h2>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleGenerateStoreApiKey}
+            disabled={isGenerating || storeApiKeys.length >= 5}
+            className="flex items-center gap-2"
+          >
+            {isGenerating ? (
+              <FiLoader className="h-4 w-4 animate-spin" />
+            ) : (
+            <FiKey className="h-4 w-4" />
+            )}
+            {isGenerating ? 'Generating...' : 'Generate API Key'}
+          </Button>
+        </div>
+
+        {storeApiKeys.length === 0 ? (
+        <p className="text-gray-500 text-sm text-center">
+            Generate a unique API key for accessing store-specific API endpoints.
+            Maximum of 5 keys allowed.
+          </p>
+        ) : (
+          <div className="space-y-4">
+            {storeApiKeys.map((apiKeyObj) => (
+              <div 
+                key={apiKeyObj.id} 
+                className="bg-gray-50 p-4 rounded-lg border flex items-center justify-between"
+              >
+                <div className="flex-grow mr-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-medium text-sm">Store API Key</h3>
+                    <span className="text-xs text-gray-500">
+                      Created: {apiKeyObj.createdAt}
+                    </span>
+                  </div>
+                  <code className="bg-white p-2 rounded border font-mono text-sm break-all block">
+                    {apiKeyObj.key}
+                  </code>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => copyStoreApiKey(apiKeyObj.key)}
+                    className="flex items-center gap-2"
+                  >
+                    <FiCopy className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => deleteStoreApiKey(apiKeyObj.id)}
+                    className="flex items-center gap-2 text-red-500 hover:text-red-700"
+                  >
+                    <FiTrash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {storeApiKeys.length > 0 && (
+          <p className="text-sm text-gray-500 mt-4 text-center">
+            🔒 Keep these keys confidential. They provide access to your store's API resources.
+          </p>
+        )}
+      </div>
+
       {showToken && (
         <div className="bg-gray-50 p-4 rounded-lg border">
-          <h3 className="font-semibold mb-2">Your API Token:</h3>
+          <h3 className="font-semibold mb-2">API Token:</h3>
           <div className="bg-white p-3 rounded border font-mono text-sm overflow-x-auto">
-            {token || 'No token found'}
+            No token available
           </div>
-          <p className="text-sm text-gray-500 mt-2">
-            Use this token in the Authorization header: Bearer {token}
-          </p>
         </div>
       )}
 
-      {filteredEndpoints.map((category) => (
+      {API_ENDPOINTS.map((category) => (
         <div key={category.category} className="bg-white rounded-lg shadow-sm border">
           <div className="p-4 border-b bg-gray-50">
             <h2 className="text-lg font-semibold">{category.category}</h2>
@@ -192,50 +227,11 @@ fetch('${fullUrl}', {
                   </div>
                 </div>
                 <p className="mt-2 text-gray-600 text-sm">{endpoint.description}</p>
-                
-                {/* Example Request/Response section */}
-                <div className="mt-4 space-y-2">
-                  <div className="text-sm font-medium text-gray-500">Example Request:</div>
-                  <pre className="bg-gray-50 p-3 rounded text-sm overflow-x-auto">
-                    {`${endpoint.method} ${endpoint.path}
-
-Headers:
-{
-  "Authorization": "Bearer ${token}",
-  "Content-Type": "application/json"
-}${['POST', 'PUT'].includes(endpoint.method) ? `
-
-Body:
-{
-  // Request data
-}` : ''}`}
-                  </pre>
-                </div>
               </div>
             ))}
           </div>
         </div>
       ))}
-
-      <div className="bg-white rounded-lg shadow-sm border p-4 mt-6">
-        <h3 className="font-semibold mb-2">Usage Example:</h3>
-        <pre className="bg-gray-50 p-4 rounded border overflow-x-auto">
-          {`// Example using fetch
-const response = await fetch('${import.meta.env.VITE_API_URL}/api/profile/me', {
-  headers: {
-    'Authorization': 'Bearer ${token}',
-    'Content-Type': 'application/json'
-  }
-})
-
-// Example using axios
-const response = await axios.get('${import.meta.env.VITE_API_URL}/api/profile/me', {
-  headers: {
-    'Authorization': 'Bearer ${token}'
-  }
-})`}
-        </pre>
-      </div>
     </div>
   )
-} 
+}

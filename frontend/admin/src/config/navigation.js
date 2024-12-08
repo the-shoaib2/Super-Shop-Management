@@ -3,12 +3,12 @@ import {
   Store, 
   ShoppingCart, 
   BarChart4, 
-  Users, 
+  FileText, 
+  Settings,
+  Users,
   UserPlus, 
   Truck, 
-  CreditCard, 
-  FileText, 
-  Settings, 
+  CreditCard,
   Code 
 } from 'lucide-react'
 
@@ -74,8 +74,8 @@ export const ADDITIONAL_NAVIGATION = [
     group: 'additional'
   },
   {
-    path: '/apis',
-    label: 'APIs',
+    path: '/store-apis',
+    label: 'Store APIs',   //Store APIs
     icon: Code,
     group: 'additional'
   },
