@@ -31,7 +31,7 @@ Follow these steps to set up the project:
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/super-shop-management.git
+   git clone https://github.com/the-shoaib2/Super-Shop-Management.git
    cd super-shop-management
    ```
 
