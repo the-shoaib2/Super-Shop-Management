@@ -33,9 +33,9 @@ public class BillboardService extends StoreAwareService {
         billboard.setCreatedAt(LocalDateTime.now());
         billboard.setUpdatedAt(LocalDateTime.now());
         
-        // Ensure isActive is explicitly set by user, default to false if not specified
+        // Ensure isActive is explicitly set by user, default to true if not specified
         if (!billboard.isActive()) {
-            billboard.setIsActive(false);
+            billboard.setActive(true);
         }
         
         Billboard savedBillboard = billboardRepository.save(billboard);
@@ -64,7 +64,7 @@ public class BillboardService extends StoreAwareService {
             });
         
         // Log the billboard details
-        System.out.println("Found billboard to delete: " + billboard);
+        // System.out.println("Found billboard to delete: " + billboard);
         
         validateStore(billboard.getStoreId());
         billboardRepository.delete(billboard);
@@ -106,7 +106,7 @@ public class BillboardService extends StoreAwareService {
         // Save the store
         storeRepository.save(store);
         
-        System.out.println("Billboard deletion process completed for ID: " + billboardId);
+        // System.out.println("Billboard deletion process completed for ID: " + billboardId);
     }
     
     public Optional<Billboard> findById(String id) {
