@@ -1,8 +1,8 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { FiCopy, FiEdit, FiKey, FiLoader, FiTrash2 } from 'react-icons/fi'
 import { toast } from 'react-hot-toast'
-import { genetrateStoreApi } from '../../../services/api/apis/apis';
+import { genetrateStoreApi, fetchStoreApiKeys } from '../../../services/api/apis/apis';
 
 const API_ENDPOINTS = [
   {
@@ -28,6 +28,28 @@ export default function APIs() {
   const [showToken, setShowToken] = useState(false)
   const [storeApiKeys, setStoreApiKeys] = useState([])
   const [isGenerating, setIsGenerating] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    const getStoreApiKeys = async () => {
+      try {
+        const response = await fetchStoreApiKeys();
+        if (response.success) {
+          setStoreApiKeys(response.data);
+        } else {
+          throw new Error(response.error || 'Failed to fetch API keys');
+        }
+      } catch (err) {
+        console.error('Error fetching API keys:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getStoreApiKeys();
+  }, []);
 
   const copyStoreApiKey = (key) => {
     // Show "Not Implemented" toast
@@ -110,74 +132,79 @@ export default function APIs() {
 
       {/* Store API Key Generation */}
       <div className="bg-white rounded-lg shadow-sm border p-6">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Store API Keys</h2>
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
-            onClick={handleGenerateStoreApiKey}
-            disabled={isGenerating || storeApiKeys.length >= 5}
+            onClick={() => {
+              const demoApi = 'https://api.example.com/store'; // Example store base entry API
+              navigator.clipboard.writeText(demoApi);
+              toast.success('API endpoint copied to clipboard!');
+            }}
             className="flex items-center gap-2"
           >
-            {isGenerating ? (
-              <FiLoader className="h-4 w-4 animate-spin" />
-            ) : (
-            <FiKey className="h-4 w-4" />
-            )}
-            {isGenerating ? 'Generating...' : 'Generate API Key'}
+            <FiCopy className="h-4 w-4" />
+            Copy Store API
           </Button>
         </div>
 
-        {storeApiKeys.length === 0 ? (
         <p className="text-gray-500 text-sm text-center">
-            Generate a unique API key for accessing store-specific API endpoints.
-            Maximum of 5 keys allowed.
-          </p>
-        ) : (
-          <div className="space-y-4">
-            {storeApiKeys.map((apiKeyObj) => (
-              <div 
-                key={apiKeyObj.id} 
-                className="bg-gray-50 p-4 rounded-lg border flex items-center justify-between"
-              >
-                <div className="flex-grow mr-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-medium text-sm">Store API Key</h3>
-                    <span className="text-xs text-gray-500">
-                      Created: {apiKeyObj.createdAt}
-                    </span>
-                  </div>
-                  <code className="bg-white p-2 rounded border font-mono text-sm break-all block">
-                    {apiKeyObj.key}
-                  </code>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => copyStoreApiKey(apiKeyObj.key)}
-                    className="flex items-center gap-2"
-                  >
-                    <FiCopy className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => deleteStoreApiKey(apiKeyObj.id)}
-                    className="flex items-center gap-2 text-red-500 hover:text-red-700"
-                  >
-                    <FiTrash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+          <span className="font-medium">Demo API:</span> 
+          <code className="font-mono text-blue-600 cursor-pointer hover:underline" onClick={() => {
+            navigator.clipboard.writeText('https://api.example.com/store');
+            toast.success('API endpoint copied to clipboard!');
+          }}>
+            https://api.example.com/store
+          </code>
+        </p>
 
-        {storeApiKeys.length > 0 && (
-          <p className="text-sm text-gray-500 mt-4 text-center">
-            🔒 Keep these keys confidential. They provide access to your store's API resources.
-          </p>
+        {loading ? <p>Loading...</p> : error ? <p className="text-red-500">{error}</p> : (
+          <div className="space-y-4">
+            {storeApiKeys.length === 0 ? (
+              <p className="text-gray-500 text-sm text-center">
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {storeApiKeys.map((apiKeyObj) => (
+                  <div 
+                    key={apiKeyObj.id} 
+                    className="bg-gray-50 p-4 rounded-lg border flex items-center justify-between"
+                  >
+                    <div className="flex-grow mr-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <h3 className="font-medium text-sm">Store API Key</h3>
+                        <span className="text-xs text-gray-500">
+                          Created: {apiKeyObj.createdAt}
+                        </span>
+                      </div>
+                      <code className="bg-white p-2 rounded border font-mono text-sm break-all block">
+                        {apiKeyObj.key}
+                      </code>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => copyStoreApiKey(apiKeyObj.key)}
+                        className="flex items-center gap-2"
+                      >
+                        <FiCopy className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteStoreApiKey(apiKeyObj.id)}
+                        className="flex items-center gap-2 text-red-500 hover:text-red-700"
+                      >
+                        <FiTrash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         )}
       </div>
 

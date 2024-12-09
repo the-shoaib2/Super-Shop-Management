@@ -4,35 +4,35 @@ import { Button } from './ui/button';
 
 const slides = [
   {
-    url: 'https://images.unsplash.com/photo-1609726494499-27d3e942456c?q=80&w=2070&auto=format&fit=crop',
+    url: 'https://res.cloudinary.com/dtteg3e2b/image/upload/v1733694247/billboards/vfyf0eudgczakwmnbftn.jpg',
     title: 'Professional Pool Equipment',
     description: 'High-quality cues, balls, and accessories'
   },  {
-    url: 'https://images.unsplash.com/photo-1609726494499-27d3e942456c?q=80&w=2070&auto=format&fit=crop',
+    url: 'https://res.cloudinary.com/dtteg3e2b/image/upload/v1733694936/products/kwfsqxjnmuqjdjpdfhf5.webp',
     title: 'Professional Pool Equipment',
     description: 'High-quality cues, balls, and accessories'
   },  {
-    url: 'https://images.unsplash.com/photo-1609726494499-27d3e942456c?q=80&w=2070&auto=format&fit=crop',
+    url: 'https://res.cloudinary.com/dtteg3e2b/image/upload/v1733694289/billboards/uwhi1zbjtqheyesbo47j.jpg',
     title: 'Professional Pool Equipment',
     description: 'High-quality cues, balls, and accessories'
   },  {
-    url: 'https://images.unsplash.com/photo-1609726494499-27d3e942456c?q=80&w=2070&auto=format&fit=crop',
+    url: 'https://res.cloudinary.com/dtteg3e2b/image/upload/v1733694289/billboards/uwhi1zbjtqheyesbo47j.jpg',
     title: 'Professional Pool Equipment',
     description: 'High-quality cues, balls, and accessories'
   },  {
-    url: 'https://images.unsplash.com/photo-1609726494499-27d3e942456c?q=80&w=2070&auto=format&fit=crop',
+    url: 'https://res.cloudinary.com/dtteg3e2b/image/upload/v1733694289/billboards/uwhi1zbjtqheyesbo47j.jpg',
     title: 'Professional Pool Equipment',
     description: 'High-quality cues, balls, and accessories'
   },  {
-    url: 'https://images.unsplash.com/photo-1609726494499-27d3e942456c?q=80&w=2070&auto=format&fit=crop',
+    url: 'https://res.cloudinary.com/dtteg3e2b/image/upload/v1733694289/billboards/uwhi1zbjtqheyesbo47j.jpg',
     title: 'Professional Pool Equipment',
     description: 'High-quality cues, balls, and accessories'
   },  {
-    url: 'https://images.unsplash.com/photo-1609726494499-27d3e942456c?q=80&w=2070&auto=format&fit=crop',
+    url: 'https://res.cloudinary.com/dtteg3e2b/image/upload/v1733694289/billboards/uwhi1zbjtqheyesbo47j.jpg',
     title: 'Professional Pool Equipment',
     description: 'High-quality cues, balls, and accessories'
   },  {
-    url: 'https://images.unsplash.com/photo-1609726494499-27d3e942456c?q=80&w=2070&auto=format&fit=crop',
+    url: 'https://res.cloudinary.com/dtteg3e2b/image/upload/v1733694289/billboards/uwhi1zbjtqheyesbo47j.jpg',
     title: 'Professional Pool Equipment',
     description: 'High-quality cues, balls, and accessories'
   },

@@ -39,4 +39,21 @@ export const genetrateStoreApi = async () => {
     }
 };
 
+// Fetch Store API Keys
+export const fetchStoreApiKeys = async () => {
+    try {
+        const response = await api.get('/storeApiKeys'); // Adjust the endpoint as necessary
+        return {
+            success: true,
+            data: response.data,
+        };
+    } catch (error) {
+        console.error('Error fetching store API keys:', error);
+        return {
+            success: false,
+            error: error.response?.data?.message || 'Failed to fetch store API keys',
+        };
+    }
+};
+
 export default api;

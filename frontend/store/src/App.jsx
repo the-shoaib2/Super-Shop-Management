@@ -15,6 +15,12 @@ function App() {
 
           {/* Navbar */}
           <div className="sticky top-0 z-50">
+          <Toaster
+            position="top-center"
+            toastOptions={{
+              duration: 2000,
+            }}
+          />
           <Navbar />
           </div>
           {/* Loading */}
@@ -32,12 +38,7 @@ function App() {
             </div>
           </main>
           </LoadingProvider>
-          <Toaster
-            position="top-center"
-            toastOptions={{
-              duration: 2000,
-            }}
-          />
+       
         </div>
       </Router>
   );

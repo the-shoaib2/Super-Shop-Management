@@ -52,7 +52,7 @@ const products = [
     description: "High-quality maple wood pool cue with precision tip, perfect for professional players. Features excellent balance and control.",
     price: 199.99,
     category: "Cue Sticks",
-    image: "https://images.unsplash.com/photo-1610726343776-cae3ec70afd7?q=80&w=2070&auto=format&fit=crop",
+    image: "https://res.cloudinary.com/dtteg3e2b/image/upload/v1733694936/products/kwfsqxjnmuqjdjpdfhf5.webp",
     isDiscount: true,
     discount: 15,
     inStock: true
@@ -63,7 +63,7 @@ const products = [
     description: "Professional grade phenolic resin ball set with precise measurements and perfect roundness for tournament play.",
     price: 299.99,
     category: "Balls",
-    image: "https://images.unsplash.com/photo-1626776876729-bab4991b7991?q=80&w=1974&auto=format&fit=crop",
+    image: "https://res.cloudinary.com/dtteg3e2b/image/upload/v1733694938/products/jeobuwhcjq0yllr2jkt8.webp",
     isDiscount: false,
     discount: 0,
     inStock: true
@@ -74,7 +74,7 @@ const products = [
     description: "Slate bed pool table with Italian cloth, professional cushions, and solid wood construction. Perfect for clubs and serious players.",
     price: 2499.99,
     category: "Tables",
-    image: "https://images.unsplash.com/photo-1609726121380-243fcdbb1935?q=80&w=2070&auto=format&fit=crop",
+    image: "https://res.cloudinary.com/dtteg3e2b/image/upload/v1733694940/products/ysnwkpp8es21mnhxrszy.webp",
     isDiscount: true,
     discount: 20,
     inStock: false
