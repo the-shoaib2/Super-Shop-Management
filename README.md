@@ -65,9 +65,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 
 
-
-https://www.canva.com/design/DAGYWUz5K4o/rAuM654AM80WDhuh25uD7Q/edit?utm_content=DAGYWUz5K4o&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
-
 https://4lnkrm5n-8080.inc1.devtunnels.ms/
 
 https://4lnkrm5n-5173.inc1.devtunnels.ms/
