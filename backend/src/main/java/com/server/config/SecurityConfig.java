@@ -15,7 +15,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 import java.util.Arrays;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.ComponentScan;
 
 import com.server.security.JwtAuthenticationFilter;
@@ -29,11 +28,6 @@ public class SecurityConfig {
 
     private final TokenUtil tokenUtil;
 
-    @Value("${admin.frontend.url}")
-    private String adminFrontendUrl;
-
-    @Value("${store.frontend.url}")
-    private String storeFrontendUrl;
 
     public SecurityConfig(TokenUtil tokenUtil) {
         this.tokenUtil = tokenUtil;
@@ -106,8 +100,6 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
-            adminFrontendUrl,
-            storeFrontendUrl,
             "http://localhost:5173",
             "http://localhost:5174",
             "http://localhost:5175",

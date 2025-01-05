@@ -19,7 +19,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/upload")
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"${admin.frontend.url}", "${store.frontend.url}"})
+// @CrossOrigin(origins = {"${admin.frontend.url}", "${store.frontend.url}"})
+
 public class CloudinaryController {
 
     private final CloudinaryService cloudinaryService;
