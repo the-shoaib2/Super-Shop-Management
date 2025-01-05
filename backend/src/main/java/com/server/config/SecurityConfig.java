@@ -16,6 +16,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 import java.util.Arrays;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.server.security.JwtAuthenticationFilter;
 import com.server.util.TokenUtil;
@@ -28,6 +29,23 @@ public class SecurityConfig {
 
     private final TokenUtil tokenUtil;
 
+    @Value("${cors.allowed.origins}")
+    private String[] allowedOrigins;
+
+    @Value("${cors.allowed.methods}")
+    private String[] allowedMethods;
+
+    @Value("${cors.allowed.headers}")
+    private String[] allowedHeaders;
+
+    @Value("${cors.exposed.headers}")
+    private String[] exposedHeaders;
+
+    @Value("${cors.allow.credentials}")
+    private boolean allowCredentials;
+
+    @Value("${cors.max.age}")
+    private long maxAge;
 
     public SecurityConfig(TokenUtil tokenUtil) {
         this.tokenUtil = tokenUtil;
@@ -99,32 +117,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(
-            "http://localhost:5173",
-            "http://localhost:5174",
-            "http://localhost:5175",
-            "https://4lnkrm5n-5173.inc1.devtunnels.ms/",
-            "https://4lnkrm5n-5174.inc1.devtunnels.ms/"
-        ));
-        configuration.setAllowedMethods(Arrays.asList(
-            "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
-        ));
-        configuration.setAllowedHeaders(Arrays.asList(
-            "Authorization",
-            "Content-Type",
-            "Accept",
-            "Origin",
-            "X-Requested-With",
-            "Access-Control-Request-Method",
-            "Access-Control-Request-Headers"
-        ));
-        configuration.setExposedHeaders(Arrays.asList(
-            "Authorization",
-            "Access-Control-Allow-Origin",
-            "Access-Control-Allow-Credentials"
-        ));
-        configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L);
+        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins));
+        configuration.setAllowedMethods(Arrays.asList(allowedMethods));
+        configuration.setAllowedHeaders(Arrays.asList(allowedHeaders));
+        configuration.setExposedHeaders(Arrays.asList(exposedHeaders));
+        configuration.setAllowCredentials(allowCredentials);
+        configuration.setMaxAge(maxAge);
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
