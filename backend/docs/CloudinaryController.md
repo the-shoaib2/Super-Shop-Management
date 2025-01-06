@@ -3,7 +3,7 @@
 The CloudinaryController handles all image upload and deletion operations using Cloudinary service in the Super Shop Management system.
 
 ## Base URL
-```
+```python
 /api/upload
 ```
 
@@ -71,7 +71,55 @@ POST /api/upload/images
 }
 ```
 
-### 3. Delete Image
+### 3. Upload Account Avatar
+```http
+POST /api/upload/avatar/account/new
+```
+
+**Request Parameters:**
+- `file` (required) - MultipartFile: The account avatar image file to upload
+
+**Headers:**
+- `Content-Type: multipart/form-data`
+- Authorization token required
+
+**Response:**
+```json
+{
+    "success": true,
+    "message": "Account avatar uploaded successfully",
+    "data": {
+        "url": "cloudinary_url",
+        "publicId": "public_id"
+    }
+}
+```
+
+### 4. Upload Store Avatar
+```http
+POST /api/upload/avatar/store/new
+```
+
+**Request Parameters:**
+- `file` (required) - MultipartFile: The store avatar image file to upload
+
+**Headers:**
+- `Content-Type: multipart/form-data`
+- Authorization token required
+
+**Response:**
+```json
+{
+    "success": true,
+    "message": "Store avatar uploaded successfully",
+    "data": {
+        "url": "cloudinary_url",
+        "publicId": "public_id"
+    }
+}
+```
+
+### 5. Delete Image
 ```http
 DELETE /api/upload/image
 ```

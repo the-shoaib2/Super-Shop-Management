@@ -142,6 +142,36 @@ export default function AccountSettings() {
     }
   }
 
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setLoading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      
+      const response = await accountAPI.uploadAvatar(formData)
+      if (response.success && response.data?.url) {
+        setFormData(prev => ({ ...prev, avatar: response.data.url }))
+        
+        if (typeof setUser === 'function') {
+          setUser(prev => ({ ...prev, avatar: response.data.url }))
+        }
+        
+        toast.success('Avatar uploaded successfully')
+      } else {
+        toast.error(response.error || 'Failed to upload avatar')
+      }
+    } catch (error) {
+      console.error('Failed to upload avatar:', error)
+      toast.error('Failed to upload avatar')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+
   const handleThemeChange = (theme) => {
     setCurrentTheme(theme)
     // Apply theme logic here
@@ -705,25 +735,26 @@ export default function AccountSettings() {
       {/* Avatar Upload */}
       <div className="flex items-center space-x-6">
         <div className="relative">
+          <div className="h-24 w-24 rounded-full overflow-hidden">
           <img
-            src={formData.avatar || '/default-avatar.png'}
+            src={formData.avatarUrl || '/default-avatar.png'}
             alt="Profile"
-            className="h-24 w-24 rounded-full object-cover"
+            className="h-full w-full object-cover"
           />
-          <label className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-lg cursor-pointer">
+            {loading ? (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+                <div className="animate-spin rounded-full h-8 w-8 border-4 border-primary border-t-transparent"></div>
+              </div>
+            ) : null}
+          </div>
+          <label className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-lg cursor-pointer hover:bg-gray-50 transition-colors">
             <FiImage className="h-4 w-4" />
             <input
               type="file"
               className="hidden"
               accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files?.[0]
-                if (file) {
-                  const formData = new FormData()
-                  formData.append('avatar', file)
-                  handleAvatarChange(formData)
-                }
-              }}
+              onChange={handleAvatarUpload}
+              disabled={loading} 
             />
           </label>
         </div>

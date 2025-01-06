@@ -39,6 +39,54 @@ export const accountAPI = {
     }
   },
 
+  //Upload Avatar
+  uploadAvatar: async (formData, folder = 'accounts') => {
+    try {
+      // Add proper headers for multipart/form-data
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Accept': 'application/json'
+        },
+        params: {
+          folder: folder
+        }
+      };
+
+      const response = await api.post('/api/upload/image', formData, config);
+      
+      // Adjust response handling based on your API response structure
+      if (response.data) {
+        return {
+          success: true,
+          data: {
+            success: true,
+            // Adjust these based on your API response structure
+            url: response.data.avatarUrl || response.data.url || response.data.data?.url,
+          }
+        };
+      }
+      
+      return {
+        success: false,
+        error: 'Invalid response from server',
+        data: null
+      };
+      
+    } catch (error) {
+      console.error('Upload avatar error:', error);
+      // Log the detailed error response for debugging
+      if (error.response) {
+        console.log('Error response data:', error.response.data);
+      }
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Failed to upload avatar',
+        data: null
+      };
+    }
+  },
+
   // Settings
   getSettings: async () => {
     try {
