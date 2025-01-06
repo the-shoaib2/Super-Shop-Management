@@ -40,29 +40,22 @@ export const accountAPI = {
   },
 
   //Upload Avatar
-  uploadAvatar: async (formData, folder = 'accounts') => {
+  uploadAvatar: async (formData) => {
     try {
-      // Add proper headers for multipart/form-data
       const config = {
         headers: {
-          'Content-Type': 'multipart/form-data',
-          'Accept': 'application/json'
-        },
-        params: {
-          folder: folder
+          'Content-Type': undefined // Let browser set the correct Content-Type
         }
       };
 
       const response = await api.post('/api/upload/image', formData, config);
       
-      // Adjust response handling based on your API response structure
       if (response.data) {
         return {
           success: true,
           data: {
             success: true,
-            // Adjust these based on your API response structure
-            url: response.data.avatarUrl || response.data.url || response.data.data?.url,
+            url: response.data.imageUrl || response.data.url || response.data.data?.url,
           }
         };
       }
@@ -75,7 +68,6 @@ export const accountAPI = {
       
     } catch (error) {
       console.error('Upload avatar error:', error);
-      // Log the detailed error response for debugging
       if (error.response) {
         console.log('Error response data:', error.response.data);
       }

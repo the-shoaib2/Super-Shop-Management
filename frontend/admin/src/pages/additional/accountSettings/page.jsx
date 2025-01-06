@@ -7,6 +7,7 @@ import {
   FiBell, FiGlobe, FiMonitor, FiShield, FiCreditCard, FiGrid 
 } from 'react-icons/fi'
 import { Button } from '@/components/ui/button'
+import { ImageUploadProgress } from '@/components/ui/ImageUploadProgress'
 
 const SECTIONS = [
   { id: 'general', label: 'General', icon: FiUser },
@@ -109,6 +110,8 @@ export default function AccountSettings() {
     rocketNumber: '',
     upayNumber: ''
   })
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [isUploading, setIsUploading] = useState(false)
 
   useEffect(() => {
     if (user) {
@@ -147,10 +150,13 @@ export default function AccountSettings() {
     if (!file) return
 
     setLoading(true)
+    setIsUploading(true)
+    setUploadProgress(0)
+
+    const formData = new FormData()
+    formData.append('file', file)
+
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-      
       const response = await accountAPI.uploadAvatar(formData)
       if (response.success && response.data?.url) {
         setFormData(prev => ({ ...prev, avatar: response.data.url }))
@@ -168,6 +174,8 @@ export default function AccountSettings() {
       toast.error('Failed to upload avatar')
     } finally {
       setLoading(false)
+      setIsUploading(false)
+      setUploadProgress(0)
     }
   }
 
@@ -736,29 +744,41 @@ export default function AccountSettings() {
       <div className="flex items-center space-x-6">
         <div className="relative">
           <div className="h-24 w-24 rounded-full overflow-hidden">
-          <img
-            src={formData.avatarUrl || '/default-avatar.png'}
-            alt="Profile"
-            className="h-full w-full object-cover"
-          />
-            {loading ? (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+            <img
+              src={formData.avatar || '/default-avatar.png'}
+              alt="Profile"
+              className="h-full w-full object-cover"
+            />
+            {loading && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50">
                 <div className="animate-spin rounded-full h-8 w-8 border-4 border-primary border-t-transparent"></div>
+                {isUploading && (
+                  <span className="text-white text-sm mt-2">{uploadProgress}%</span>
+                )}
               </div>
-            ) : null}
+            )}
+            {isUploading && <ImageUploadProgress progress={uploadProgress} />}
           </div>
-          <label className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-lg cursor-pointer hover:bg-gray-50 transition-colors">
-            <FiImage className="h-4 w-4" />
+          <label 
+            className={`
+              absolute bottom-0 right-0 
+              bg-white rounded-full p-2 shadow-lg 
+              cursor-pointer hover:bg-gray-50 
+              transition-all duration-200 
+              ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110'}
+            `}
+          >
+            <FiImage className="h-4 w-4 text-gray-600" />
             <input
               type="file"
               className="hidden"
               accept="image/*"
               onChange={handleAvatarUpload}
-              disabled={loading} 
+              disabled={loading}
             />
           </label>
         </div>
-        <div>
+        <div className="flex-1 space-y-2">
           <h3 className="text-lg font-medium">Profile Picture</h3>
           <p className="text-sm text-gray-500">JPG, GIF or PNG. Max size of 2MB</p>
         </div>
