@@ -3,7 +3,8 @@ package com.server.dto;
 import lombok.Data;
 import lombok.Builder;
 
-import com.server.entity.store.Store;
+import com.server.model.store.Store;
+
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;

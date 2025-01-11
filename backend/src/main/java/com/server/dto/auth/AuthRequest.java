@@ -30,4 +30,14 @@ public class AuthRequest {
     
     @Size(max = 500, message = "Description must not exceed 500 characters")
     private String description;
+    
+    private String avatarUrl;
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
 } 

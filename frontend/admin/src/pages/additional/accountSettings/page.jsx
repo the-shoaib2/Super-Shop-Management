@@ -4,10 +4,12 @@ import { accountAPI } from '@/services/api'
 import { toast } from 'react-hot-toast'
 import { 
   FiUser, FiLock, FiMail, FiPhone, FiMapPin, FiImage, 
-  FiBell, FiGlobe, FiMonitor, FiShield, FiCreditCard, FiGrid 
+  FiBell, FiGlobe, FiMonitor, FiShield, FiCreditCard, FiGrid,
+  FiTrash2, FiPlus, FiLinkedin, FiTwitter, FiFacebook, FiInstagram, FiGithub, FiLink, FiEdit2, FiCheck
 } from 'react-icons/fi'
 import { Button } from '@/components/ui/button'
 import { ImageUploadProgress } from '@/components/ui/ImageUploadProgress'
+import { Switch } from "@/components/ui/switch"
 
 const SECTIONS = [
   { id: 'general', label: 'General', icon: FiUser },
@@ -56,6 +58,17 @@ const BANGLADESH_BANKS = [
   // Add more banks as needed
 ]
 
+const SOCIAL_LINKS = [
+  { name: 'Select Type', placeholder: 'https://', icon: FiGlobe },
+  { name: 'Personal Blog', placeholder: 'https://blog.example.com', icon: FiGlobe },
+  { name: 'LinkedIn', placeholder: 'https://linkedin.com/in/username', icon: FiLinkedin },
+  { name: 'Twitter', placeholder: 'https://twitter.com/username', icon: FiTwitter },
+  { name: 'Facebook', placeholder: 'https://facebook.com/username', icon: FiFacebook },
+  { name: 'Instagram', placeholder: 'https://instagram.com/username', icon: FiInstagram },
+  { name: 'GitHub', placeholder: 'https://github.com/username', icon: FiGithub },
+  { name: 'Custom', placeholder: 'https://', icon: FiLink }
+];
+
 export default function AccountSettings() {
   const { user, setUser } = useAuth()
   const [activeSection, setActiveSection] = useState('general')
@@ -67,8 +80,13 @@ export default function AccountSettings() {
     email: '',
     phone: '',
     address: '',
-    bio: '',
-    avatar: '',
+    description: '',
+    avatarUrl: '',
+    websites: [],
+    isEmailVerified: '',
+    isPhoneVerified: '',
+    isOnline: '',
+    isActive: '',
     
     // Security
     currentPassword: '',
@@ -121,8 +139,14 @@ export default function AccountSettings() {
         email: user.email || '',
         phone: user.phone || '',
         address: user.address || '',
-        bio: user.bio || '',
-        avatar: user.avatar || ''
+        description: user.description || '',
+        avatarUrl: user.avatarUrl || '',
+        websites: user.websites || [],
+        isEmailVisible: Boolean(user.isEmailVisible),
+        isPhoneVisible: Boolean(user.isPhoneVisible),
+        isOnline: Boolean(user.isOnline),
+        isActive: Boolean(user.isActive),
+        isEmailVerified: Boolean(user.isEmailVerified)
       }))
     }
   }, [user])
@@ -131,15 +155,35 @@ export default function AccountSettings() {
     e.preventDefault()
     setLoading(true)
 
+    const updateData = {
+      fullName: formData.fullName,
+      phone: formData.phone,
+      address: formData.address,
+      description: formData.description,
+      avatarUrl: formData.avatarUrl,
+      isEmailVisible: formData.isEmailVisible,
+      isPhoneVisible: formData.isPhoneVisible,
+      isOnline: formData.isOnline,
+      isActive: formData.isActive,
+      websites: formData.websites.filter(site => site.name && site.url)
+    }
+
     try {
-      const response = await accountAPI.updateProfile(formData)
-      if (response.data?.success) {
-        setUser(response.data.data)
-        toast.success('Settings updated successfully')
+      const response = await accountAPI.updateProfile(updateData)
+      if (response.success) {
+        if (setUser && typeof setUser === 'function') {
+          setUser(prev => ({
+            ...prev,
+            ...response.data
+          }))
+        }
+        toast.success('Profile updated successfully')
+      } else {
+        toast.error(response.error || 'Failed to update profile')
       }
     } catch (error) {
       console.error('Failed to update settings:', error)
-      toast.error(error.response?.data?.message || 'Failed to update settings')
+      toast.error('Failed to update settings')
     } finally {
       setLoading(false)
     }
@@ -149,20 +193,45 @@ export default function AccountSettings() {
     const file = e.target.files?.[0]
     if (!file) return
 
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Please upload a valid image file (JPG, PNG, or GIF)');
+      return;
+    }
+
+    // Validate file size (2MB max)
+    const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+    if (file.size > maxSize) {
+      toast.error('Image size should be less than 2MB');
+      return;
+    }
+
     setLoading(true)
     setIsUploading(true)
     setUploadProgress(0)
 
     const formData = new FormData()
     formData.append('file', file)
+    formData.onProgress = (progress) => {
+      setUploadProgress(progress)
+    }
 
     try {
       const response = await accountAPI.uploadAvatar(formData)
-      if (response.success && response.data?.url) {
-        setFormData(prev => ({ ...prev, avatar: response.data.url }))
-        
-        if (typeof setUser === 'function') {
-          setUser(prev => ({ ...prev, avatar: response.data.url }))
+      
+      if (response.success && response.data) {
+        // Update both formData and user context with the new avatar URL
+        setFormData(prev => ({
+          ...prev,
+          avatarUrl: response.data.url
+        }))
+
+        if (setUser && typeof setUser === 'function') {
+          setUser(prev => ({
+            ...prev,
+            avatarUrl: response.data.url
+          }))
         }
         
         toast.success('Avatar uploaded successfully')
@@ -171,7 +240,7 @@ export default function AccountSettings() {
       }
     } catch (error) {
       console.error('Failed to upload avatar:', error)
-      toast.error('Failed to upload avatar')
+      toast.error(error.message || 'Failed to upload avatar')
     } finally {
       setLoading(false)
       setIsUploading(false)
@@ -182,9 +251,31 @@ export default function AccountSettings() {
 
   const handleThemeChange = (theme) => {
     setCurrentTheme(theme)
-    // Apply theme logic here
     document.documentElement.className = theme
     localStorage.setItem('theme', theme)
+  }
+
+  const handleWebsiteChange = (index, field, value) => {
+    const newWebsites = [...formData.websites]
+    newWebsites[index] = {
+      ...newWebsites[index],
+      [field]: value
+    }
+    setFormData(prev => ({ ...prev, websites: newWebsites }))
+  }
+
+  const addWebsite = () => {
+    setFormData(prev => ({
+      ...prev,
+      websites: [...prev.websites, { name: '', url: '', type: '', isEditing: true }]
+    }))
+  }
+
+  const removeWebsite = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      websites: prev.websites.filter((_, i) => i !== index)
+    }))
   }
 
   const renderSideNav = () => (
@@ -493,7 +584,7 @@ export default function AccountSettings() {
             </div>
             <input
               type="checkbox"
-              checked={formData.showOnlineStatus}
+              checked={Boolean(formData.showOnlineStatus)}
               onChange={(e) => setFormData({ ...formData, showOnlineStatus: e.target.checked })}
               className="h-4 w-4 text-primary border-gray-300 rounded"
             />
@@ -744,9 +835,9 @@ export default function AccountSettings() {
       <div className="flex items-center space-x-6">
         <div className="relative">
           <div className="h-24 w-24 rounded-full overflow-hidden">
-            <img
-              src={formData.avatar || '/default-avatar.png'}
-              alt="Profile"
+          <img
+              src={formData.avatarUrl || '/default-avatar.png'}
+            alt="Profile"
               className="h-full w-full object-cover"
             />
             {loading && (
@@ -824,52 +915,177 @@ export default function AccountSettings() {
         </div>
       </div>
 
-      {/* Bio */}
+      {/* Description */}
       <div>
-        <label className="block text-sm font-medium mb-1">Bio</label>
+        <label className="block text-sm font-medium mb-1">Description</label>
         <textarea
           className="w-full p-2 border rounded-md"
           rows="4"
-          value={formData.bio}
-          onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+          value={formData.description}
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           placeholder="Tell us about yourself..."
         />
       </div>
 
-      {/* Social Links */}
-      <div>
-        <h3 className="text-lg font-medium mb-4">Social Links</h3>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Website</label>
-            <input
-              type="url"
-              className="w-full p-2 border rounded-md"
-              value={formData.website || ''}
-              onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-              placeholder="https://example.com"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">LinkedIn</label>
-            <input
-              type="url"
-              className="w-full p-2 border rounded-md"
-              value={formData.linkedin || ''}
-              onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
-              placeholder="https://linkedin.com/in/username"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Twitter</label>
-            <input
-              type="url"
-              className="w-full p-2 border rounded-md"
-              value={formData.twitter || ''}
-              onChange={(e) => setFormData({ ...formData, twitter: e.target.value })}
-              placeholder="https://twitter.com/username"
-            />
-          </div>
+      {/* Combined Websites & Social Links */}
+      <div className="bg-gray-50/50 p-6 rounded-lg">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-medium">Websites & Social Links</h3>
+          <button
+            type="button"
+            onClick={() => {
+              addWebsite();
+              setTimeout(() => {
+                const newIndex = formData.websites.length;
+                const elem = document.getElementById(`website-form-${newIndex}`);
+                if (elem) {
+                  elem.classList.remove('hidden');
+                }
+              }, 0);
+            }}
+            className="flex items-center gap-2 px-4 py-2 text-sm bg-white border rounded-md hover:bg-gray-50 transition-colors"
+          >
+            <FiPlus className="h-4 w-4" />
+            <span>Add New</span>
+          </button>
+        </div>
+
+        <div className="space-y-3">
+          {formData.websites.map((website, index) => (
+            <div key={index} className="relative">
+              <div id={`website-display-${index}`} className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-100 shadow-sm hover:border-gray-200 transition-colors">
+                {!website.isEditing ? (
+                  <>
+                    <div className="flex-1 flex items-center gap-4">
+                      <div className="flex-shrink-0">
+                        {website.type && website.type !== 'Select Type' && (
+                          <>
+                            {SOCIAL_LINKS.find(link => link.name === website.type)?.icon && 
+                              React.createElement(
+                                SOCIAL_LINKS.find(link => link.name === website.type)?.icon,
+                                { className: "h-5 w-5 text-gray-500" }
+                              )
+                            }
+                          </>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-gray-900">
+                          {website.name || website.type}
+                        </p>
+                        <a 
+                          href={website.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="text-sm text-blue-500 hover:text-blue-600 hover:underline truncate block"
+                        >
+                          {website.url}
+                        </a>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 ml-4">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData(prev => ({
+                            ...prev,
+                            websites: prev.websites.map((w, i) => 
+                              i === index ? { ...w, isEditing: true } : w
+                            )
+                          }));
+                        }}
+                        className="p-2 text-gray-400 hover:text-blue-500 transition-colors rounded-full hover:bg-gray-50"
+                      >
+                        <FiEdit2 className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removeWebsite(index)}
+                        className="p-2 text-gray-400 hover:text-red-500 transition-colors rounded-full hover:bg-gray-50"
+                      >
+                        <FiTrash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="w-full grid grid-cols-1 sm:grid-cols-12 gap-3">
+                    {/* Type Selection */}
+                    <div className="sm:col-span-3">
+                      <select
+                        className="w-full p-2.5 border rounded-md bg-white focus:ring-2 focus:ring-primary/20"
+                        value={website.type || ''}
+                        onChange={(e) => {
+                          const type = e.target.value;
+                          handleWebsiteChange(index, 'type', type);
+                          if (type !== 'Custom') {
+                            handleWebsiteChange(index, 'name', type);
+                          }
+                        }}
+                      >
+                        {SOCIAL_LINKS.filter(link => link.name !== 'Select Type').map(link => (
+                          <option key={link.name} value={link.name}>
+                            {link.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    {/* Custom Name Input */}
+                    {website.type === 'Custom' && (
+                      <div className="sm:col-span-3">
+                        <input
+                          type="text"
+                          className="w-full p-2.5 border rounded-md focus:ring-2 focus:ring-primary/20"
+                          value={website.name || ''}
+                          onChange={(e) => handleWebsiteChange(index, 'name', e.target.value)}
+                          placeholder="Enter name"
+                        />
+                      </div>
+                    )}
+                    
+                    {/* URL Input */}
+                    <div className={`${website.type === 'Custom' ? 'sm:col-span-5' : 'sm:col-span-8'}`}>
+                      <input
+                        type="url"
+                        className="w-full p-2.5 border rounded-md focus:ring-2 focus:ring-primary/20"
+                        value={website.url || ''}
+                        onChange={(e) => handleWebsiteChange(index, 'url', e.target.value)}
+                        placeholder={
+                          SOCIAL_LINKS.find(link => link.name === website.type)?.placeholder ||
+                          'https://'
+                        }
+                      />
+                    </div>
+
+                    {/* Done Button */}
+                    <div className="sm:col-span-1 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData(prev => ({
+                            ...prev,
+                            websites: prev.websites.map((w, i) => 
+                              i === index ? { ...w, isEditing: false } : w
+                            )
+                          }));
+                        }}
+                        className="p-2.5 text-gray-400 hover:text-green-500 transition-colors rounded-full hover:bg-gray-50"
+                      >
+                        <FiCheck className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+
+          {formData.websites.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              <FiLink className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p>No websites or social links added yet</p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -892,38 +1108,154 @@ export default function AccountSettings() {
               <p className="text-sm text-gray-500">Status of your email verification</p>
             </div>
             <span className={`px-3 py-1 rounded-full text-sm ${
-              formData.emailVerified 
+              formData.isEmailVerified 
                 ? 'bg-green-100 text-green-800' 
                 : 'bg-yellow-100 text-yellow-800'
             }`}>
-              {formData.emailVerified ? 'Verified' : 'Unverified'}
+              {formData.isEmailVerified ? 'Verified' : 'Unverified'}
             </span>
           </div>
         </div>
       </div>
 
       {/* Preferences */}
-      <div>
-        <h3 className="text-lg font-medium mb-4">Profile Preferences</h3>
-        <div className="space-y-4">
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={formData.emailVisible || false}
-              onChange={(e) => setFormData({ ...formData, emailVisible: e.target.checked })}
-              className="h-4 w-4 rounded border-gray-300"
+      <div className="bg-gray-50/50 p-6 rounded-lg">
+        <h3 className="text-lg font-medium mb-6">Profile Preferences</h3>
+        <div className="space-y-6">
+          {/* Email Visibility */}
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <label className="text-sm font-medium">Show Email</label>
+              <p className="text-sm text-muted-foreground">
+                Display your email address on your public profile
+              </p>
+            </div>
+            <Switch
+              checked={Boolean(formData.isEmailVisible)}
+              onCheckedChange={async (checked) => {
+                try {
+                  // First update the database
+                  const response = await accountAPI.updateProfile({
+                    ...formData,
+                    isEmailVisible: checked
+                  });
+                  
+                  if (response.success) {
+                    // Only update UI if database update was successful
+                    setFormData(prev => ({
+                      ...prev,
+                      isEmailVisible: checked
+                    }));
+                    
+                    // Update user context
+                    if (setUser && typeof setUser === 'function') {
+                      setUser(prev => ({
+                        ...prev,
+                        isEmailVisible: checked
+                      }));
+                    }
+                    
+                    toast.success('Email visibility updated');
+                  } else {
+                    toast.error('Failed to update email visibility');
+                  }
+                } catch (error) {
+                  console.error('Failed to update email visibility:', error);
+                  toast.error('Failed to update email visibility');
+                }
+              }}
             />
-            <span>Show email on profile</span>
-          </label>
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={formData.phoneVisible || false}
-              onChange={(e) => setFormData({ ...formData, phoneVisible: e.target.checked })}
-              className="h-4 w-4 rounded border-gray-300"
+          </div>
+
+          {/* Phone Visibility */}
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <label className="text-sm font-medium">Show Phone Number</label>
+              <p className="text-sm text-muted-foreground">
+                Display your phone number on your public profile
+              </p>
+            </div>
+            <Switch
+              checked={Boolean(formData.isPhoneVisible)}
+              onCheckedChange={async (checked) => {
+                try {
+                  // First update the database
+                  const response = await accountAPI.updateProfile({
+                    ...formData,
+                    isPhoneVisible: checked
+                  });
+                  
+                  if (response.success) {
+                    // Only update UI if database update was successful
+                    setFormData(prev => ({
+                      ...prev,
+                      isPhoneVisible: checked
+                    }));
+                    
+                    // Update user context
+                    if (setUser && typeof setUser === 'function') {
+                      setUser(prev => ({
+                        ...prev,
+                        isPhoneVisible: checked
+                      }));
+                    }
+                    
+                    toast.success('Phone visibility updated');
+                  } else {
+                    toast.error('Failed to update phone visibility');
+                  }
+                } catch (error) {
+                  console.error('Failed to update phone visibility:', error);
+                  toast.error('Failed to update phone visibility');
+                }
+              }}
             />
-            <span>Show phone number on profile</span>
-          </label>
+          </div>
+
+          {/* Online Status */}
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <label className="text-sm font-medium">Profile Activity</label>
+              <p className="text-sm text-muted-foreground">
+                Show your online status and activity
+              </p>
+            </div>
+            <Switch
+              checked={Boolean(formData.isOnline)}
+              onCheckedChange={async (checked) => {
+                try {
+                  // First update the database
+                  const response = await accountAPI.updateProfile({
+                    ...formData,
+                    isOnline: checked
+                  });
+                  
+                  if (response.success) {
+                    // Only update UI if database update was successful
+                    setFormData(prev => ({
+                      ...prev,
+                      isOnline: checked
+                    }));
+                    
+                    // Update user context
+                    if (setUser && typeof setUser === 'function') {
+                      setUser(prev => ({
+                        ...prev,
+                        isOnline: checked
+                      }));
+                    }
+                    
+                    toast.success('Online status updated');
+                  } else {
+                    toast.error('Failed to update online status');
+                  }
+                } catch (error) {
+                  console.error('Failed to update online status:', error);
+                  toast.error('Failed to update online status');
+                }
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -971,14 +1303,24 @@ export default function AccountSettings() {
                   <button
                     type="button"
                     className="px-4 py-2 border rounded-md hover:bg-accent"
-                    onClick={() => setFormData({
-                      fullName: user?.fullName || '',
-                      email: user?.email || '',
-                      phone: user?.phone || '',
-                      address: user?.address || '',
-                      bio: user?.bio || '',
-                      avatar: user?.avatar || ''
-                    })}
+                    onClick={() => {
+                      if (user) {
+                        setFormData(prev => ({
+                          ...prev,
+                          fullName: user.fullName || '',
+                          email: user.email || '',
+                          phone: user.phone || '',
+                          address: user.address || '',
+                          description: user.description || '',
+                          avatarUrl: user.avatarUrl || '',
+                          websites: user.websites || [],
+                          isEmailVisible: Boolean(user.isEmailVisible),
+                          isPhoneVisible: Boolean(user.isPhoneVisible),
+                          isOnline: Boolean(user.isOnline),
+                          isActive: Boolean(user.isActive)
+                        }))
+                      }
+                    }}
                   >
                     Cancel
                   </button>

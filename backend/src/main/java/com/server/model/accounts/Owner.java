@@ -15,6 +15,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import com.server.model.store.Store;
 import com.server.util.IdGenerator;
+import com.server.model.accounts.Website;
 
 @Document(collection = "storeOwners")
 @Data
@@ -52,22 +53,29 @@ public class Owner {
 
     private String phone;
 
+
     private String address;
 
     private String description;
 
-    private List<String> websites;
+    private List<Website> websites = new ArrayList<>();
 
     // Auth fields
     private String refreshToken;
     private LocalDateTime lastLogin;
     
     // Profile fields
-    private List<String> avaterUrls;
+    private String avatarUrl;
     private boolean isActive;
     private boolean isVerified;
+    private boolean isEmailVisible;
+    private boolean isPhoneVisible;
     private String verificationToken;
     private LocalDateTime verificationExpiry;
+    
+    // Online status
+    private boolean isOnline;
+    private LocalDateTime lastActive;
     
     // Audit fields
     private LocalDateTime createdAt;
@@ -171,11 +179,55 @@ public class Owner {
         return description;
     }
 
-    public List<String> getWebsites() {
-        return websites;
+    public List<Website> getWebsites() {
+        return websites != null ? websites : new ArrayList<>();
     }
     
     public String getAvatarUrl() {
-        return avaterUrls != null && !avaterUrls.isEmpty() ? avaterUrls.get(0) : null;
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
+    public boolean isVerified() {
+        return isVerified;
+    }
+
+    public void setVerified(boolean verified) {
+        isVerified = verified;
+    }
+
+    public boolean isEmailVisible() {
+        return isEmailVisible;
+    }
+
+    public void setEmailVisible(boolean isEmailVisible) {
+        this.isEmailVisible = isEmailVisible;
+    }
+
+    public boolean isPhoneVisible() {
+        return isPhoneVisible;
+    }
+
+    public void setPhoneVisible(boolean isPhoneVisible) {
+        this.isPhoneVisible = isPhoneVisible;
+    }
+
+    public boolean isOnline() {
+        return isOnline;
+    }
+
+    public void setOnline(boolean isOnline) {
+        this.isOnline = isOnline;
+    }
+
+    public LocalDateTime getLastActive() {
+        return lastActive;
+    }
+
+    public void setLastActive(LocalDateTime lastActive) {
+        this.lastActive = lastActive;
     }
 } 

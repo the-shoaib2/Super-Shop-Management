@@ -52,8 +52,8 @@ public class AuthService {
             if (storeOwner.getWebsites() == null) {
                 storeOwner.setWebsites(new ArrayList<>());
             }
-            if (storeOwner.getAvaterUrls() == null) {
-                storeOwner.setAvaterUrls(new ArrayList<>());
+            if (storeOwner.getAvatarUrl() == null) {
+                storeOwner.setAvatarUrl("");
             }
             
             // Save and return

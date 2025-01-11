@@ -84,6 +84,7 @@ public class AccountController {
     }
     
     @PutMapping("/me/preferences")
+    
     public ResponseEntity<ApiResponse<AccountPreferencesDTO>> updatePreferences(
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody AccountPreferencesDTO preferencesDTO) {

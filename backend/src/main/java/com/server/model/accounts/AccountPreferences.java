@@ -1,4 +1,4 @@
-package com.server.entity.accounts;
+package com.server.model.accounts;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;

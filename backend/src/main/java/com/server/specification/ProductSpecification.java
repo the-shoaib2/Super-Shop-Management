@@ -2,7 +2,7 @@ package com.server.specification;
 
 import org.springframework.data.jpa.domain.Specification;
 
-import com.server.entity.store.products.Product;
+import com.server.model.store.products.Product;
 
 
 public class ProductSpecification {

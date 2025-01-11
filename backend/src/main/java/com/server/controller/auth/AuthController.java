@@ -78,7 +78,7 @@ public class AuthController {
             // Set default values
             storeOwner.setActive(true);
             storeOwner.setLastLogin(LocalDateTime.now());
-            storeOwner.setAvaterUrls(new ArrayList<>());
+            // storeOwner.setAvatarUrl(new ArrayList<>());
             storeOwner.setWebsites(new ArrayList<>());
             storeOwner.setStores(new ArrayList<>());
             
