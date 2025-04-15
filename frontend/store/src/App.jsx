@@ -16,7 +16,7 @@ function App() {
           {/* Navbar */}
           <div className="sticky top-0 z-50">
           <Toaster
-            position="top-center"
+            position="top-right"
             toastOptions={{
               duration: 2000,
             }}
