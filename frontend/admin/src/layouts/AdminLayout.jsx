@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/contexts/auth-context'
 import { Menu, PanelLeft, X } from 'lucide-react'
 import StoreSwitcher from '@/components/store-switcher'
 import { SidebarNavButton } from '@/components/layout/SidebarNavButton'

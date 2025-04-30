@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/contexts/auth-context'
 import { FiPlus, FiEdit2, FiTrash2, FiEye, FiAlertCircle } from 'react-icons/fi'
 import { toast } from 'react-hot-toast'
 import CreateProductDialog from '@/components/dialogs/product/index'

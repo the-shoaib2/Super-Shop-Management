@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/contexts/auth-context'
 import { FiPlus, FiChevronDown } from 'react-icons/fi'
 import CreateStoreDialog from './dialogs/CreateStoreDialog'
 import StoreSwitcherDialog from './dialogs/StoreSwitcherDialog'

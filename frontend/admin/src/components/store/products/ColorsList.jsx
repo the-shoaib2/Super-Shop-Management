@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { FiPlus, FiEdit2, FiTrash2, FiCheck, FiX, FiDroplet, FiHash, FiGrid, FiList, FiSquare } from 'react-icons/fi'
 import { toast } from 'react-hot-toast'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/contexts/auth-context'
 import { cn } from "@/lib/utils"
 import { storeAPI } from '@/services/api'
 import { DeleteDialog } from '@/components/dialogs/actions/DeleteDialog'

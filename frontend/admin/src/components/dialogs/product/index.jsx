@@ -8,7 +8,7 @@ import { ProductVariantsStep } from './ProductVariantsStep'
 import { ProductImagesStep } from './ProductImagesStep'
 import { AnimatedDialog, DialogHeader, DialogTitle, DialogContent, DialogFooter, DialogCloseButton } from '@/components/ui/animated-dialog'
 import { Button } from '@/components/ui/button'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/contexts/auth-context'
 import CLOUDINARY_API from '@/services/api/cloudinary/cloudinaryAPI'
 
 export default function CreateProductDialog({ isOpen, onClose, onSuccess, initialData }) {

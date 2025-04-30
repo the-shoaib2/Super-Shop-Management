@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
-import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { AuthProvider, useAuth } from './contexts/auth-context'
 import AdminLayout from './layouts/AdminLayout'
 import Dashboard from './pages/main/Dashboard/page'
 import Store from './pages/main/Store/page'

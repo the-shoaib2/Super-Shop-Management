@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { AnimatedDialog, DialogHeader, DialogTitle, DialogContent, DialogFooter, DialogCloseButton } from '@/components/ui/animated-dialog'
 import { Button } from '@/components/ui/button'
 import { toast } from 'react-hot-toast'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/contexts/auth-context'
 import { priceAPI } from '@/services/api/store/priceAPI'
 import { FiDollarSign } from 'react-icons/fi'
 

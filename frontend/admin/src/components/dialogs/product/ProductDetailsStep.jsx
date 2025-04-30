@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { FormField } from '../shared/FormField'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/contexts/auth-context'
 import { priceAPI } from '@/services/api/store/priceAPI'
 import { FiDollarSign } from 'react-icons/fi'
 

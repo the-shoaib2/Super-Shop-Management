@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/contexts/auth-context'
 import { accountAPI } from '@/services/api'
 import { toast } from 'react-hot-toast'
 import { SideNav } from './components/SideNav'

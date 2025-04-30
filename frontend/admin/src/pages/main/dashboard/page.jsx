@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { dashboardAPI, storeAPI } from "@/services";
 import { toast } from "react-hot-toast";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/auth-context";
 import CreateStoreDialog from "@/components/dialogs/CreateStoreDialog";
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
