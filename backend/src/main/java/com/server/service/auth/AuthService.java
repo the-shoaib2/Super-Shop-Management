@@ -80,9 +80,9 @@ public class AuthService {
             }
 
             // Check if account is active
-            if (!owner.isActive()) {
-                throw new UnauthorizedException("Account is inactive");
-            }
+            // if (!owner.isActive()) {
+            //     throw new UnauthorizedException("Account is inactive");
+            // }
 
             // Update last login
             owner.setLastLogin(LocalDateTime.now());

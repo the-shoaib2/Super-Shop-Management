@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { orderAPI } from '../../../services/api'
 import { toast } from 'react-hot-toast'
-import LoadingScreen from '@/components/LoadingScreen'
+import LoadingScreen from '@/components/loading-screen'
 
 export default function Orders() {
   const [orders, setOrders] = useState([])

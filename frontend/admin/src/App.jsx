@@ -16,7 +16,7 @@ import Login from './pages/auth/login/page'
 import Signup from './pages/auth/signup/page'
 import APIs from './pages/additional/APIs/page'
 import { ShoppingCart } from 'lucide-react'
-import LoadingScreen from './components/LoadingScreen'
+import LoadingScreen from './components/loading-screen'
 
 // Configure future flags
 const routerOptions = {
