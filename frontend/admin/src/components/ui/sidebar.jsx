@@ -358,8 +358,10 @@ const SidebarGroup = React.forwardRef(({ className, ...props }, ref) => {
 })
 SidebarGroup.displayName = "SidebarGroup"
 
-const SidebarGroupLabel = React.forwardRef(({ className, asChild = false, ...props }, ref) => {
+const SidebarGroupLabel = React.forwardRef(({ className, asChild = false, children, ...props }, ref) => {
   const Comp = asChild ? Slot : "div"
+  const { state } = useSidebar()
+  const firstLetter = children ? children.charAt(0) : ''
 
   return (
     <Comp
@@ -368,9 +370,18 @@ const SidebarGroupLabel = React.forwardRef(({ className, asChild = false, ...pro
       className={cn(
         "flex h-5 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70 outline-none ring-sidebar-ring transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
         "group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0",
+        "group-data-[collapsible=icon]:group-data-[state=collapsed]:opacity-100 group-data-[collapsible=icon]:group-data-[state=collapsed]:mt-0",
         className
       )}
-      {...props} />
+      {...props}>
+      {state === "collapsed" ? (
+        <span className="flex h-5 w-5 items-center justify-center rounded-md bg-sidebar-accent/10 text-muted-foreground">
+          {firstLetter}
+        </span>
+      ) : (
+        children
+      )}
+    </Comp>
   );
 })
 SidebarGroupLabel.displayName = "SidebarGroupLabel"
