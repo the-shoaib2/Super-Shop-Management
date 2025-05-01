@@ -10,16 +10,18 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const [currentStore, setCurrentStore] = useState(null)
   const [stores, setStores] = useState([])
+  const [isLoadingUser, setIsLoadingUser] = useState(true)
   const navigate = useNavigate()
   const location = useLocation()
 
   useEffect(() => {
     const initAuth = async () => {
       try {
-        setLoading(true)
+        setIsLoadingUser(true)
         const token = localStorage.getItem('token')
         
         if (!token) {
+          setIsLoadingUser(false)
           return
         }
 
@@ -35,6 +37,7 @@ export function AuthProvider({ children }) {
         handleLogout()
       } finally {
         setLoading(false)
+        setIsLoadingUser(false)
       }
     }
 
@@ -43,6 +46,7 @@ export function AuthProvider({ children }) {
 
   const login = async (credentials) => {
     try {
+      setIsLoadingUser(true)
       const response = await authAPI.login(credentials)
       console.log('Login response:', response) // Debug log
       
@@ -82,6 +86,8 @@ export function AuthProvider({ children }) {
       console.error('Login failed:', error)
       toast.error(error.message || 'Login failed')
       throw error
+    } finally {
+      setIsLoadingUser(false)
     }
   }
 
@@ -102,6 +108,7 @@ export function AuthProvider({ children }) {
       await authAPI.logout()
     } catch (error) {
       console.error('Logout error:', error)
+      throw error
     } finally {
       handleLogout()
     }
@@ -125,6 +132,7 @@ export function AuthProvider({ children }) {
   const value = {
     user,
     loading,
+    isLoadingUser,
     login,
     logout,
     currentStore,

@@ -37,7 +37,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
-import { useAuth } from "@/contexts/auth-context/auth-context"
+import { useAuth } from "@/contexts/auth-context"
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
 import { NavUserSkeleton } from "@/components/nav-user-skeleton"
