@@ -48,39 +48,41 @@ const PageHeader = React.forwardRef(({
       )} 
       {...props}
     >
-      <div className="flex items-center gap-2 px-4">
-        <SidebarTrigger className="-ml-1" />
-        <Separator orientation="vertical" className="mr-2 h-4" />
-        <Breadcrumb>
-          <BreadcrumbList>
-            {pathSegments.map((segment, index) => {
-              const isLast = index === pathSegments.length - 1
-              const path = `/${pathSegments.slice(0, index + 1).join('/')}`
-              const displayName = formatSegment(segment)
+      <div className="flex items-center justify-between w-full px-4">
+        <div className="flex items-center gap-2">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-2 h-4" />
+          <Breadcrumb>
+            <BreadcrumbList>
+              {pathSegments.map((segment, index) => {
+                const isLast = index === pathSegments.length - 1
+                const path = `/${pathSegments.slice(0, index + 1).join('/')}`
+                const displayName = formatSegment(segment)
 
-              return (
-                <React.Fragment key={path}>
-                  <BreadcrumbItem className={cn(
-                    "hidden md:block",
-                    isLast && "block"
-                  )}>
-                    {isLast ? (
-                      <BreadcrumbPage>{displayName}</BreadcrumbPage>
-                    ) : (
-                      <BreadcrumbLink href={path}>{displayName}</BreadcrumbLink>
+                return (
+                  <React.Fragment key={path}>
+                    <BreadcrumbItem className={cn(
+                      "hidden md:block",
+                      isLast && "block"
+                    )}>
+                      {isLast ? (
+                        <BreadcrumbPage>{displayName}</BreadcrumbPage>
+                      ) : (
+                        <BreadcrumbLink href={path}>{displayName}</BreadcrumbLink>
+                      )}
+                    </BreadcrumbItem>
+                    {!isLast && (
+                      <BreadcrumbSeparator className="hidden md:block" />
                     )}
-                  </BreadcrumbItem>
-                  {!isLast && (
-                    <BreadcrumbSeparator className="hidden md:block" />
-                  )}
-                </React.Fragment>
-              )
-            })}
-            {children}
-          </BreadcrumbList>
-        </Breadcrumb>
-        <div className="ml-auto">
-          {showFullscreen && <FullscreenButton className="hidden sm:inline-flex" />}
+                  </React.Fragment>
+                )
+              })}
+              {children}
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+        <div className="flex items-center">
+          {showFullscreen && <FullscreenButton />}
         </div>
       </div>
     </header>

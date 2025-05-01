@@ -18,19 +18,55 @@ import {
 
 const getIconClass = (title) => {
   const iconMap = {
-    'Dashboard': 'dashboard-icon',
-    'Store': 'store-icon',
-    'Orders': 'orders-icon',
-    'Sales': 'sales-icon',
-    'Employees': 'employees-icon',
-    'Customers': 'customers-icon',
-    'Suppliers': 'suppliers-icon',
-    'Finance': 'finance-icon',
-    'Reports': 'reports-icon',
-    'Store APIs': 'api-icon',
-    'Account Settings': 'settings-icon'
+    'Dashboard': 'dashboard',
+    'Store': 'store',
+    'Orders': 'orders',
+    'Sales': 'sales',
+    'Employees': 'employees',
+    'Customers': 'customers',
+    'Suppliers': 'suppliers',
+    'Finance': 'finance',
+    'Reports': 'reports',
+    'Store APIs': 'api',
+    'Account Settings': 'settings',
+    'Overview': 'overview',
+    'Analytics': 'analytics',
+    'Products': 'products',
+    'Categories': 'categories',
+    'Inventory': 'inventory',
+    'All Orders': 'all-orders',
+    'Pending': 'pending',
+    'Completed': 'completed',
+    'Statistics': 'statistics',
+    'Forecasts': 'forecasts',
+    'All Staff': 'staff',
+    'Roles': 'roles',
+    'Performance': 'performance',
+    'All Customers': 'users',
+    'Segments': 'segments',
+    'Feedback': 'feedback',
+    'All Suppliers': 'truck',
+    'Contracts': 'contracts',
+    'Transactions': 'transactions',
+    'Documentation': 'documentation',
+    'Integration': 'integration',
+    'Keys': 'key',
+    'Profile': 'profile',
+    'Security': 'security',
+    'Preferences': 'preferences'
   };
   return iconMap[title] || '';
+};
+
+const IconWrapper = ({ icon: Icon, className, size = 5 }) => {
+  return (
+    <Icon 
+      className={`h-${size} w-${size} transition-colors duration-200`}
+      style={{ 
+        color: `hsl(var(--${className}-icon))`
+      }}
+    />
+  );
 };
 
 export function NavMain({
@@ -47,7 +83,7 @@ export function NavMain({
             <SidebarMenuItem>
               <CollapsibleTrigger asChild>
                 <SidebarMenuButton tooltip={item.title}>
-                  {item.icon && <item.icon className={`h-5 w-5 ${getIconClass(item.title)}`} />}
+                  {item.icon && <IconWrapper icon={item.icon} className={getIconClass(item.title)} />}
                   <span>{item.title}</span>
                   <ChevronRight
                     className="ml-auto transition-transform duration-150 ease-out will-change-transform group-data-[state=open]/collapsible:rotate-90" />
@@ -59,7 +95,7 @@ export function NavMain({
                     <SidebarMenuSubItem key={subItem.title}>
                       <SidebarMenuSubButton asChild>
                         <a href={subItem.url}>
-                          {subItem.icon && <subItem.icon className={`h-4 w-4 ${getIconClass(item.title)}`} />}
+                          {subItem.icon && <IconWrapper icon={subItem.icon} className={getIconClass(subItem.title)} size={4} />}
                           <span>{subItem.title}</span>
                         </a>
                       </SidebarMenuSubButton>

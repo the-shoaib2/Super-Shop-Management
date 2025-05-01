@@ -32,74 +32,74 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     
-    /* Super Shop Custom Colors - More Vibrant */
-    --dashboard-icon: 217 100% 65%;
-    --store-icon: 142 100% 45%;
-    --orders-icon: 27 100% 65%;
-    --sales-icon: 0 100% 65%;
-    --employees-icon: 221 100% 60%;
-    --customers-icon: 262 100% 65%;
-    --suppliers-icon: 201 100% 40%;
-    --finance-icon: 47 100% 60%;
-    --reports-icon: 152 100% 40%;
-    --api-icon: 280 100% 65%;
-    --settings-icon: 0 0% 50%;
+    /* Super Shop Custom Colors - Light Mode */
+    --dashboard-icon: 217 100% 50%;
+    --store-icon: 142 100% 40%;
+    --orders-icon: 27 100% 50%;
+    --sales-icon: 0 100% 50%;
+    --employees-icon: 221 100% 45%;
+    --customers-icon: 262 100% 50%;
+    --suppliers-icon: 201 100% 35%;
+    --finance-icon: 47 100% 45%;
+    --reports-icon: 152 100% 35%;
+    --api-icon: 280 100% 50%;
+    --settings-icon: 0 0% 40%;
     
-    /* Additional Icon Colors */
-    --home-icon: 217 100% 65%;
-    --package-icon: 142 100% 45%;
-    --list-icon: 27 100% 65%;
-    --box-icon: 0 100% 65%;
-    --tag-icon: 221 100% 60%;
-    --shopping-bag-icon: 262 100% 65%;
-    --clock-icon: 201 100% 40%;
-    --check-circle-icon: 47 100% 60%;
-    --trending-up-icon: 152 100% 40%;
-    --pie-chart-icon: 280 100% 65%;
-    --line-chart-icon: 217 100% 65%;
-    --user-cog-icon: 142 100% 45%;
-    --shield-icon: 27 100% 65%;
-    --award-icon: 0 100% 65%;
-    --users-icon: 221 100% 60%;
-    --heart-icon: 262 100% 65%;
-    --message-icon: 201 100% 40%;
-    --truck-icon: 47 100% 60%;
-    --file-check-icon: 152 100% 40%;
-    --bar-chart-icon: 280 100% 65%;
-    --wallet-icon: 217 100% 65%;
-    --receipt-icon: 142 100% 45%;
-    --spreadsheet-icon: 27 100% 65%;
-    --book-icon: 0 100% 65%;
-    --terminal-icon: 221 100% 60%;
-    --key-icon: 262 100% 65%;
-    --user-circle-icon: 201 100% 40%;
-    --lock-icon: 47 100% 60%;
-    --bell-icon: 152 100% 40%;
-    --file-text-icon: 280 100% 65%;
+    /* Additional Icon Colors - Light Mode */
+    --home-icon: 217 100% 50%;
+    --package-icon: 142 100% 40%;
+    --list-icon: 27 100% 50%;
+    --box-icon: 0 100% 50%;
+    --tag-icon: 221 100% 45%;
+    --shopping-bag-icon: 262 100% 50%;
+    --clock-icon: 201 100% 35%;
+    --check-circle-icon: 47 100% 45%;
+    --trending-up-icon: 152 100% 35%;
+    --pie-chart-icon: 280 100% 50%;
+    --line-chart-icon: 217 100% 50%;
+    --user-cog-icon: 142 100% 40%;
+    --shield-icon: 27 100% 50%;
+    --award-icon: 0 100% 50%;
+    --users-icon: 221 100% 45%;
+    --heart-icon: 262 100% 50%;
+    --message-icon: 201 100% 35%;
+    --truck-icon: 47 100% 45%;
+    --file-check-icon: 152 100% 35%;
+    --bar-chart-icon: 280 100% 50%;
+    --wallet-icon: 217 100% 50%;
+    --receipt-icon: 142 100% 40%;
+    --spreadsheet-icon: 27 100% 50%;
+    --book-icon: 0 100% 50%;
+    --terminal-icon: 221 100% 45%;
+    --key-icon: 262 100% 50%;
+    --user-circle-icon: 201 100% 35%;
+    --lock-icon: 47 100% 45%;
+    --bell-icon: 152 100% 35%;
+    --file-text-icon: 280 100% 50%;
     
-    /* Sub-item Colors */
-    --overview-icon: 217 100% 65%;
-    --analytics-icon: 142 100% 45%;
-    --products-icon: 27 100% 65%;
-    --categories-icon: 0 100% 65%;
-    --inventory-icon: 221 100% 60%;
-    --all-orders-icon: 262 100% 65%;
-    --pending-icon: 201 100% 40%;
-    --completed-icon: 47 100% 60%;
-    --statistics-icon: 152 100% 40%;
-    --forecasts-icon: 280 100% 65%;
-    --staff-icon: 217 100% 65%;
-    --roles-icon: 142 100% 45%;
-    --performance-icon: 27 100% 65%;
-    --segments-icon: 0 100% 65%;
-    --feedback-icon: 221 100% 60%;
-    --contracts-icon: 262 100% 65%;
-    --transactions-icon: 201 100% 40%;
-    --documentation-icon: 47 100% 60%;
-    --integration-icon: 152 100% 40%;
-    --profile-icon: 280 100% 65%;
-    --security-icon: 217 100% 65%;
-    --preferences-icon: 142 100% 45%;
+    /* Sub-item Colors - Light Mode */
+    --overview-icon: 217 100% 50%;
+    --analytics-icon: 142 100% 40%;
+    --products-icon: 27 100% 50%;
+    --categories-icon: 0 100% 50%;
+    --inventory-icon: 221 100% 45%;
+    --all-orders-icon: 262 100% 50%;
+    --pending-icon: 201 100% 35%;
+    --completed-icon: 47 100% 45%;
+    --statistics-icon: 152 100% 35%;
+    --forecasts-icon: 280 100% 50%;
+    --staff-icon: 217 100% 50%;
+    --roles-icon: 142 100% 40%;
+    --performance-icon: 27 100% 50%;
+    --segments-icon: 0 100% 50%;
+    --feedback-icon: 221 100% 45%;
+    --contracts-icon: 262 100% 50%;
+    --transactions-icon: 201 100% 35%;
+    --documentation-icon: 47 100% 45%;
+    --integration-icon: 152 100% 35%;
+    --profile-icon: 280 100% 50%;
+    --security-icon: 217 100% 50%;
+    --preferences-icon: 142 100% 40%;
     
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -219,8 +219,8 @@
 
 /* Custom Scrollbar - Inspired by Apple's smooth scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
@@ -259,121 +259,24 @@ body {
   font-family: 'Inter', sans-serif;
 }
 
-/* Super Shop Icon Colors - Bold */
-.dashboard-icon {
-  color: hsl(var(--dashboard-icon));
-  stroke-width: 2.5;
-}
-
-.store-icon {
-  color: hsl(var(--store-icon));
-  stroke-width: 2.5;
-}
-
-.orders-icon {
-  color: hsl(var(--orders-icon));
-  stroke-width: 2.5;
-}
-
-.sales-icon {
-  color: hsl(var(--sales-icon));
-  stroke-width: 2.5;
-}
-
-.employees-icon {
-  color: hsl(var(--employees-icon));
-  stroke-width: 2.5;
-}
-
-.customers-icon {
-  color: hsl(var(--customers-icon));
-  stroke-width: 2.5;
-}
-
-.suppliers-icon {
-  color: hsl(var(--suppliers-icon));
-  stroke-width: 2.5;
-}
-
-.finance-icon {
-  color: hsl(var(--finance-icon));
-  stroke-width: 2.5;
-}
-
-.reports-icon {
-  color: hsl(var(--reports-icon));
-  stroke-width: 2.5;
-}
-
-.api-icon {
-  color: hsl(var(--api-icon));
-  stroke-width: 2.5;
-}
-
-.settings-icon {
-  color: hsl(var(--settings-icon));
-  stroke-width: 2.5;
-}
-
-/* Sub-item Icon Colors */
-.overview-icon { color: hsl(var(--overview-icon)); stroke-width: 2.5; }
-.analytics-icon { color: hsl(var(--analytics-icon)); stroke-width: 2.5; }
-.products-icon { color: hsl(var(--products-icon)); stroke-width: 2.5; }
-.categories-icon { color: hsl(var(--categories-icon)); stroke-width: 2.5; }
-.inventory-icon { color: hsl(var(--inventory-icon)); stroke-width: 2.5; }
-.all-orders-icon { color: hsl(var(--all-orders-icon)); stroke-width: 2.5; }
-.pending-icon { color: hsl(var(--pending-icon)); stroke-width: 2.5; }
-.completed-icon { color: hsl(var(--completed-icon)); stroke-width: 2.5; }
-.statistics-icon { color: hsl(var(--statistics-icon)); stroke-width: 2.5; }
-.forecasts-icon { color: hsl(var(--forecasts-icon)); stroke-width: 2.5; }
-.staff-icon { color: hsl(var(--staff-icon)); stroke-width: 2.5; }
-.roles-icon { color: hsl(var(--roles-icon)); stroke-width: 2.5; }
-.performance-icon { color: hsl(var(--performance-icon)); stroke-width: 2.5; }
-.segments-icon { color: hsl(var(--segments-icon)); stroke-width: 2.5; }
-.feedback-icon { color: hsl(var(--feedback-icon)); stroke-width: 2.5; }
-.contracts-icon { color: hsl(var(--contracts-icon)); stroke-width: 2.5; }
-.transactions-icon { color: hsl(var(--transactions-icon)); stroke-width: 2.5; }
-.documentation-icon { color: hsl(var(--documentation-icon)); stroke-width: 2.5; }
-.integration-icon { color: hsl(var(--integration-icon)); stroke-width: 2.5; }
-.profile-icon { color: hsl(var(--profile-icon)); stroke-width: 2.5; }
-.security-icon { color: hsl(var(--security-icon)); stroke-width: 2.5; }
-.preferences-icon { color: hsl(var(--preferences-icon)); stroke-width: 2.5; }
-
-/* Additional Icon Styles */
-.home-icon { color: hsl(var(--home-icon)); stroke-width: 2.5; }
-.package-icon { color: hsl(var(--package-icon)); stroke-width: 2.5; }
-.list-icon { color: hsl(var(--list-icon)); stroke-width: 2.5; }
-.box-icon { color: hsl(var(--box-icon)); stroke-width: 2.5; }
-.tag-icon { color: hsl(var(--tag-icon)); stroke-width: 2.5; }
-.shopping-bag-icon { color: hsl(var(--shopping-bag-icon)); stroke-width: 2.5; }
-.clock-icon { color: hsl(var(--clock-icon)); stroke-width: 2.5; }
-.check-circle-icon { color: hsl(var(--check-circle-icon)); stroke-width: 2.5; }
-.trending-up-icon { color: hsl(var(--trending-up-icon)); stroke-width: 2.5; }
-.pie-chart-icon { color: hsl(var(--pie-chart-icon)); stroke-width: 2.5; }
-.line-chart-icon { color: hsl(var(--line-chart-icon)); stroke-width: 2.5; }
-.user-cog-icon { color: hsl(var(--user-cog-icon)); stroke-width: 2.5; }
-.shield-icon { color: hsl(var(--shield-icon)); stroke-width: 2.5; }
-.award-icon { color: hsl(var(--award-icon)); stroke-width: 2.5; }
-.users-icon { color: hsl(var(--users-icon)); stroke-width: 2.5; }
-.heart-icon { color: hsl(var(--heart-icon)); stroke-width: 2.5; }
-.message-icon { color: hsl(var(--message-icon)); stroke-width: 2.5; }
-.truck-icon { color: hsl(var(--truck-icon)); stroke-width: 2.5; }
-.file-check-icon { color: hsl(var(--file-check-icon)); stroke-width: 2.5; }
-.bar-chart-icon { color: hsl(var(--bar-chart-icon)); stroke-width: 2.5; }
-.wallet-icon { color: hsl(var(--wallet-icon)); stroke-width: 2.5; }
-.receipt-icon { color: hsl(var(--receipt-icon)); stroke-width: 2.5; }
-.spreadsheet-icon { color: hsl(var(--spreadsheet-icon)); stroke-width: 2.5; }
-.book-icon { color: hsl(var(--book-icon)); stroke-width: 2.5; }
-.terminal-icon { color: hsl(var(--terminal-icon)); stroke-width: 2.5; }
-.key-icon { color: hsl(var(--key-icon)); stroke-width: 2.5; }
-.user-circle-icon { color: hsl(var(--user-circle-icon)); stroke-width: 2.5; }
-.lock-icon { color: hsl(var(--lock-icon)); stroke-width: 2.5; }
-.bell-icon { color: hsl(var(--bell-icon)); stroke-width: 2.5; }
-.file-text-icon { color: hsl(var(--file-text-icon)); stroke-width: 2.5; }
-
 /* Bold Sidebar Text */
 .sidebar-text {
   font-weight: 600;
+}
+
+/* Icon Color Classes */
+.icon-color {
+  transition: color 0.3s ease;
+}
+
+/* Light Mode Icon Colors */
+:root .icon-color {
+  color: hsl(var(--icon-color));
+}
+
+/* Dark Mode Icon Colors */
+.dark .icon-color {
+  color: hsl(var(--icon-color));
 }
 
 @layer base {
