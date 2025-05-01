@@ -5,6 +5,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*", "main.jsx", "src/App.jsx"],
+  "include": ["src/**/*", "main.jsx", "src/App.jsx", "../admin/src/components/ui/dialog.jsx", "../admin/src/components/ui/date-picker.jsx", "../admin/src/components/ui/alert-dialog.jsx"],
   "exclude": ["node_modules", "dist"]
 } 

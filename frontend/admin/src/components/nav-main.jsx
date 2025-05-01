@@ -58,10 +58,10 @@ const getIconClass = (title) => {
   return iconMap[title] || '';
 };
 
-const IconWrapper = ({ icon: Icon, className, size = 5 }) => {
+const IconWrapper = ({ icon: Icon, className, size = 5, isMain = false }) => {
   return (
     <Icon 
-      className={`h-${size} w-${size} transition-colors duration-200`}
+      className={`h-${size} w-${size} transition-colors duration-200 ${isMain ? 'group-data-[collapsible=icon]:h-5 group-data-[collapsible=icon]:w-5' : ''}`}
       style={{ 
         color: `hsl(var(--${className}-icon))`
       }}
@@ -82,11 +82,11 @@ export function NavMain({
             className="group/collapsible">
             <SidebarMenuItem>
               <CollapsibleTrigger asChild>
-                <SidebarMenuButton tooltip={item.title}>
-                  {item.icon && <IconWrapper icon={item.icon} className={getIconClass(item.title)} />}
-                  <span>{item.title}</span>
+                <SidebarMenuButton tooltip={item.title} className="group-data-[collapsible=icon]:p-3">
+                  {item.icon && <IconWrapper icon={item.icon} className={getIconClass(item.title)} isMain={true} />}
+                  <span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
                   <ChevronRight
-                    className="ml-auto transition-transform duration-150 ease-out will-change-transform group-data-[state=open]/collapsible:rotate-90" />
+                    className="ml-auto transition-transform duration-150 ease-out will-change-transform group-data-[state=open]/collapsible:rotate-90 group-data-[collapsible=icon]:hidden" />
                 </SidebarMenuButton>
               </CollapsibleTrigger>
               <CollapsibleContent className="overflow-hidden transition-all duration-150 ease-out will-change-transform">
