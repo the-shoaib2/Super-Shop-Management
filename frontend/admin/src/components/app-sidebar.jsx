@@ -1,94 +1,332 @@
 import * as React from "react"
-import { Command } from "lucide-react"
-import { Link } from "react-router-dom"
-import { cn } from "@/lib/utils"
-import { useAuth } from "@/contexts/auth-context"
+import {
+  LayoutDashboard,
+  Store,
+  ShoppingCart,
+  BarChart4,
+  Users,
+  UserPlus,
+  Truck,
+  CreditCard,
+  FileText,
+  Code,
+  Settings,
+  ChevronRight,
+  Home,
+  Package,
+  List,
+  Box,
+  Tag,
+  ShoppingBag,
+  Clock,
+  CheckCircle,
+  TrendingUp,
+  PieChart,
+  LineChart,
+  UserCog,
+  Shield,
+  Award,
+  Users2,
+  Heart,
+  MessageSquare,
+  TruckIcon,
+  FileCheck,
+  BarChart,
+  Wallet,
+  Receipt,
+  FileSpreadsheet,
+  BookOpen,
+  Terminal,
+  Key,
+  UserCircle,
+  Lock,
+  Bell
+} from "lucide-react"
+
+import { NavMain } from "@/components/nav-main"
+import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
-import { getNavItems, commonNavItems } from "@/config/app-navigation"
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
+import { TeamSwitcher } from "@/components/team-switcher"
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarRail,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton
+} from "@/components/ui/sidebar"
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible"
 
-export function AppSidebar({ ...props }) {
-  const { user } = useAuth()
-  const userRole = user?.role || 'GUEST'
-
-  const navMainItems = React.useMemo(() => 
-    getNavItems(userRole), [userRole]
-  )
-
-  const getInitials = (user) => {
-    if (!user || !user?.fullName) return 'GU'
-    const names = user.fullName.split(' ')
-    return `${names[0]?.charAt(0)}${names[names.length - 1]?.charAt(0)}`.toUpperCase()
-  }
-
-  // Helper function to format role names
-  const formatRoleName = (role) => {
-    return role
-      .toLowerCase()
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ')
-  }
-
-  const sidebarData = {
-    user: {
-      name: user?.fullName || 'Guest User',
-      email: user?.email || 'guest@example.com',
-      avatar: user?.avatar || null,
-      initials: getInitials(user)
+const data = {
+  teams: [
+    {
+      name: "Acme Inc",
+      plan: "Pro",
+      logo: Store
     },
-    navMain: navMainItems,
-    navSecondary: commonNavItems
-  }
+    {
+      name: "Monsters Inc",
+      plan: "Enterprise",
+      logo: Store
+    }
+  ],
+  user: {
+    name: "John Doe",
+    email: "john@example.com",
+    avatar: "/avatars/01.png"
+  },
+  projects: [],
+  navMain: [
+    {
+      title: "Main",
+      items: [
+        {
+          title: "Dashboard",
+          url: "/dashboard",
+          icon: LayoutDashboard,
+          isActive: true,
+          items: [
+            { title: "Overview", url: "/dashboard/overview", icon: Home },
+            { title: "Analytics", url: "/dashboard/analytics", icon: BarChart4 },
+            { title: "Reports", url: "/dashboard/reports", icon: FileText }
+          ]
+        },
+        {
+          title: "Store",
+          url: "/store",
+          icon: Store,
+          items: [
+            { title: "Products", url: "/store/products", icon: Package },
+            { title: "Categories", url: "/store/categories", icon: List },
+            { title: "Inventory", url: "/store/inventory", icon: Box }
+          ]
+        },
+        {
+          title: "Orders",
+          url: "/orders",
+          icon: ShoppingCart,
+          items: [
+            { title: "All Orders", url: "/orders/all", icon: ShoppingBag },
+            { title: "Pending", url: "/orders/pending", icon: Clock },
+            { title: "Completed", url: "/orders/completed", icon: CheckCircle }
+          ]
+        }
+      ]
+    },
+    {
+      title: "Management",
+      items: [
+        {
+          title: "Sales",
+          url: "/sales",
+          icon: BarChart4,
+          items: [
+            { title: "Overview", url: "/sales/overview", icon: TrendingUp },
+            { title: "Statistics", url: "/sales/statistics", icon: PieChart },
+            { title: "Forecasts", url: "/sales/forecasts", icon: LineChart }
+          ]
+        },
+        {
+          title: "Employees",
+          url: "/employees",
+          icon: Users,
+          items: [
+            { title: "All Staff", url: "/employees/all", icon: Users2 },
+            { title: "Roles", url: "/employees/roles", icon: UserCog },
+            { title: "Performance", url: "/employees/performance", icon: Award }
+          ]
+        },
+        {
+          title: "Customers",
+          url: "/customers",
+          icon: UserPlus,
+          items: [
+            { title: "All Customers", url: "/customers/all", icon: Users2 },
+            { title: "Segments", url: "/customers/segments", icon: Tag },
+            { title: "Feedback", url: "/customers/feedback", icon: MessageSquare }
+          ]
+        },
+        {
+          title: "Suppliers",
+          url: "/suppliers",
+          icon: Truck,
+          items: [
+            { title: "All Suppliers", url: "/suppliers/all", icon: TruckIcon },
+            { title: "Contracts", url: "/suppliers/contracts", icon: FileCheck },
+            { title: "Performance", url: "/suppliers/performance", icon: BarChart }
+          ]
+        },
+        {
+          title: "Finance",
+          url: "/finance",
+          icon: CreditCard,
+          items: [
+            { title: "Overview", url: "/finance/overview", icon: Wallet },
+            { title: "Transactions", url: "/finance/transactions", icon: Receipt },
+            { title: "Reports", url: "/finance/reports", icon: FileSpreadsheet }
+          ]
+        }
+      ]
+    },
+    {
+      title: "Additional",
+      items: [
+        {
+          title: "Reports",
+          url: "/reports",
+          icon: FileText,
+          items: [
+            { title: "Sales Reports", url: "/reports/sales", icon: BookOpen },
+            { title: "Inventory Reports", url: "/reports/inventory", icon: Box },
+            { title: "Custom Reports", url: "/reports/custom", icon: FileText }
+          ]
+        },
+        {
+          title: "Store APIs",
+          url: "/store-apis",
+          icon: Code,
+          items: [
+            { title: "Documentation", url: "/store-apis/docs", icon: BookOpen },
+            { title: "Integration", url: "/store-apis/integration", icon: Terminal },
+            { title: "Keys", url: "/store-apis/keys", icon: Key }
+          ]
+        },
+        {
+          title: "Account Settings",
+          url: "/account-settings",
+          icon: Settings,
+          items: [
+            { title: "Profile", url: "/account-settings/profile", icon: UserCircle },
+            { title: "Security", url: "/account-settings/security", icon: Lock },
+            { title: "Preferences", url: "/account-settings/preferences", icon: Bell }
+          ]
+        }
+      ]
+    }
+  ]
+}
 
+const getIconClass = (title) => {
+  const iconMap = {
+    // Main menu items
+    'Dashboard': 'dashboard-icon',
+    'Store': 'store-icon',
+    'Orders': 'orders-icon',
+    'Sales': 'sales-icon',
+    'Employees': 'employees-icon',
+    'Customers': 'customers-icon',
+    'Suppliers': 'suppliers-icon',
+    'Finance': 'finance-icon',
+    'Reports': 'reports-icon',
+    'Store APIs': 'api-icon',
+    'Account Settings': 'settings-icon',
+    
+    // Dashboard sub-items
+    'Overview': 'home-icon',
+    'Analytics': 'bar-chart-icon',
+    'Reports': 'file-text-icon',
+    
+    // Store sub-items
+    'Products': 'package-icon',
+    'Categories': 'list-icon',
+    'Inventory': 'box-icon',
+    
+    // Orders sub-items
+    'All Orders': 'shopping-bag-icon',
+    'Pending': 'clock-icon',
+    'Completed': 'check-circle-icon',
+    
+    // Sales sub-items
+    'Statistics': 'pie-chart-icon',
+    'Forecasts': 'line-chart-icon',
+    
+    // Employees sub-items
+    'Staff': 'users-icon',
+    'Roles': 'user-cog-icon',
+    'Performance': 'award-icon',
+    
+    // Customers sub-items
+    'Segments': 'tag-icon',
+    'Feedback': 'message-icon',
+    
+    // Suppliers sub-items
+    'Contracts': 'file-check-icon',
+    
+    // Finance sub-items
+    'Transactions': 'receipt-icon',
+    
+    // Store APIs sub-items
+    'Documentation': 'book-icon',
+    'Integration': 'terminal-icon',
+    
+    // Account Settings sub-items
+    'Profile': 'user-circle-icon',
+    'Security': 'lock-icon',
+    'Preferences': 'bell-icon',
+    
+    // Additional icons
+    'Home': 'home-icon',
+    'Package': 'package-icon',
+    'List': 'list-icon',
+    'Box': 'box-icon',
+    'Tag': 'tag-icon',
+    'ShoppingBag': 'shopping-bag-icon',
+    'Clock': 'clock-icon',
+    'CheckCircle': 'check-circle-icon',
+    'TrendingUp': 'trending-up-icon',
+    'PieChart': 'pie-chart-icon',
+    'LineChart': 'line-chart-icon',
+    'UserCog': 'user-cog-icon',
+    'Shield': 'shield-icon',
+    'Award': 'award-icon',
+    'Users2': 'users-icon',
+    'Heart': 'heart-icon',
+    'MessageSquare': 'message-icon',
+    'TruckIcon': 'truck-icon',
+    'FileCheck': 'file-check-icon',
+    'BarChart': 'bar-chart-icon',
+    'Wallet': 'wallet-icon',
+    'Receipt': 'receipt-icon',
+    'FileSpreadsheet': 'spreadsheet-icon',
+    'BookOpen': 'book-icon',
+    'Terminal': 'terminal-icon',
+    'Key': 'key-icon',
+    'UserCircle': 'user-circle-icon',
+    'Lock': 'lock-icon',
+    'Bell': 'bell-icon',
+    'FileText': 'file-text-icon'
+  };
+  return iconMap[title] || '';
+};
+
+export function AppSidebar({
+  ...props
+}) {
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 w-64 bg-card border-r transform transition-transform duration-300 ease-in-out overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-muted-foreground/30">
-      <div className="sticky top-0 bg-card z-10">
-        <div className="flex h-16 items-center border-b px-6 justify-between">
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Command className="size-4" />
-            </div>
-            <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-semibold">Supershop Admin</span>
-              <span className="truncate text-xs text-muted-foreground">{formatRoleName(userRole)}</span>
-            </div>
-          </Link>
-        </div>
-      </div>
-
-      <nav className="flex flex-col space-y-4 p-4">
-        {/* Main Navigation */}
-        {sidebarData.navMain.map((group, index) => (
-          <div key={index} className="space-y-4">
-            <div className="px-3">
-              <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
-                {group.title}
-              </h2>
-              <div className="space-y-1">
-                {group.items.map((item, itemIndex) => (
-                  <Link
-                    key={itemIndex}
-                    to={item.url}
-                    className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground",
-                      "transition-all duration-200 ease-in-out"
-                    )}
-                  >
-                    {item.icon && <item.icon className="h-4 w-4" />}
-                    <span>{item.title}</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </div>
+    <Sidebar collapsible="icon" {...props}>
+      <SidebarHeader>
+        <TeamSwitcher teams={data.teams} />
+      </SidebarHeader>
+      <SidebarContent>
+        {data.navMain.map((group) => (
+          <SidebarGroup key={group.title}>
+            <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
+            <NavMain items={group.items} />
+          </SidebarGroup>
         ))}
-      </nav>
-
-      {/* User Navigation */}
-      <div className="sticky bottom-0 bg-card border-t p-4">
-        <NavUser user={sidebarData.user} />
-      </div>
-    </aside>
-  )
+        <NavProjects projects={data.projects} />
+      </SidebarContent>
+      <SidebarFooter>
+        <NavUser user={data.user} />
+      </SidebarFooter>
+      <SidebarRail />
+    </Sidebar>
+  );
 }

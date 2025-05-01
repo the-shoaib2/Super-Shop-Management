@@ -23,8 +23,12 @@ export function TeamSwitcher({
   const { isMobile } = useSidebar()
   const [activeTeam, setActiveTeam] = React.useState(teams[0])
 
+  if (!activeTeam) {
+    return null
+  }
+
   return (
-    (<SidebarMenu>
+    <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -72,6 +76,6 @@ export function TeamSwitcher({
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
-    </SidebarMenu>)
+    </SidebarMenu>
   );
 }

@@ -1,7 +1,9 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider, useAuth } from './contexts/auth-context'
-import AdminLayout from './layouts/AdminLayout'
+import { AppSidebar } from "@/components/app-sidebar"
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
+import { PageHeader } from '@/components/page-header'
 import Dashboard from './pages/main/Dashboard/page'
 import Store from './pages/main/Store/page'
 import Orders from './pages/main/Orders/page'
@@ -15,7 +17,6 @@ import AccountSettings from './pages/additional/AccountSettings/page'
 import Login from './pages/auth/login/page'
 import Signup from './pages/auth/signup/page'
 import APIs from './pages/additional/APIs/page'
-import { ShoppingCart } from 'lucide-react'
 import LoadingScreen from './components/loading-screen'
 
 // Configure future flags
@@ -54,6 +55,20 @@ function PublicRoute({ children }) {
   return children
 }
 
+function AppLayout({ children }) {
+  return (
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <PageHeader />
+        <main className="flex-1 overflow-auto">
+          {children}
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
+  )
+}
+
 function App() {
   return (
     <Router {...routerOptions}>
@@ -72,23 +87,25 @@ function App() {
           } />
 
           {/* Protected Routes */}
-          <Route path="/" element={
+          <Route path="/*" element={
             <ProtectedRoute>
-              <AdminLayout />
+              <AppLayout>
+                <Routes>
+                  <Route index element={<Dashboard />} />
+                  <Route path="store/*" element={<Store />} />
+                  <Route path="orders" element={<Orders />} />
+                  <Route path="sales" element={<Sales />} />
+                  <Route path="employees" element={<Employees />} />
+                  <Route path="customers" element={<Customers />} />
+                  <Route path="suppliers" element={<Suppliers />} />
+                  <Route path="finance" element={<Finance />} />
+                  <Route path="reports" element={<Reports />} />
+                  <Route path="store-apis" element={<APIs />} />
+                  <Route path="account-settings" element={<AccountSettings />} />
+                </Routes>
+              </AppLayout>
             </ProtectedRoute>
-          }>
-            <Route index element={<Dashboard />} />
-            <Route path="store/*" element={<Store />} />
-            <Route path="orders" element={<Orders />} />
-            <Route path="sales" element={<Sales />} />
-            <Route path="employees" element={<Employees />} />
-            <Route path="customers" element={<Customers />} />
-            <Route path="suppliers" element={<Suppliers />} />
-            <Route path="finance" element={<Finance />} />
-            <Route path="reports" element={<Reports />} />
-            <Route path="store-apis" element={<APIs />} />
-            <Route path="account-settings" element={<AccountSettings />} />
-          </Route>
+          } />
         </Routes>
         <Toaster position="top-right" />
       </AuthProvider>

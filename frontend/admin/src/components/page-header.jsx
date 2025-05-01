@@ -12,9 +12,8 @@ import { FullscreenButton } from "@/components/fullscreen-button"
 import { cn } from "@/lib/utils"
 import React from 'react';
 import { useLocation } from "react-router-dom"
-import { useAuth } from "@/contexts/auth-context/auth-context"
 
-export function PageHeader({ 
+const PageHeader = React.forwardRef(({ 
   title,
   showBorder = true,
   showFullscreen = true,
@@ -22,13 +21,12 @@ export function PageHeader({
   children,
   hidden,
   ...props 
-}) {
+}, ref) => {
   if (hidden) return null;
 
   const location = useLocation()
   const pathSegments = location.pathname.split('/').filter(Boolean)
   
-  // Format the path segments for display
   const formatSegment = (segment) => {
     return segment
       .split('-')
@@ -38,20 +36,21 @@ export function PageHeader({
 
   return (
     <header 
+      ref={ref}
       className={cn(
+        "sticky top-0 z-50 w-full",
+        "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
         "flex h-16 shrink-0 items-center gap-2",
-        showBorder && "border-b rounded-t-lg",
+        "transition-[width,height] ease-linear",
+        "group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12",
+        showBorder && "border-b",
         className
       )} 
       {...props}
     >
-      <div className={cn(
-        "flex flex-1 items-center gap-2 px-4",
-        showBorder && "rounded-t-lg"
-      )}>
+      <div className="flex items-center gap-2 px-4">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2 h-4" />
-        
         <Breadcrumb>
           <BreadcrumbList>
             {pathSegments.map((segment, index) => {
@@ -61,25 +60,33 @@ export function PageHeader({
 
               return (
                 <React.Fragment key={path}>
-                  <BreadcrumbItem>
+                  <BreadcrumbItem className={cn(
+                    "hidden md:block",
+                    isLast && "block"
+                  )}>
                     {isLast ? (
                       <BreadcrumbPage>{displayName}</BreadcrumbPage>
                     ) : (
                       <BreadcrumbLink href={path}>{displayName}</BreadcrumbLink>
                     )}
                   </BreadcrumbItem>
-                  {!isLast && <BreadcrumbSeparator />}
+                  {!isLast && (
+                    <BreadcrumbSeparator className="hidden md:block" />
+                  )}
                 </React.Fragment>
               )
             })}
             {children}
           </BreadcrumbList>
         </Breadcrumb>
-
-        <div className="ml-auto flex items-center gap-2">
-          {showFullscreen && <FullscreenButton className="hidden md:inline-flex" />}
+        <div className="ml-auto">
+          {showFullscreen && <FullscreenButton className="hidden sm:inline-flex" />}
         </div>
       </div>
     </header>
   )
-} 
+})
+
+PageHeader.displayName = "PageHeader"
+
+export { PageHeader }

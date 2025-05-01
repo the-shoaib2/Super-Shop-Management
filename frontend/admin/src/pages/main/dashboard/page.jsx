@@ -180,10 +180,36 @@ export default function Dashboard() {
       }
 
       if (salesResponse?.success) {
-        setSalesData(salesResponse.data?.salesData || []);
-        setOrderStats(salesResponse.data?.orderStats || []);
-        setProductStats(salesResponse.data?.productStats || []);
-        setCategoryStats(salesResponse.data?.categoryStats || []);
+        // Ensure sales data has valid numeric values
+        const validatedSalesData = (salesResponse.data?.salesData || []).map(item => ({
+          ...item,
+          amount: Number(item.amount) || 0,
+          date: item.date || new Date().toISOString()
+        }));
+        
+        // Ensure order stats have valid numeric values
+        const validatedOrderStats = (salesResponse.data?.orderStats || []).map(item => ({
+          ...item,
+          value: Number(item.value) || 0
+        }));
+        
+        // Ensure product stats have valid numeric values
+        const validatedProductStats = (salesResponse.data?.productStats || []).map(item => ({
+          ...item,
+          value: Number(item.value) || 0
+        }));
+        
+        // Ensure category stats have valid numeric values and proper structure
+        const validatedCategoryStats = (salesResponse.data?.categoryStats || []).map(item => ({
+          name: item.name || 'Unknown',
+          value: Math.max(0, Number(item.value) || 0), // Ensure value is non-negative
+          fill: item.fill || COLORS[0] // Provide a default color if none specified
+        }));
+
+        setSalesData(validatedSalesData);
+        setOrderStats(validatedOrderStats);
+        setProductStats(validatedProductStats);
+        setCategoryStats(validatedCategoryStats);
       }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -476,9 +502,15 @@ export default function Dashboard() {
               <RadialBarChart 
                 cx="50%" 
                 cy="50%" 
-                innerRadius="10%" 
-                outerRadius="80%" 
-                data={categoryStats}
+                innerRadius={30} 
+                outerRadius={120} 
+                data={categoryStats.map(stat => ({
+                  name: stat.name || stat.category || 'Unknown',
+                  value: Math.max(0, Number(stat.value || stat.netProfit || 0)),
+                  fill: stat.fill || COLORS[0]
+                }))}
+                startAngle={90}
+                endAngle={-270}
               >
                 <RadialBar
                   minAngle={15}
@@ -486,11 +518,7 @@ export default function Dashboard() {
                   background
                   clockWise
                   dataKey="value"
-                >
-                  {categoryStats.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </RadialBar>
+                />
                 <Legend iconSize={10} layout="vertical" verticalAlign="middle" align="right" />
                 <Tooltip />
               </RadialBarChart>
