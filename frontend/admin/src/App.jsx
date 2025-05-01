@@ -15,7 +15,7 @@ import Finance from './pages/management/Finance/page'
 import Reports from './pages/additional/Reports/page'
 import AccountSettings from './pages/additional/AccountSettings/page'
 import Login from './pages/auth/login/page'
-import Signup from './pages/auth/signup/page'
+import Signup from './pages/auth/register/page'
 import APIs from './pages/additional/APIs/page'
 import LoadingScreen from './components/loading-screen'
 

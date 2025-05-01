@@ -45,7 +45,7 @@ import {
 
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
+import { StoreSwitcher } from "@/components/store-switcher"
 import {
   Sidebar,
   SidebarContent,
@@ -213,7 +213,7 @@ export function AppSidebar({
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <StoreSwitcher />
       </SidebarHeader>
       <SidebarContent>
         {data.navMain.map((group) => (
