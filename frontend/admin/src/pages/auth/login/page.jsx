@@ -5,7 +5,7 @@ import { toast } from 'react-hot-toast'
 import { useAuth } from '@/contexts/auth-context'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import { Loader, EyeOff, Eye } from 'lucide-react'
+import { Loader2, EyeOff, Eye } from 'lucide-react'
 
 const validateEmail = (email) => {
   if (!email) return 'Email is required'
@@ -139,7 +139,7 @@ export default function Login() {
                     }}
                   >
                     {isAppleLoading ? (
-                      <Loader className="h-4 w-4 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-4 w-4">
                         <path
@@ -161,7 +161,7 @@ export default function Login() {
                     }}
                   >
                     {isGoogleLoading ? (
-                      <Loader className="h-4 w-4 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-4 w-4">
                         <path
@@ -238,7 +238,7 @@ export default function Login() {
                   >
                     {isLoading ? (
                       <>
-                        <Loader className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Signing in...
                       </>
                     ) : (

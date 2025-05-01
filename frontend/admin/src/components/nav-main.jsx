@@ -84,7 +84,10 @@ export function NavMain({
               <CollapsibleTrigger asChild>
                 <SidebarMenuButton tooltip={item.title} className="group-data-[collapsible=icon]:p-3">
                   {item.icon && <IconWrapper icon={item.icon} className={getIconClass(item.title)} isMain={true} />}
-                  <span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
+                  <span className="group-data-[collapsible=icon]:hidden group-data-[collapsible=icon]:group-hover:block group-data-[collapsible=icon]:group-hover:absolute group-data-[collapsible=icon]:group-hover:left-12 group-data-[collapsible=icon]:group-hover:bg-sidebar-accent group-data-[collapsible=icon]:group-hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:group-hover:px-2 group-data-[collapsible=icon]:group-hover:py-1 group-data-[collapsible=icon]:group-hover:rounded-md group-data-[collapsible=icon]:group-hover:shadow-md group-data-[collapsible=icon]:group-hover:z-50 group-data-[collapsible=icon]:group-hover:whitespace-nowrap">
+                    {item.title}
+                  </span>
+
                   <ChevronRight
                     className="ml-auto transition-transform duration-150 ease-out will-change-transform group-data-[state=open]/collapsible:rotate-90 group-data-[collapsible=icon]:hidden" />
                 </SidebarMenuButton>

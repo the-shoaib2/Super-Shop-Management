@@ -92,16 +92,16 @@ export function StoreSwitcher() {
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton
                 size="lg"
-                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-sidebar-accent/50 transition-colors">
+                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-sidebar-accent/50 transition-colors group-data-[collapsible=icon]:justify-center">
                 <div
-                  className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground group-data-[collapsible=icon]:size-10">
                   {loading ? (
                     <div className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                   ) : (
-                    <span className="text-lg font-bold">{currentStore?.name?.charAt(0)}</span>
+                    <span className="text-lg font-bold group-data-[collapsible=icon]:text-xl">{currentStore?.name?.charAt(0)}</span>
                   )}
                 </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
+                <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
                   <span className="truncate font-semibold">
                     {loading ? 'Loading...' : currentStore?.name}
                   </span>
@@ -109,7 +109,7 @@ export function StoreSwitcher() {
                     {loading ? '...' : currentStore?.category || 'No category'}
                   </span>
                 </div>
-                <ChevronsUpDown className="ml-auto h-4 w-4 opacity-50" />
+                <ChevronsUpDown className="ml-auto h-4 w-4 opacity-50 group-data-[collapsible=icon]:hidden" />
               </SidebarMenuButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent

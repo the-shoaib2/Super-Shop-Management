@@ -8,19 +8,14 @@ import {
   CreditCard,
   LogOut,
   Sparkles,
-  Loader
+  Loader2,
 } from "lucide-react"
+
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,31 +31,26 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { Separator } from "@/components/ui/separator"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { useAuth } from "@/contexts/auth-context"
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
-import { NavUserSkeleton } from "@/components/nav-user-skeleton"
-import { UserAvatarWithInfo } from "@/components/user-avatar"
 
-const NavUser = () => {
-  const { user } = useAuth()
-  const sidebar = useSidebar()
-  
-  if (sidebar.isLoadingUser) {
-    return <NavUserSkeleton />
-  }
-
+export function NavUser({ user }) {
+  const { isMobile } = useSidebar()
   const { logout } = useAuth()
   const navigate = useNavigate()
   const [isLoggingOut, setIsLoggingOut] = React.useState(false)
-
-  // Handle feature not implemented clicks
-  const handleNotImplemented = (feature) => {
-    toast.error(`${feature} not implemented!`, {
-      duration: 2000,
-    })
-  }
 
   const handleLogout = async () => {
     try {
@@ -76,54 +66,67 @@ const NavUser = () => {
     }
   }
 
-  // Add null check for user
-  if (!user) return null
-
   return (
     <SidebarMenu>
-      <Separator/>
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-              <UserAvatarWithInfo user={user} useThumb={false} />
-              <ChevronsUpDown className="ml-auto size-4" />
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground group-data-[collapsible=icon]:justify-center"
+            >
+              <Avatar className="h-8 w-8 rounded-lg group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10">
+                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+              </Avatar>
+              <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
+                <span className="truncate font-semibold">{user.name}</span>
+                <span className="truncate text-xs">{user.email}</span>
+              </div>
+              <ChevronsUpDown className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-            side={sidebar.isMobile ? "bottom" : "right"}
+            side={isMobile ? "bottom" : "right"}
             align="end"
-            sideOffset={4}>
+            sideOffset={4}
+          >
             <DropdownMenuLabel className="p-0 font-normal">
-              <UserAvatarWithInfo user={user} />
+              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                <Avatar className="h-8 w-8 rounded-lg">
+                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                </Avatar>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">{user.name}</span>
+                  <span className="truncate text-xs">{user.email}</span>
+                </div>
+              </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem onSelect={() => handleNotImplemented('Pro upgrade')}>
+              <DropdownMenuItem>
                 <Sparkles className="mr-2 h-4 w-4" />
                 Upgrade to Pro
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem onSelect={() => navigate('/settings/account/profile')}>
+              <DropdownMenuItem>
                 <BadgeCheck className="mr-2 h-4 w-4" />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => navigate('/settings/billing/payment')}>
+              <DropdownMenuItem>
                 <CreditCard className="mr-2 h-4 w-4" />
                 Billing
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => navigate('/settings/preferences/notifications')}>
+              <DropdownMenuItem>
                 <Bell className="mr-2 h-4 w-4" />
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <DropdownMenuItem
@@ -133,7 +136,7 @@ const NavUser = () => {
                   {isLoggingOut ? (
                     <>
                       Logging out..
-                      <Loader className="mr-2 h-4 w-4 animate-spin" />
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     </>
                   ) : (
                     'Log out'
@@ -156,7 +159,7 @@ const NavUser = () => {
                     {isLoggingOut ? (
                       <>
                         Logging out..
-                        <Loader className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       </>
                     ) : (
                       'Log out'
@@ -170,7 +173,4 @@ const NavUser = () => {
       </SidebarMenuItem>
     </SidebarMenu>
   )
-}
-
-export { NavUser }
-export default NavUser
+} 
