@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { accountAPI } from '@/services/api'
 import { Switch } from "@/components/ui/switch"
-import { ImageUploadProgress } from '@/components/ui/ImageUploadProgress'
+import { ImageUploadProgress } from '@/components/ui/Image-upload-progress'
 import { 
   FiImage, FiTrash2, FiPlus, FiLinkedin, FiTwitter, 
   FiFacebook, FiInstagram, FiGithub, FiLink, FiEdit2, 

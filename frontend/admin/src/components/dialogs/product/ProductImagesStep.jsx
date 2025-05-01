@@ -1,8 +1,8 @@
 import { FiUpload, FiImage, FiX, FiLink, FiStar } from 'react-icons/fi'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { ImagePreview } from '../shared/ImagePreview'
-import { ImageUrlInputs } from '@/components/ui/ImageUrlInputs'
-import ImageUploadProgress from '@/components/ui/ImageUploadProgress'
+import { ImageUrlInputs } from '@/components/ui/Image-url-inputs'
+import ImageUploadProgress from '@/components/ui/Image-upload-progress'
 import PropTypes from 'prop-types'
 import React from 'react'
 

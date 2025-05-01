@@ -4,7 +4,7 @@ import { BaseActionDialog } from './BaseActionDialog'
 import { Button } from '@/components/ui/button'
 import { cn } from "@/lib/utils"
 import CLOUDINARY_API from '@/services/api/cloudinary/cloudinaryAPI';
-import ImageUploadProgress from '@/components/ui/ImageUploadProgress'
+import ImageUploadProgress from '@/components/ui/Image-upload-progress'
 
 export const BillboardPickerDialog = ({ 
   isOpen, 
