@@ -151,14 +151,6 @@ export default function Signup() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background text-foreground p-8">
-      {loading && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-lg shadow-lg text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-            <p className="text-sm font-medium">{loadingMessage}</p>
-          </div>
-        </div>
-      )}
 
       <div className="w-[680px] space-y-4 bg-card rounded-lg border p-6">
         <div className="space-y-1.5 text-center">

@@ -4,12 +4,12 @@ import { Button } from '@/components/ui/button'
 import { FiPackage, FiDollarSign, FiGrid, FiLayout, FiTag, FiBox } from 'react-icons/fi'
 
 // Import section components
-import ProductsList from '@/components/store/products/ProductsList'
-import ColorsList from '@/components/store/products/ColorsList'
-import SizesList from '@/components/store/products/SizesList'
-import BillboardsList from '@/components/store/products/BillboardsList'
-import CategoriesList from '@/components/store/products/CategoriesList'
-import PricesList from '@/components/store/products/PricesList'
+import ProductsList from '@/components/store/products/products-list'
+import ColorsList from '@/components/store/products/colors-list'
+import SizesList from '@/components/store/products/sizes-list'
+import BillboardsList from '@/components/store/products/billboards-list'
+import CategoriesList from '@/components/store/products/categories-list'
+import PricesList from '@/components/store/products/prices-list'
 
 const SECTIONS = [
   { 

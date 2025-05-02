@@ -1,6 +1,8 @@
 "use client"
 
 import { ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom"
+import { cn } from "@/lib/utils"
 
 import {
   Collapsible,
@@ -82,7 +84,13 @@ export function NavMain({
             className="group/collapsible">
             <SidebarMenuItem>
               <CollapsibleTrigger asChild>
-                <SidebarMenuButton tooltip={item.title} className="group-data-[collapsible=icon]:p-3">
+                <SidebarMenuButton 
+                  tooltip={item.title} 
+                  className={cn(
+                    "group-data-[collapsible=icon]:p-3",
+                    item.isActive && "bg-sidebar-accent text-sidebar-accent-foreground"
+                  )}
+                >
                   {item.icon && <IconWrapper icon={item.icon} className={getIconClass(item.title)} isMain={true} />}
                   <span className="group-data-[collapsible=icon]:hidden group-data-[collapsible=icon]:group-hover:block group-data-[collapsible=icon]:group-hover:absolute group-data-[collapsible=icon]:group-hover:left-12 group-data-[collapsible=icon]:group-hover:bg-sidebar-accent group-data-[collapsible=icon]:group-hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:group-hover:px-2 group-data-[collapsible=icon]:group-hover:py-1 group-data-[collapsible=icon]:group-hover:rounded-md group-data-[collapsible=icon]:group-hover:shadow-md group-data-[collapsible=icon]:group-hover:z-50 group-data-[collapsible=icon]:group-hover:whitespace-nowrap">
                     {item.title}
@@ -97,10 +105,19 @@ export function NavMain({
                   {item.items?.map((subItem) => (
                     <SidebarMenuSubItem key={subItem.title}>
                       <SidebarMenuSubButton asChild>
-                        <a href={subItem.url}>
+                        <Link 
+                          to={subItem.url} 
+                          className={cn(
+                            "relative group/sub-item",
+                            subItem.isActive && "bg-sidebar-accent text-sidebar-accent-foreground"
+                          )}
+                        >
                           {subItem.icon && <IconWrapper icon={subItem.icon} className={getIconClass(subItem.title)} size={4} />}
                           <span>{subItem.title}</span>
-                        </a>
+                          {subItem.isActive && (
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-green-500 transition-all duration-200 group-hover/sub-item:bg-green-400 group-hover/sub-item:scale-110" />
+                          )}
+                        </Link>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
                   ))}

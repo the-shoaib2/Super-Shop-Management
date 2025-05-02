@@ -42,6 +42,7 @@ import {
   Lock,
   Bell
 } from "lucide-react"
+import { useLocation } from "react-router-dom"
 
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
@@ -210,19 +211,40 @@ const data = {
 export function AppSidebar({
   ...props
 }) {
+  const location = useLocation();
+  
+  const isActiveItem = (url) => {
+    return location.pathname.startsWith(url);
+  };
+
+  const isActiveSubItem = (url) => {
+    return location.pathname === url;
+  };
+
+  const processedNavMain = data.navMain.map(group => ({
+    ...group,
+    items: group.items.map(item => ({
+      ...item,
+      isActive: isActiveItem(item.url),
+      items: item.items?.map(subItem => ({
+        ...subItem,
+        isActive: isActiveSubItem(subItem.url)
+      }))
+    }))
+  }));
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <StoreSwitcher />
       </SidebarHeader>
       <SidebarContent>
-        {data.navMain.map((group) => (
+        {processedNavMain.map((group) => (
           <SidebarGroup key={group.title}>
             <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
             <NavMain items={group.items} />
           </SidebarGroup>
         ))}
-        
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

@@ -357,19 +357,39 @@ export const storeAPI = {
     }
   },
 
+  getDashboardStats: async (storeId) => {
+    try {
+      const response = await api.get(`/stores/${storeId}/stats`);
+      return {
+        success: true,
+        data: response.data?.data || {
+          totalSales: 0,
+          totalOrders: 0,
+          totalProducts: 0,
+          totalCustomers: 0
+        }
+      };
+    } catch (error) {
+      console.error('Failed to fetch dashboard stats:', error);
+      return {
+        success: false,
+        error: error.response?.data?.message || error.message
+      };
+    }
+  },
+
   switchStore: async (storeId) => {
     try {
       const response = await api.post(`/api/stores/owner/stores/${storeId}/switch`);
       return {
         success: true,
-        data: response.data?.data
+        data: response.data
       };
     } catch (error) {
       console.error('Switch store error:', error);
       return {
         success: false,
-        message: error.response?.data?.message || 'Failed to switch store',
-        error
+        error: error.response?.data?.message || error.message
       };
     }
   }

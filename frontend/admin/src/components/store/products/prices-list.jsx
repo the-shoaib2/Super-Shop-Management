@@ -1,99 +1,98 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
-import { FiPlus } from 'react-icons/fi'
+import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
+import { FiPlus, FiSearch, FiFilter, FiDollarSign } from 'react-icons/fi'
 import { toast } from 'react-hot-toast'
 import { useAuth } from '@/contexts/auth-context'
-import { storeAPI } from '@/services/api'
 import { DeleteDialog } from '@/components/dialogs/actions/DeleteDialog'
-import { ProductViews } from '@/components/views/ProductViewImplementations'
 import { ViewModeSelector } from '@/components/views/ViewModeSelector'
-import { CategoryActionDialog } from '@/components/dialogs/actions/CategoryActionDialogs'
+import { GridView, ListView } from '@/components/views/PriceViewImplementations'
+import { priceAPI } from '@/services/api/store/priceAPI'
+import CreatePriceDialog from '@/components/dialogs/price/CreatePriceDialog'
 
-export default function CategoriesList() {
+export default function PricesList() {
   const { currentStore } = useAuth()
-  const [categories, setCategories] = useState([])
+  const [prices, setPrices] = useState([])
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState(null)
+  const [selectedPrice, setSelectedPrice] = useState(null)
   const [loading, setLoading] = useState(true)
   const [viewMode, setViewMode] = useState('grid')
 
-  const fetchCategories = async () => {
-    if (!currentStore?.id) {
-      setCategories([])
-      setLoading(false)
-      return
+  useEffect(() => {
+    if (currentStore?.id) {
+      fetchPrices()
+    } else {
+      setPrices([])
     }
+  }, [currentStore])
 
+  const fetchPrices = useCallback(async () => {
     try {
       setLoading(true)
-      console.log('Fetching categories for store:', currentStore.id)
-      const response = await storeAPI.getStoreCategories(currentStore.id)
-      console.log('Categories response:', response)
-
+      const response = await priceAPI.getPrices(currentStore.id)
+      
       if (response.success) {
-        setCategories(response.data || [])
+        setPrices(response.data || [])
       } else {
-        toast.error(response.message || 'Failed to load categories')
+        throw new Error(response.message)
       }
     } catch (error) {
-      console.error('Failed to fetch categories:', error)
-      toast.error('Failed to load categories')
+      console.error('Failed to fetch prices:', error)
+      toast.error('Failed to load prices')
     } finally {
       setLoading(false)
     }
-  }
+  }, [currentStore?.id])
 
-  useEffect(() => {
-    fetchCategories()
-  }, [currentStore])
-
-  const handleSuccess = () => {
-    console.log('Category operation successful, refreshing list...')
-    fetchCategories()
-  }
-
-  const handleEditClick = (category) => {
-    setSelectedCategory(category)
+  const handleEditClick = (price) => {
+    setSelectedPrice(price)
     setShowAddDialog(true)
   }
 
-  const handleDeleteClick = (category) => {
-    setSelectedCategory(category)
+  const handleDeleteClick = (price) => {
+    setSelectedPrice(price)
     setShowDeleteDialog(true)
   }
 
   const handleDeleteConfirm = async () => {
     try {
-      await storeAPI.deleteStoreCategory(currentStore.id, selectedCategory.id)
-      toast.success('Category deleted successfully')
-      fetchCategories()
-      setShowDeleteDialog(false)
+      const response = await priceAPI.deletePrice(currentStore.id, selectedPrice.id)
+      if (response.success) {
+        toast.success('Price deleted successfully')
+        fetchPrices()
+      } else {
+        throw new Error(response.message)
+      }
     } catch (error) {
-      console.error('Failed to delete category:', error)
-      toast.error('Failed to delete category')
+      console.error('Failed to delete price:', error)
+      toast.error('Failed to delete price')
+    } finally {
+      setShowDeleteDialog(false)
     }
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    )
+  const handleDialogClose = () => {
+    setShowAddDialog(false)
+    setSelectedPrice(null)
   }
 
-  const ViewComponent = ProductViews.Categories[
-    viewMode.charAt(0).toUpperCase() + viewMode.slice(1)
-  ]
+  const handlePriceCreated = async () => {
+    await fetchPrices()
+    handleDialogClose()
+  }
+
+  const ViewComponent = viewMode === 'grid' ? GridView : ListView;
+
+
 
   return (
     <div className="space-y-4 bg-white rounded-lg shadow-sm">
       <div className="p-4 sm:p-6 border-b">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex-1 min-w-0">
-            <h2 className="text-xl font-semibold text-gray-900 truncate">Categories</h2>
-
+            <h2 className="text-xl font-semibold text-gray-900 truncate">Prices</h2>
           </div>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
             <ViewModeSelector 
@@ -103,31 +102,31 @@ export default function CategoriesList() {
             />
             <Button 
               onClick={() => {
-                setSelectedCategory(null)
+                setSelectedPrice(null)
                 setShowAddDialog(true)
               }}
               className="w-full sm:w-auto whitespace-nowrap"
             >
               <FiPlus className="mr-2 h-4 w-4" />
-              Add Category
+              Add Price
             </Button>
           </div>
         </div>
       </div>
 
       <div className="p-4 sm:p-6">
-        {categories.length > 0 ? (
+        {prices.length > 0 ? (
           <ViewComponent
-            items={categories}
+            items={prices}
             handleEditClick={handleEditClick}
             handleDeleteClick={handleDeleteClick}
           />
         ) : (
           <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed bg-gray-50/50 px-6 py-10">
             <div className="text-center">
-              <h3 className="mt-2 text-sm font-semibold text-gray-900">No categories</h3>
+              <h3 className="mt-2 text-sm font-semibold text-gray-900">No prices</h3>
               <p className="mt-1 text-sm text-gray-500">
-                Get started by creating a new category.
+                Get started by creating a new price.
               </p>
               <div className="mt-6">
                 <Button 
@@ -135,7 +134,7 @@ export default function CategoriesList() {
                   className="w-full sm:w-auto"
                 >
                   <FiPlus className="mr-2 h-4 w-4" />
-                  Add Category
+                  Add Price
                 </Button>
               </div>
             </div>
@@ -143,20 +142,20 @@ export default function CategoriesList() {
         )}
       </div>
 
-      <CategoryActionDialog
+      <CreatePriceDialog
         isOpen={showAddDialog}
-        onClose={() => setShowAddDialog(false)}
-        category={selectedCategory}
-        onSuccess={handleSuccess}
+        onClose={handleDialogClose}
+        onSuccess={handlePriceCreated}
+        initialData={selectedPrice}
       />
 
       <DeleteDialog
         isOpen={showDeleteDialog}
         onClose={() => setShowDeleteDialog(false)}
         onConfirm={handleDeleteConfirm}
-        title="Delete Category"
-        itemName={selectedCategory?.name}
-        itemType="category"
+        title="Delete Price"
+        itemName={selectedPrice?.name}
+        itemType="price"
       />
     </div>
   )

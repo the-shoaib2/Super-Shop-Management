@@ -1,23 +1,27 @@
+import { Suspense, lazy } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider, useAuth } from './contexts/auth-context'
+import { StoreProvider } from './contexts/store-context'
 import { AppSidebar } from "@/components/app-sidebar"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { PageHeader } from '@/components/page-header'
-import Dashboard from './pages/main/Dashboard/page'
-import Store from './pages/main/Store/page'
-import Orders from './pages/main/Orders/page'
-import Sales from './pages/management/Sales/page'
-import Employees from './pages/management/Employees/page'
-import Customers from './pages/management/Customers/page'
-import Suppliers from './pages/management/Suppliers/page'
-import Finance from './pages/management/Finance/page'
-import Reports from './pages/additional/Reports/page'
-import AccountSettings from './pages/additional/AccountSettings/page'
-import Login from './pages/auth/login/page'
-import Signup from './pages/auth/register/page'
-import APIs from './pages/additional/APIs/page'
 import LoadingScreen from './components/loading-screen'
+
+// Lazy load pages
+const Dashboard = lazy(() => import('./pages/main/Dashboard/page'))
+const Store = lazy(() => import('./pages/main/Store/page'))
+const Orders = lazy(() => import('./pages/main/Orders/page'))
+const Sales = lazy(() => import('./pages/management/Sales/page'))
+const Employees = lazy(() => import('./pages/management/Employees/page'))
+const Customers = lazy(() => import('./pages/management/Customers/page'))
+const Suppliers = lazy(() => import('./pages/management/Suppliers/page'))
+const Finance = lazy(() => import('./pages/management/Finance/page'))
+const Reports = lazy(() => import('./pages/additional/Reports/page'))
+const AccountSettings = lazy(() => import('./pages/additional/AccountSettings/page'))
+const Login = lazy(() => import('./pages/auth/login/page'))
+const Signup = lazy(() => import('./pages/auth/register/page'))
+const APIs = lazy(() => import('./pages/additional/APIs/page'))
 
 // Configure future flags
 const routerOptions = {
@@ -73,41 +77,46 @@ function App() {
   return (
     <Router {...routerOptions}>
       <AuthProvider>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/login" element={
-            <PublicRoute>
-              <Login />
-            </PublicRoute>
-          } />
-          <Route path="/signup" element={
-            <PublicRoute>
-              <Signup />
-            </PublicRoute>
-          } />
+        <StoreProvider>
+          <Suspense fallback={<LoadingScreen />}>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/login" element={
+                <PublicRoute>
+                  <Login />
+                </PublicRoute>
+              } />
+              <Route path="/signup" element={
+                <PublicRoute>
+                  <Signup />
+                </PublicRoute>
+              } />
 
-          {/* Protected Routes */}
-          <Route path="/*" element={
-            <ProtectedRoute>
-              <AppLayout>
-                <Routes>
-                  <Route index element={<Dashboard />} />
-                  <Route path="store/*" element={<Store />} />
-                  <Route path="orders" element={<Orders />} />
-                  <Route path="sales" element={<Sales />} />
-                  <Route path="employees" element={<Employees />} />
-                  <Route path="customers" element={<Customers />} />
-                  <Route path="suppliers" element={<Suppliers />} />
-                  <Route path="finance" element={<Finance />} />
-                  <Route path="reports" element={<Reports />} />
-                  <Route path="store-apis" element={<APIs />} />
-                  <Route path="account-settings" element={<AccountSettings />} />
-                </Routes>
-              </AppLayout>
-            </ProtectedRoute>
-          } />
-        </Routes>
-        <Toaster position="top-right" />
+              {/* Protected Routes */}
+              <Route path="/*" element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <Routes>
+                      <Route path="dashboard/*" element={<Dashboard />} />
+                      <Route index element={<Navigate to="/dashboard" replace />} />
+                      <Route path="store/*" element={<Store />} />
+                      <Route path="orders" element={<Orders />} />
+                      <Route path="sales" element={<Sales />} />
+                      <Route path="employees" element={<Employees />} />
+                      <Route path="customers" element={<Customers />} />
+                      <Route path="suppliers" element={<Suppliers />} />
+                      <Route path="finance" element={<Finance />} />
+                      <Route path="reports" element={<Reports />} />
+                      <Route path="store-apis" element={<APIs />} />
+                      <Route path="account-settings" element={<AccountSettings />} />
+                    </Routes>
+                  </AppLayout>
+                </ProtectedRoute>
+              } />
+            </Routes>
+          </Suspense>
+          <Toaster position="top-right" />
+        </StoreProvider>
       </AuthProvider>
     </Router>
   )

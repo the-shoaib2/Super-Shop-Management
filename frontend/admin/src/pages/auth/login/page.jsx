@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button'
 import { toast } from 'react-hot-toast'
 import { useAuth } from '@/contexts/auth-context'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
 import { Loader2, EyeOff, Eye } from 'lucide-react'
 
 const validateEmail = (email) => {
