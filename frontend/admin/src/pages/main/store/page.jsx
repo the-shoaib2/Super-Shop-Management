@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { Routes, Route, Link, useLocation } from 'react-router-dom'
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { FiPackage, FiDollarSign, FiGrid, FiLayout, FiTag, FiBox } from 'react-icons/fi'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 
 // Import section components
 import ProductsList from '@/components/store/products/products-list'
@@ -52,55 +53,79 @@ const SECTIONS = [
 
 export default function Products() {
   const location = useLocation()
+  const navigate = useNavigate()
   const currentSection = SECTIONS.find(section => 
     location.pathname.includes(section.id)
   ) || SECTIONS[0]
 
   return (
     <div className="space-y-6">
-      {/* Top Navigation */}
+      {/* Product Management Section */}
       <div className="border-b">
         <h1 className="text-2xl font-bold px-6 py-4">Product Management</h1>
-        <nav className="flex space-x-4 px-6 " aria-label="Tabs">
-          {SECTIONS.map(section => {
-            const Icon = section.icon
-            const isActive = location.pathname.includes(section.id)
-            
-            return (
-              <Link
-                key={section.id}
-                to={section.path}
-                className={`
-                  group flex items-center gap-2 px-3 py-2 text-sm font-medium 
-                  rounded-lg transition-all duration-300 ease-in-out 
-                  ${isActive 
-                    ? 'bg-primary/90 text-primary-foreground scale-[1.02] shadow-sm' 
-                    : 'text-muted-foreground hover:bg-accent/30 hover:text-foreground'}
-                `}
-              >
-                <Icon className={`
-                  h-4 w-4 transition-all duration-300 
-                  ${isActive ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-foreground'}
-                `} />
-                {section.label}
-              </Link>
-            )
-          })}
-        </nav>
       </div>
+      
+      {/* Tabs Navigation and Content */}
+      <div className="px-6 py-4">
+        <Tabs 
+          defaultValue={currentSection.id} 
+          onValueChange={(value) => {
+            const section = SECTIONS.find(s => s.id === value)
+            if (section) navigate(section.path)
+          }}
+          className="w-full"
+        >
+          {/* Tab Navigation */}
+          <TabsList className="w-full justify-start mb-6">
+            {SECTIONS.map(section => {
+              const Icon = section.icon
+              return (
+                <TabsTrigger 
+                  key={section.id} 
+                  value={section.id}
+                  className="flex items-center gap-2"
+                >
+                  <Icon className="h-4 w-4" />
+                  {section.label}
+                </TabsTrigger>
+              )
+            })}
+          </TabsList>
 
-      {/* Main Content */}
-      <div className="px-6">
-        <Routes>
-          <Route path="products/*" element={<ProductsList />} />
-          <Route path="colors/*" element={<ColorsList />} />
-          <Route path="sizes/*" element={<SizesList />} />
-          <Route path="categories/*" element={<CategoriesList />} />
-          <Route path="billboards/*" element={<BillboardsList />} />
-          <Route path="prices/*" element={<PricesList />} />
-          <Route path="*" element={<ProductsList />} />
-        </Routes>
+          {/* Tab Content */}
+          <TabsContent value="products">
+            <Routes>
+              <Route path="products/*" element={<ProductsList />} />
+              <Route path="*" element={<ProductsList />} />
+            </Routes>
+          </TabsContent>
+          <TabsContent value="colors">
+            <Routes>
+              <Route path="colors/*" element={<ColorsList />} />
+            </Routes>
+          </TabsContent>
+          <TabsContent value="sizes">
+            <Routes>
+              <Route path="sizes/*" element={<SizesList />} />
+            </Routes>
+          </TabsContent>
+          <TabsContent value="categories">
+            <Routes>
+              <Route path="categories/*" element={<CategoriesList />} />
+            </Routes>
+          </TabsContent>
+          <TabsContent value="billboards">
+            <Routes>
+              <Route path="billboards/*" element={<BillboardsList />} />
+            </Routes>
+          </TabsContent>
+          <TabsContent value="prices">
+            <Routes>
+              <Route path="prices/*" element={<PricesList />} />
+            </Routes>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   )
-} 
+}
