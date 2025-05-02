@@ -1,23 +1,34 @@
 import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowUp, ArrowDown, TrendingUp, ShoppingCart, Users, DollarSign, Package } from "lucide-react";
 import {
-  LineChart, Line, AreaChart, Area, BarChart, Bar,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
-  ResponsiveContainer, PieChart, Pie, Cell, RadialBarChart, RadialBar
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  AreaChart,
+  Area,
+  RadialBarChart,
+  RadialBar
 } from 'recharts';
 import { DEMO_SALES_DATA, DEMO_CATEGORY_STATS, DEMO_PRODUCT_STATS, DEMO_SALES_TREND_DATA } from '@/constants/dashboard-data';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription
-} from "@/components/ui/card"
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#FF4560', '#775DD0'];
 
 export default function StoreAnalytics() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Sales Performance Overview */}
       <Card>
         <CardHeader className="pb-2">
@@ -25,26 +36,38 @@ export default function StoreAnalytics() {
           <CardDescription className="text-sm">Key metrics and trends for your store's sales performance</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-            <div className="bg-primary/5 p-3 rounded-lg">
-              <h3 className="text-xs font-medium text-muted-foreground">Total Revenue</h3>
-              <p className="text-xl font-bold">$24,567</p>
-              <span className="text-xs text-green-500">↑ 12.5%</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="bg-primary/5 p-4 rounded-lg">
+              <h3 className="text-sm font-medium text-muted-foreground">Total Revenue</h3>
+              <p className="text-2xl font-bold">$24,567</p>
+              <Badge variant="success" className="h-5">
+                <ArrowUp className="h-3 w-3 mr-1" />
+                12.5%
+              </Badge>
             </div>
-            <div className="bg-primary/5 p-3 rounded-lg">
-              <h3 className="text-xs font-medium text-muted-foreground">Average Order Value</h3>
-              <p className="text-xl font-bold">$89.45</p>
-              <span className="text-xs text-green-500">↑ 5.2%</span>
+            <div className="bg-primary/5 p-4 rounded-lg">
+              <h3 className="text-sm font-medium text-muted-foreground">Average Order Value</h3>
+              <p className="text-2xl font-bold">$89.45</p>
+              <Badge variant="success" className="h-5">
+                <ArrowUp className="h-3 w-3 mr-1" />
+                5.2%
+              </Badge>
             </div>
-            <div className="bg-primary/5 p-3 rounded-lg">
-              <h3 className="text-xs font-medium text-muted-foreground">Conversion Rate</h3>
-              <p className="text-xl font-bold">3.2%</p>
-              <span className="text-xs text-red-500">↓ 0.8%</span>
+            <div className="bg-primary/5 p-4 rounded-lg">
+              <h3 className="text-sm font-medium text-muted-foreground">Conversion Rate</h3>
+              <p className="text-2xl font-bold">3.2%</p>
+              <Badge variant="destructive" className="h-5">
+                <ArrowDown className="h-3 w-3 mr-1" />
+                0.8%
+              </Badge>
             </div>
-            <div className="bg-primary/5 p-3 rounded-lg">
-              <h3 className="text-xs font-medium text-muted-foreground">Customer Retention</h3>
-              <p className="text-xl font-bold">78%</p>
-              <span className="text-xs text-green-500">↑ 2.3%</span>
+            <div className="bg-primary/5 p-4 rounded-lg">
+              <h3 className="text-sm font-medium text-muted-foreground">Customer Retention</h3>
+              <p className="text-2xl font-bold">78%</p>
+              <Badge variant="success" className="h-5">
+                <ArrowUp className="h-3 w-3 mr-1" />
+                2.3%
+              </Badge>
             </div>
           </div>
         </CardContent>
@@ -57,11 +80,11 @@ export default function StoreAnalytics() {
           <CardDescription className="text-sm">Daily sales performance over the last 30 days</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-64 w-full">
+          <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={DEMO_SALES_TREND_DATA}
-                margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
                 <XAxis dataKey="date" />
@@ -80,7 +103,7 @@ export default function StoreAnalytics() {
                   dataKey="sales" 
                   stroke="#8884d8" 
                   strokeWidth={2}
-                  activeDot={{ r: 6 }} 
+                  activeDot={{ r: 8 }} 
                 />
                 <Line 
                   type="monotone" 
@@ -95,14 +118,14 @@ export default function StoreAnalytics() {
       </Card>
 
       {/* Product Performance */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">Top Selling Products</CardTitle>
             <CardDescription className="text-sm">Revenue distribution by product</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-64 w-full">
+            <div className="h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -110,7 +133,7 @@ export default function StoreAnalytics() {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    outerRadius={70}
+                    outerRadius={80}
                     fill="#8884d8"
                     dataKey="sales"
                     nameKey="name"
@@ -141,11 +164,11 @@ export default function StoreAnalytics() {
             <CardDescription className="text-sm">Sales distribution across product categories</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-64 w-full">
+            <div className="h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={DEMO_CATEGORY_STATS}
-                  margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
                   <XAxis dataKey="category" />
@@ -175,14 +198,14 @@ export default function StoreAnalytics() {
           <CardDescription className="text-sm">Customer behavior and demographics</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h3 className="text-sm font-semibold mb-3">Customer Acquisition</h3>
-              <div className="h-56 w-full">
+              <h3 className="text-lg font-semibold mb-4">Customer Acquisition</h3>
+              <div className="h-64 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart
                     data={DEMO_SALES_TREND_DATA}
-                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
                     <XAxis dataKey="date" />
@@ -209,8 +232,8 @@ export default function StoreAnalytics() {
               </div>
             </div>
             <div>
-              <h3 className="text-sm font-semibold mb-3">Customer Segments</h3>
-              <div className="h-56 w-full">
+              <h3 className="text-lg font-semibold mb-4">Customer Segments</h3>
+              <div className="h-64 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <RadialBarChart
                     cx="50%"
