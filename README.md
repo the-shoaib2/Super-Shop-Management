@@ -64,9 +64,3 @@ Feel free to submit issues or pull requests to improve the project. Contribution
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 
-
-https://4lnkrm5n-8080.inc1.devtunnels.ms/
-
-https://4lnkrm5n-5173.inc1.devtunnels.ms/
-https://4lnkrm5n-5174.inc1.devtunnels.ms/
-
